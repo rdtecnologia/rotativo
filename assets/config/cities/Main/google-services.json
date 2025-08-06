@@ -1,0 +1,83 @@
+{
+  "project_info": {
+    "project_number": "303504829220",
+    "firebase_url": "https://rotativo-digital.firebaseio.com",
+    "project_id": "rotativo-digital",
+    "storage_bucket": "rotativo-digital.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:303504829220:android:8e0e41115dea1400c061b1",
+        "android_client_info": {
+          "package_name": "com.rotativodigital"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "303504829220-b4r70h5t8t2jbojmh958bgbs33bpuu71.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCvXTZvODoXsLhGmKeb0HCOxzMtQ_15mmE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "303504829220-b4r70h5t8t2jbojmh958bgbs33bpuu71.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "303504829220-98nsqgp025f8eg2pptita685ark4vr35.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.rotativodigital"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:303504829220:android:e129a37b117e06c7",
+        "android_client_info": {
+          "package_name": "com.timob.rotativodigital"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "303504829220-b4r70h5t8t2jbojmh958bgbs33bpuu71.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCvXTZvODoXsLhGmKeb0HCOxzMtQ_15mmE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "303504829220-b4r70h5t8t2jbojmh958bgbs33bpuu71.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "303504829220-98nsqgp025f8eg2pptita685ark4vr35.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.rotativodigital"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

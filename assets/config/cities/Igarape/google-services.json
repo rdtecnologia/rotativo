@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "1027293819125",
+    "firebase_url": "https://rotativo-digital-igarape.firebaseio.com",
+    "project_id": "rotativo-digital-igarape",
+    "storage_bucket": "rotativo-digital-igarape.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1027293819125:android:ebd64d033ea7b9c5",
+        "android_client_info": {
+          "package_name": "com.rotativodigitaligarape"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1027293819125-ls54v7ubj0ghhn8d5qkli4bvrdplhhv0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCy2oo9dYGMIko17OONxsu2Go7ZoPE3RiE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1027293819125-ls54v7ubj0ghhn8d5qkli4bvrdplhhv0.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1027293819125-a2u7u9u208e437rgc2c4lvpkk68mtg2m.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.rotativodigitaligarape"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

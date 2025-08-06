@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>64807227344-5h91s3a55noie2jcn69f7j3gt394vjmv.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.64807227344-5h91s3a55noie2jcn69f7j3gt394vjmv</string>
+	<key>API_KEY</key>
+	<string>AIzaSyA2asG4ZZhVzks4liR1ari1JJmVUl8bFyg</string>
+	<key>GCM_SENDER_ID</key>
+	<string>64807227344</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.timob.rotativodigitalpatos</string>
+	<key>PROJECT_ID</key>
+	<string>rotativo-digital-patos-minas</string>
+	<key>STORAGE_BUCKET</key>
+	<string>rotativo-digital-patos-minas.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:64807227344:ios:1c9c291917738484</string>
+	<key>DATABASE_URL</key>
+	<string>https://rotativo-digital-patos-minas.firebaseio.com</string>
+</dict>
+</plist>

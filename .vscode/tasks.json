@@ -1,0 +1,388 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        // ==========================================
+        // 🏗️ CONFIGURAR CIDADES
+        // ==========================================
+        {
+            "label": "🏛️ Configurar Demo",
+            "type": "shell",
+            "command": "dart",
+            "args": [
+                "scripts/build_city.dart",
+                "demo",
+                "Rotativo"
+            ],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": false
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "🐎 Configurar Patos de Minas",
+            "type": "shell",
+            "command": "dart",
+            "args": [
+                "scripts/build_city.dart",
+                "patos",
+                "Rotativo Patos"
+            ],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": false
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "🌾 Configurar Janaúba",
+            "type": "shell",
+            "command": "dart",
+            "args": [
+                "scripts/build_city.dart",
+                "janauba",
+                "Rotativo Janaúba"
+            ],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": false
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "⛪ Configurar Conselheiro Lafaiete",
+            "type": "shell",
+            "command": "dart",
+            "args": [
+                "scripts/build_city.dart",
+                "conselheiroLafaiete",
+                "Rotativo Conselheiro Lafaiete"
+            ],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": false
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "🌺 Configurar Capão Bonito",
+            "type": "shell",
+            "command": "dart",
+            "args": [
+                "scripts/build_city.dart",
+                "capaoBonito",
+                "Rotativo Capão Bonito"
+            ],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": false
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "🏭 Configurar João Monlevade",
+            "type": "shell",
+            "command": "dart",
+            "args": [
+                "scripts/build_city.dart",
+                "joaoMonlevade",
+                "Rotativo João Monlevade"
+            ],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": false
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "🌄 Configurar Itararé",
+            "type": "shell",
+            "command": "dart",
+            "args": [
+                "scripts/build_city.dart",
+                "itarare",
+                "Rotativo Itararé"
+            ],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": false
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "🎭 Configurar Passos",
+            "type": "shell",
+            "command": "dart",
+            "args": [
+                "scripts/build_city.dart",
+                "passos",
+                "Rotativo Passos"
+            ],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": false
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "🌊 Configurar Ribeirão das Neves",
+            "type": "shell",
+            "command": "dart",
+            "args": [
+                "scripts/build_city.dart",
+                "ribeiraoDasNeves",
+                "Rotativo Ribeirão das Neves"
+            ],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": false
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "🌸 Configurar Igarapé",
+            "type": "shell",
+            "command": "dart",
+            "args": [
+                "scripts/build_city.dart",
+                "igarape",
+                "Rotativo Igarapé"
+            ],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": false
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "💰 Configurar Ouro Preto",
+            "type": "shell",
+            "command": "dart",
+            "args": [
+                "scripts/build_city.dart",
+                "ouroPreto",
+                "Rotativo Ouro Preto"
+            ],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": false
+            },
+            "problemMatcher": []
+        },
+
+        // ==========================================
+        // 📦 BUILD TASKS
+        // ==========================================
+        {
+            "label": "📱 Build Android APK (com flavor)",
+            "type": "shell",
+            "command": "flutter",
+            "args": [
+                "build",
+                "apk",
+                "--flavor",
+                "${input:flavorName}",
+                "--release"
+            ],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": false
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "📦 Build Android Bundle (com flavor)",
+            "type": "shell",
+            "command": "flutter",
+            "args": [
+                "build",
+                "appbundle",
+                "--flavor",
+                "${input:flavorName}",
+                "--release"
+            ],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": false
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "🍎 Build iOS (configuração simples)",
+            "type": "shell",
+            "command": "flutter",
+            "args": [
+                "build",
+                "ios",
+                "--release"
+            ],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": false
+            },
+            "problemMatcher": []
+        },
+
+        // ==========================================
+        // 🧹 CLEANUP TASKS
+        // ==========================================
+        {
+            "label": "🧹 Flutter Clean",
+            "type": "shell",
+            "command": "flutter",
+            "args": ["clean"],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": false
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "📥 Flutter Pub Get",
+            "type": "shell",
+            "command": "flutter",
+            "args": ["pub", "get"],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": false
+            },
+            "problemMatcher": []
+        },
+
+        // ==========================================
+        // 🔧 HELPER TASKS
+        // ==========================================
+        {
+            "label": "🔍 Listar Devices",
+            "type": "shell",
+            "command": "flutter",
+            "args": ["devices"],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": false
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "⚕️ Flutter Doctor",
+            "type": "shell",
+            "command": "flutter",
+            "args": ["doctor", "-v"],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": false
+            },
+            "problemMatcher": []
+        }
+    ],
+    "inputs": [
+        {
+            "id": "flavorName",
+            "description": "Selecione o flavor/cidade:",
+            "type": "pickString",
+            "options": [
+                "demo",
+                "patosDeMinas",
+                "janauba",
+                "conselheiroLafaiete",
+                "capaoBonito",
+                "joaoMonlevade",
+                "itarare",
+                "passos",
+                "ribeiraoDasNeves",
+                "igarape",
+                "ouroPreto"
+            ]
+        }
+    ]
+}

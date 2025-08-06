@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "64807227344",
+    "firebase_url": "https://rotativo-digital-patos-minas.firebaseio.com",
+    "project_id": "rotativo-digital-patos-minas",
+    "storage_bucket": "rotativo-digital-patos-minas.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:64807227344:android:c19c590ac1599dcd",
+        "android_client_info": {
+          "package_name": "com.rotativodigitalpatos"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "64807227344-bcra0qo5iv519td5hpv83rjj9lio8apq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDYM4MaSxy5t9_gUaTlqtRlDkiCgiTF7XE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "64807227344-bcra0qo5iv519td5hpv83rjj9lio8apq.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "64807227344-5h91s3a55noie2jcn69f7j3gt394vjmv.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.timob.rotativodigitalpatos"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

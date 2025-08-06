@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "375895120621",
+    "firebase_url": "https://rotativo-digital-passos.firebaseio.com",
+    "project_id": "rotativo-digital-passos",
+    "storage_bucket": "rotativo-digital-passos.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:375895120621:android:eaefdfd6666c2bf7",
+        "android_client_info": {
+          "package_name": "com.rotativodigitalpassos"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "375895120621-v7c7qgdho7p1fgpsviv3nvc03u64d63c.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCre1yi4xAHsFglx7OefYhL5Ef-bwGB_Rs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "375895120621-v7c7qgdho7p1fgpsviv3nvc03u64d63c.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "375895120621-5rtkj5haj070e96v0jo9kp2ulgvpsnom.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.rotativodigitalpassos"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

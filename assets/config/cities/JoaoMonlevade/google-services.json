@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "749030522746",
+    "firebase_url": "https://rotativo-digital-monlevade.firebaseio.com",
+    "project_id": "rotativo-digital-monlevade",
+    "storage_bucket": "rotativo-digital-monlevade.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:749030522746:android:101baeb1157baaf3",
+        "android_client_info": {
+          "package_name": "com.rotativodigitalmonlevade"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "749030522746-6e4jrlds56o5vvfjoc98j22gm64gf8js.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBrkqOYxNOcM-pNgMgDn7N2OHWQn7Gctek"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "749030522746-6e4jrlds56o5vvfjoc98j22gm64gf8js.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "749030522746-8qak7d0amcmdbiui1m9o4iutrf9t42mt.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.rotativodigitalmonlevade"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

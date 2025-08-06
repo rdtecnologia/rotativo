@@ -1,0 +1,34 @@
+name: rotativo
+description: "A new Flutter project."
+publish_to: 'none'
+version: 0.1.0
+
+environment:
+  sdk: ^3.7.2
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true
+  
+  # Assets
+  assets:
+    - assets/config/cities/
+    - assets/config/cities/Main/
+    - assets/config/cities/PatosDeMinas/
+    - assets/config/cities/Janauba/
+    - assets/config/cities/ConselheiroLafaiete/
+    - assets/config/cities/CapaoBonito/
+    - assets/config/cities/JoaoMonlevade/
+    - assets/config/cities/Itarare/
+    - assets/config/cities/Passos/
+    - assets/config/cities/RibeiraoDasNeves/
+    - assets/config/cities/Igarape/
+    - assets/config/cities/OuroPreto/

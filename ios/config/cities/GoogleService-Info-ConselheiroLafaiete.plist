@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>880011064409-plqk8onj5maa53msdbar723qd10e7ori.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.880011064409-plqk8onj5maa53msdbar723qd10e7ori</string>
+	<key>API_KEY</key>
+	<string>AIzaSyAsw7A5i3ybE3PK1SoFy5Fc7qY2vptfIfs</string>
+	<key>GCM_SENDER_ID</key>
+	<string>880011064409</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.rotativodigitallafaiete</string>
+	<key>PROJECT_ID</key>
+	<string>rotativo-digital-lafaiete</string>
+	<key>STORAGE_BUCKET</key>
+	<string>rotativo-digital-lafaiete.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:880011064409:ios:99a3ca0fcaf37f97</string>
+	<key>DATABASE_URL</key>
+	<string>https://rotativo-digital-lafaiete.firebaseio.com</string>
+</dict>
+</plist>

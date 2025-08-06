@@ -1,0 +1,108 @@
+{
+  "$schema": "../schema.json",
+  "city": "Capão Bonito",
+  "domain": "Capao Bonito",
+  "latitude": -20.6588292,
+  "longitude": -43.7916478,
+  "downloadLink": "http://www.rotativodigital.com.br/app/?city=capaobonito",
+  "termsLink": "http://www.rotativodigital.com.br/wp-content/uploads/2019/10/termos-de-uso-capao.pdf",
+  "androidPackage": "com.rotativodigitalcapaobonito",
+  "iosPackage": "com.rotativodigitalcapaobonito",
+  "products": [7],
+  "vehicleTypes": [1],
+  "mainLogo": "",
+  "logoMenu": "",
+  "balance": {
+    "showBy": "credits",
+    "showDetails": false
+  },
+  "parkingRules": {
+    "1": [
+      {"time": 60, "price": 2, "credits": 1},
+      {"time": 120, "price": 4, "credits": 2},
+      {"time": 240, "price": 6, "credits": 3}
+    ]
+  },
+  "purchase": {
+    "vehicleTypeDefault": 1,
+    "showBy": "credits",
+    "chargeback": true,
+    "minCreditsByVehicle": {
+      "1": 10
+    },
+    "products": {
+      "1": [
+        {
+          "credits": 10,
+          "price": 20
+        },
+        {
+          "credits": 15,
+          "price": 30
+        },
+        {
+          "credits": 20,
+          "price": 40
+        },
+        {
+          "credits": 25,
+          "price": 50
+        }
+      ]
+    },
+    "payment": {
+      "creditCard": true,
+      "billet": true
+    }
+  },
+  "faq": [
+    {
+      "title": "O que é o Rotativo Digital",
+      "content": "O Sistema de estacionamento Rotativo tem como objetivo, aumentar a oferta de vagas nas regiões de grande concentração de comércio, serviços e lazer, oferecendo aos motoristas mais facilidade de estacionamento, contribuindo para melhorar a qualidade de vida, assim como proporcionar o aumento da fluidez do trânsito.\n\nA receita líquida obtida com o pagamento das vagas, é revertida para projetos de melhoria do sistema viário da cidade.\n\nEm Capão Bonito, o Departamento de Transporte e Trânsito - DMTT é o órgão responsável pelo gerenciamento do Estacionamento Rotativo. Através da Lei Municipal nº 3.903/2014 e Decreto Municipal nº 060/2001 de 07/08/2001 a Ti.Mob – Tecnologia e Soluções de Mobilidade, foi credenciada como empresa concessionária para gestão e revenda dos Créditos eletrônicos de estacionamento."
+    },
+    {
+      "title": "Como funciona o Rotativo Digital",
+      "content": "O sistema ROTATIVO DIGITAL é um sistema moderno, que tem como objetivo proporcionar conforto, praticidade e uma série de vantagens para a população de sua cidade.\n\nPara utilização do sistema estacionamento ROTATIVO DIGITAL, o usuário deverá possuir CRÉDITOS ELETRÔNICOS ATIVOS para a vaga em que está estacionado.\n\nPara maior comodidade e conforto da população a TI.MOB disponibiliza 02 formas de utilização dos créditos: \na) compra/ativação de CRÉDITO ELETRÔNICO AVULSO para usuários que fizerem uso do estacionamento pontualmente; \nb) compra de CRÉDITOS PRÉ-PAGOS, onde os usuários que forem recorrentes podem optar por se cadastrar no sistema e comprar uma maior quantidade de créditos, e ativar somente quando for utilizar a vaga de estacionamento rotativo. \n A Ti.Mob também disponibiliza aos USUÁRIOS do ROTATIVO DIGITAL o aplicativo “Rotativo Digital Capão Bonito” (disponível nas lojas de aplicativos Google Play e Apple Store), além do site: capaobonito.rotativodigital.com.br. \n Ao estacionar em uma das mais de 620 vagas de estacionamento Rotativo Digital de Capão Bonito, o usuário deverá ATIVAR créditos de estacionamento. "
+    },
+    {
+      "title": "Valor e tempo do estacionamento",
+      "content": "O valor de cada crédito de estacionamento Rotativo Digital em Capão Bonito é de R$ 2,00 para carros.  \n\n O tempo de estacionamento na vaga é de 01 (uma) hora nas áreas do estacionamento rotativo. "
+    },
+    {
+      "title": "Horário de funcionamento",
+      "content": "O sistema de Estacionamento Rotativo de Capão Bonito funciona de segunda à sexta-feira das 8h às 18h e aos sábados das 8h às 13h.\n\nAos domingos e feriados não é necessário o uso do ROTATIVO DIGITAL. "
+    },
+    {
+      "title": "Como funciona a fiscalização",
+      "content": "Os Agentes de Trânsito de Capão Bonito fazem a fiscalização através de sistema disponível em seus equipamentos smartphones / tablet. A consulta é realizada pelo número da placa do veículo. Caso detectado que o veículo está estacionado de forma irregular, será automaticamente autuado. Em alguns casos, poderá ocorrer a remoção do veículo."
+    },
+    {
+      "title": "Quantidade de veículos cadastrados em um mesmo CPF",
+      "content": "Você pode ter vários veículos cadastrados em seu CPF."
+    },
+    {
+      "title": "Vagas especiais",
+      "content": "O uso da Credencial de Estacionamento Especial para Idosos e portadores de necessidades especiais é obrigatório em todas as vagas reservadas, localizadas ou não em áreas de estacionamento rotativo.\n\nO usuário destas vagas, deverá fazer o pagamento do valor de estacionamento, assim como os demais usuários."
+    },
+    {
+      "title": "Como funciona a ativação automática?",
+      "content": "Com o intuito de minimizar impactos aos usuários do sistema Rotativo Digital a TI.MOB criou a funcionalidade de ATIVAÇÃO AUTOMÁTICA de créditos. Se durante o processo de monitoria dos veículos, um de nossos monitores identificar algum veículo estacionado sem créditos ATIVOS, desde que este veículo possua CRÉDITOS PRÉ-PAGO disponível, o MONITOR poderá promover a ATIVAÇÃO do CRÉDITO evitando assim possíveis transtornos ao CONDUTOR – multa e/ou remoção do veículo – caso um AGENTE DE TRÂNSITO identifique a INFRAÇÃO.\n\nEsta ação evita que o usuário permaneça irregular e corra algum risco de autuação – MULTA no valor de R$ 195,23 + 5 pontos na carteira. \n\nÉ importante lembrar que a ativação de créditos, é de responsabilidade do CONDUTOR, de modo que se um fiscal do órgão de trânsito responsável, efetuar uma verificação do veículo, e este não estiver com créditos ativos, o mesmo estará sujeito a autuações.\n\nEvite penalidades, mantenha sempre seu veículo regularizado com os devidos créditos ativos."
+    },
+    {
+      "title": "Ativaram um crédito do meu veículo indevidamente, o que devo fazer?",
+      "content": "O maior objetivo da TI.MOB é sempre facilitar a vida do usuário, levando COMODIDADE e CONVENIÊNCIA ao Cidadão! \n\nPara que ninguém se sinta prejudicado, solicitamos que nestes casos seja enviado um e-mail para contato@timob.com.br detalhando todo o ocorrido. \n\nNossa equipe de suporte irá analisar o caso e efetuar os ajustes necessários, entrando em contato com você para resolver sua dúvida, questionamento ou necessidade. "
+    },
+    {
+      "title": "Onde posso comprar e ativar os meus créditos?",
+      "content": "Os CRÉDITOS ELETRÔNICOS podem ser adquiridos através de Pontos de venda espalhados pela cidade nas áreas da Zona Azul, através do aplicativo “Rotativo Digital de Capão Bonito”, ou até mesmo pelos Revendedores Credenciados da Ti.Mob devidamente identificados, é rápido, fácil e seguro."
+    },
+    {
+      "title": "Colocaram um papel informando que o meu veículo estava irregular, o que é isso?",
+      "content": "Este papel colocado no vidro de seu veículo com os dizeres “AVISO DE IRREGULARIDADE” é um informativo de que no momento em que foi efetuada a verificação de seu veículo por um de nossos monitores, o mesmo não possuía créditos ATIVOS para estacionar na vaga de estacionamento rotativo, nem tampouco CRÉDITOS PRÉ-PAGOS que nos permitissem proceder com a ATIVAÇÃO AUTOMÁTICA. \n\nO que aconteceu na sequência? Um AVISO DE IRREGULARIDADE foi enviado SISTEMICAMENTE ao AGENTE DE TRÂNSITO mais próximo. O papel deste AGENTE DE TRÂNSITO é ir até o local onde o veículo está estacionado e efetuar uma nova verificação da situação do veículo. Se constatar que o veículo está SEM CRÉDITOS ATIVOS, este veículo será MULTADO. \n\nA verificação de MULTAS deverá ser realizada diretamente junto ao DEPARTAMENTO DE TRÂNSITO da CIDADE. "
+    },
+    {
+      "title": "Vendi/troquei meu veículo, como faço para transferir os créditos que possuia para o novo veículo?",
+      "content": "Por medidas de segurança e para que não ocorram fraudes ou transferências de créditos equivocadas, a Ti.Mob possui um protocolo de transferência de créditos, onde o condutor precisa ir ao escritório de atendimento, portando o documento antigo do veículo, do documento do novo veículo, e de um documento de transferência disponível em nosso escritório da cidade. Quaisquer dúvidas, podem ser esclarecidas no escritório de atendimento da Ti.Mob em sua cidade. "
+    }
+  ]
+}

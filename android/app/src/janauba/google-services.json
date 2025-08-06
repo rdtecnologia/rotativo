@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "205152523017",
+    "project_id": "rotativo-digital-janauba",
+    "storage_bucket": "rotativo-digital-janauba.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:205152523017:android:834674e35ff9721c7539d8",
+        "android_client_info": {
+          "package_name": "com.rotativodigitaljanauba"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "205152523017-b9sb695h5u65kj8ejkhoum76rhrohj98.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAIxMUqb3ZD50_CfeOSuM2DNHzW_hEkIYs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "205152523017-b9sb695h5u65kj8ejkhoum76rhrohj98.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "205152523017-eadp232of4cu8q1ak4vg0csbrmdemf8e.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.rotativodigitaljanauba"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "956389366786",
+    "firebase_url": "https://rotativo-digital-capao-bonito.firebaseio.com",
+    "project_id": "rotativo-digital-capao-bonito",
+    "storage_bucket": "rotativo-digital-capao-bonito.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:956389366786:android:477ace9a8970ccfe",
+        "android_client_info": {
+          "package_name": "com.rotativodigitalcapaobonito"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "956389366786-fbrk3rape9dnpqokdvqpvjv7uqhmgbeh.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBGgfXx3h08pitGJJHumVFTk8I6dnn6bL0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "956389366786-fbrk3rape9dnpqokdvqpvjv7uqhmgbeh.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "956389366786-1kfv46t4krc21hatfkk13e2gc5v7t3ps.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.rotativodigitalcapao",
+                "app_store_id": "1473001724"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,0 +1,351 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        
+        // ==========================================
+        // 🚀 CONFIGURAÇÕES GERAIS (SEM FLAVOR)
+        // ==========================================
+        {
+            "name": "🚀 Debug (Sem Flavor)",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "debug"
+        },
+        {
+            "name": "⚡ Profile (Sem Flavor)",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "📦 Release (Sem Flavor)",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
+        },
+
+        // ==========================================
+        // 🏙️ FLAVORS POR CIDADE - ANDROID
+        // ==========================================
+        {
+            "name": "🏛️ Demo - Android Debug",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "debug",
+            "args": [
+                "--flavor", "demo",
+                "--dart-define-from-file", "env/demo.json",
+                "--target", "lib/main.dart"
+            ]
+        },
+        {
+            "name": "🐎 Patos de Minas - Android Debug",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "debug",
+            "args": [
+                "--flavor", "patosDeMinas",
+                "--dart-define-from-file", "env/patosDeMinas.json",
+                "--target", "lib/main.dart"
+            ]
+        },
+        {
+            "name": "🌾 Janaúba - Android Debug",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "debug",
+            "args": [
+                "--flavor", "janauba",
+                "--dart-define-from-file", "env/janauba.json",
+                "--target", "lib/main.dart"
+            ]
+        },
+        {
+            "name": "⛪ Conselheiro Lafaiete - Android Debug",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "debug",
+            "args": [
+                "--flavor", "conselheiroLafaiete",
+                "--dart-define-from-file", "env/conselheiroLafaiete.json",
+                "--target", "lib/main.dart"
+            ]
+        },
+        {
+            "name": "🌺 Capão Bonito - Android Debug",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "debug",
+            "args": [
+                "--flavor", "capaoBonito",
+                "--dart-define-from-file", "env/capaoBonito.json",
+                "--target", "lib/main.dart"
+            ]
+        },
+        {
+            "name": "🏭 João Monlevade - Android Debug",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "debug",
+            "args": [
+                "--flavor", "joaoMonlevade",
+                "--dart-define-from-file", "env/joaoMonlevade.json",
+                "--target", "lib/main.dart"
+            ]
+        },
+        {
+            "name": "🌄 Itararé - Android Debug",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "debug",
+            "args": [
+                "--flavor", "itarare",
+                "--dart-define-from-file", "env/itarare.json",
+                "--target", "lib/main.dart"
+            ]
+        },
+        {
+            "name": "🎭 Passos - Android Debug",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "debug",
+            "args": [
+                "--flavor", "passos",
+                "--dart-define-from-file", "env/passos.json",
+                "--target", "lib/main.dart"
+            ]
+        },
+        {
+            "name": "🌊 Ribeirão das Neves - Android Debug",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "debug",
+            "args": [
+                "--flavor", "ribeiraoDasNeves",
+                "--dart-define-from-file", "env/ribeiraoDasNeves.json",
+                "--target", "lib/main.dart"
+            ]
+        },
+        {
+            "name": "🌸 Igarapé - Android Debug",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "debug",
+            "args": [
+                "--flavor", "igarape",
+                "--dart-define-from-file", "env/igarape.json",
+                "--target", "lib/main.dart"
+            ]
+        },
+        {
+            "name": "💰 Ouro Preto - Android Debug",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "debug",
+            "args": [
+                "--flavor", "ouroPreto",
+                "--dart-define-from-file", "env/ouroPreto.json",
+                "--target", "lib/main.dart"
+            ]
+        },
+
+        // ==========================================
+        // 📱 FLAVORS POR CIDADE - RELEASE ANDROID
+        // ==========================================
+        {
+            "name": "🏛️ Demo - Android Release",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release",
+            "args": [
+                "--flavor", "demo",
+                "--dart-define-from-file", "env/demo.json",
+                "--target", "lib/main.dart"
+            ]
+        },
+        {
+            "name": "🐎 Patos de Minas - Android Release",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release",
+            "args": [
+                "--flavor", "patosDeMinas",
+                "--dart-define-from-file", "env/patosDeMinas.json",
+                "--target", "lib/main.dart"
+            ]
+        },
+        {
+            "name": "🌾 Janaúba - Android Release",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release",
+            "args": [
+                "--flavor", "janauba",
+                "--dart-define-from-file", "env/janauba.json",
+                "--target", "lib/main.dart"
+            ]
+        },
+        {
+            "name": "⛪ Conselheiro Lafaiete - Android Release",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release",
+            "args": [
+                "--flavor", "conselheiroLafaiete",
+                "--dart-define-from-file", "env/conselheiroLafaiete.json",
+                "--target", "lib/main.dart"
+            ]
+        },
+        {
+            "name": "🌺 Capão Bonito - Android Release",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release",
+            "args": [
+                "--flavor", "capaoBonito",
+                "--dart-define-from-file", "env/capaoBonito.json",
+                "--target", "lib/main.dart"
+            ]
+        },
+        {
+            "name": "🏭 João Monlevade - Android Release",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release",
+            "args": [
+                "--flavor", "joaoMonlevade",
+                "--dart-define-from-file", "env/joaoMonlevade.json",
+                "--target", "lib/main.dart"
+            ]
+        },
+        {
+            "name": "🌄 Itararé - Android Release",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release",
+            "args": [
+                "--flavor", "itarare",
+                "--dart-define-from-file", "env/itarare.json",
+                "--target", "lib/main.dart"
+            ]
+        },
+        {
+            "name": "🎭 Passos - Android Release",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release",
+            "args": [
+                "--flavor", "passos",
+                "--dart-define-from-file", "env/passos.json",
+                "--target", "lib/main.dart"
+            ]
+        },
+        {
+            "name": "🌊 Ribeirão das Neves - Android Release",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release",
+            "args": [
+                "--flavor", "ribeiraoDasNeves",
+                "--dart-define-from-file", "env/ribeiraoDasNeves.json",
+                "--target", "lib/main.dart"
+            ]
+        },
+        {
+            "name": "🌸 Igarapé - Android Release",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release",
+            "args": [
+                "--flavor", "igarape",
+                "--dart-define-from-file", "env/igarape.json",
+                "--target", "lib/main.dart"
+            ]
+        },
+        {
+            "name": "💰 Ouro Preto - Android Release",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release",
+            "args": [
+                "--flavor", "ouroPreto",
+                "--dart-define-from-file", "env/ouroPreto.json",
+                "--target", "lib/main.dart"
+            ]
+        },
+
+        // ==========================================
+        // 🍎 CONFIGURAÇÕES ESPECIAIS - iOS
+        // ==========================================
+        {
+            "name": "🍎 iOS Debug - Configuração Simples",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "debug",
+            "deviceId": "ios",
+            "preLaunchTask": {
+                "type": "shell",
+                "command": "echo",
+                "args": ["Use: dart scripts/build_city.dart <cidade> '<Nome>' antes de executar"]
+            }
+        },
+        {
+            "name": "🍎 iOS Release - Configuração Simples",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release",
+            "deviceId": "ios",
+            "preLaunchTask": {
+                "type": "shell",
+                "command": "echo",
+                "args": ["Use: dart scripts/build_city.dart <cidade> '<Nome>' antes de executar"]
+            }
+        },
+
+        // ==========================================
+        // 🔧 CONFIGURAÇÕES AVANÇADAS
+        // ==========================================
+        {
+            "name": "🔧 Custom Device",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "debug",
+            "deviceId": "${input:deviceId}",
+            "args": [
+                "--flavor", "${input:flavorName}",
+                "--dart-define-from-file", "env/${input:flavorName}.json",
+                "--target", "lib/main.dart"
+            ]
+        }
+    ],
+    "inputs": [
+        {
+            "id": "deviceId",
+            "description": "Device ID",
+            "default": "emulator-5554",
+            "type": "promptString"
+        },
+        {
+            "id": "flavorName",
+            "description": "Flavor Name",
+            "default": "demo",
+            "type": "pickString",
+            "options": [
+                "demo",
+                "patosDeMinas",
+                "janauba",
+                "conselheiroLafaiete",
+                "capaoBonito",
+                "joaoMonlevade",
+                "itarare",
+                "passos",
+                "ribeiraoDasNeves",
+                "igarape",
+                "ouroPreto"
+            ]
+        }
+    ]
+}

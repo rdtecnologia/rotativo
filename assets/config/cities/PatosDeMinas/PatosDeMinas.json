@@ -1,0 +1,124 @@
+{
+  "$schema": "../schema.json",
+  "city": "Patos de Minas",
+  "domain": "Patos de Minas",
+  "latitude": -18.5890851,
+  "longitude": -46.5181081,
+  "downloadLink": "http://www.rotativodigital.com.br/app/?city=patosdeminas",
+  "termsLink": "http://www.rotativodigital.com.br/wp-content/uploads/2019/10/termos-de-uso-patos.pdf",
+  "androidPackage": "com.rotativodigitalpatos",
+  "iosPackage": "com.timob.rotativodigitalpatos",
+  "products": [7, 8],
+  "vehicleTypes": [1, 2],
+  "mainLogo": "",
+  "logoMenu": "",
+  "balance": {
+    "showBy": "credits",
+    "showDetails": true
+  },
+  "parkingRules": {
+    "1": [
+      {"time": 60, "price": 2, "credits": 1},
+      {"time": 120, "price": 4, "credits": 2},
+      {"time": 240, "price": 6, "credits": 3}
+    ],
+    "2": [
+      {"time": 60, "price": 1, "credits": 1},
+      {"time": 120, "price": 2, "credits": 2},
+      {"time": 240, "price": 3, "credits": 3}
+    ]
+  },
+  "purchase": {
+    "vehicleTypeDefault": 1,
+    "showBy": "credits",
+    "chargeback": true,
+    "minCreditsByVehicle": {
+      "1": 5,
+      "2": 10
+    },
+    "products": {
+      "1": [
+        {
+          "credits": 5,
+          "price": 10
+        },
+        {
+          "credits": 10,
+          "price": 20
+        },
+        {
+          "credits": 15,
+          "price": 30
+        },
+        {
+          "credits": 25,
+          "price": 50
+        }
+      ],
+      "2": [
+        {
+          "credits": 10,
+          "price": 10
+        },
+        {
+          "credits": 15,
+          "price": 15
+        },
+        {
+          "credits": 20,
+          "price": 20
+        },
+        {
+          "credits": 25,
+          "price": 25
+        }
+      ]
+    },
+    "payment": {
+      "creditCard": true,
+      "billet": true
+    }
+  },
+  "faq": [
+    {
+      "title": "O que é o Rotativo Digital",
+      "content": "O Sistema de estacionamento Rotativo tem como objetivo, aumentar a oferta de vagas nas regiões de grande concentração de comércio, serviços e lazer, oferecendo aos motoristas mais facilidade de estacionamento, contribuindo para melhorar a qualidade de vida, assim como proporcionar o aumento da fluidez do trânsito.\n\nA receita líquida obtida com o pagamento das vagas, é revertida para projetos de melhoria do sistema viário da cidade. \n\nEm Belo Horizonte, a BHTRANS é responsável pelo gerenciamento do Estacionamento Rotativo. Através do chamamento público n. 02/2018 processo administrativo n. 01-034.100/18-96 foram credenciadas empresas “distribuidoras” para revenda dos Créditos eletrônicos de estacionamento.  "
+    },
+    {
+      "title": "Como funciona o Rotativo Digital",
+      "content": "Ao estacionar em uma das mais de 22 mil vagas de estacionamento Rotativo Digital de Belo Horizonte, o usuário deverá ATIVAR créditos de estacionamento.\nO usuário deverá adquirir créditos eletrônicos através de Pontos de Venda credenciados ou via Aplicativo homologado. \nO tempo de permanência na vaga varia de acordo com a região/área de estacionamento.\nA Fiscalização é realizada através de aplicativo de consulta a placa pelos agentes da BHTrans em conjunto com a Guarda Municipal. "
+    },
+    {
+      "title": "Valor do estacionamento",
+      "content": "O valor de cada crédito de estacionamento Rotativo Digital em Belo Horizonte é de R$ 4,40. \n\nA cada crédito Rotativo adquirido, o usuário recebe um bônus de 30 minutos de estacionamento.\n\nO tempo de estacionamento na vaga varia de acordo com cada área/região de estacionamento.  "
+    },
+    {
+      "title": "Tempo de estacionamento nas vagas",
+      "content": "O tempo de estacionamento em uma vaga de estacionamento Rotativo Digital em Belo Horizonte varia de acordo com cada área/região.\n\nAo estacionar seu veículo, o usuário deverá consultar na placa de sinalização, qual o tempo máximo permitido para estacionamento naquela vaga.\n\nExistem os seguintes tempos para estacionamento: 01 hora, 02 horas, 05 horas e 12 horas (região da Pampulha) \n\nNo PARQUE DAS MANGABEIRAS o usuário poderá permanecer com seu veículo estacionado por até 5 horas na vaga. "
+    },
+    {
+      "title": "Horário de funcionamento",
+      "content": "O sistema de Estacionamento Rotativo de Belo Horizonte funciona de segunda à sexta das 8h às 18h e aos sábados das 8h às 13h.\n\nAos domingos e feriados não é necessário o uso do ROTATIVO DIGITAL, exceto no PARQUE DAS MANGABEIRAS.\n\nNo PARQUE DAS MANGABEIRAS o horário de funcionamento do ROTATIVO DIGITAL é de terça-feira a domingo das 8h às 17h."
+    },
+    {
+      "title": "Como funciona a fiscalização",
+      "content": "Os Agentes de Trânsito da BHTrans e os Guardas Municipais, fazem a fiscalização através de  sistema disponível em seus equipamentos smartphones. A consulta é realizada pelo número da placa do veículo. Caso detectado que o veículo esta estacionado de forma irregular, será automaticamente autuado. Em alguns casos, poderá ocorrer a remoção do veículo. "
+    },
+    {
+      "title": "Bônus de 30 minutos",
+      "content": "A cada crédito de estacionamento Rotativo Digital adquirido, o Usuário ganha um bônus de 30 minutos para a utilização. O bônus poderá ser utilizado em qualquer vaga do estacionamento Rotativo Digital, sendo seu tempo máximo de permanência de até 30 minutos."
+    },
+    {
+      "title": "Quantidade de veículos cadastrados no mesmo CPF",
+      "content": "Você pode ter vários veículos cadastrados em seu CPF. Porém, em um mesmo dia só será possível ATIVAR créditos e ou bônus para no máximo 2 veículos por CPF. "
+    },
+    {
+      "title": "Vagas especiais",
+      "content": "O uso da Credencial de Estacionamento Especial para Idosos  e portadores de necessidades especiais é obrigatório em todas as vagas reservadas, localizadas ou não em áreas de estacionamento rotativo.\n\nO usuário destas vagas, deverá fazer o pagamento do valor de estacionamento, assim como os demais usuários. "
+    },
+    {
+      "title": "Motofretista",
+      "content": "Os MOTOFRENTISTAS poderão estacionar nas áreas do Rotativo Digital destinadas a essa categoria. Para tal, deverão fazer a ativação do uso da vaga em um dos pontos de venda fixo credenciados ou através do aplicativo. É importante ressaltar que tanto o cadastro, quanto o estacionamento nesta categoria é gratuito. "
+    }
+  ]
+}

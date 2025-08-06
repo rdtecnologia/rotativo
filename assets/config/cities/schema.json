@@ -1,0 +1,512 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "properties": {
+    "city": {
+      "type": "string"
+    },
+    "domain": {
+      "type": "string"
+    },
+    "latitude": {
+      "type": "number"
+    },
+    "longitude": {
+      "type": "number"
+    },
+    "downloadLink": {
+      "type": "string"
+    },
+    "termsLink": {
+      "type": "string"
+    },
+    "androidPackage": {
+      "type": "string"
+    },
+    "iosPackage": {
+      "type": "string"
+    },
+    "whatsapp": {
+      "type": "string"
+    },
+    "chatBotURL": {
+      "type": "string"
+    },
+    "products": {
+      "type": "array",
+      "items": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "integer"
+        }
+      ]
+    },
+    "vehicleTypes": {
+      "type": "array",
+      "items": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "integer"
+        }
+      ]
+    },
+    "mainLogo": {
+      "type": "string"
+    },
+    "logoMenu": {
+      "type": "string"
+    },
+    "balance": {
+      "type": "object",
+      "properties": {
+        "showBy": {
+          "type": "string"
+        },
+        "showDetails": {
+          "type": "boolean"
+        }
+      },
+      "required": ["showBy", "showDetails"]
+    },
+    "parkingRulesText": {
+      "type": "string"
+    },
+    "parkingRules": {
+      "type": "object",
+      "properties": {
+        "1": {
+          "type": "array",
+          "items": [
+            {
+              "type": "object",
+              "properties": {
+                "time": {
+                  "type": "integer"
+                },
+                "price": {
+                  "type": "number"
+                },
+                "credits": {
+                  "type": "integer"
+                }
+              },
+              "required": ["time", "price", "credits"]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "time": {
+                  "type": "integer"
+                },
+                "price": {
+                  "type": "number"
+                },
+                "credits": {
+                  "type": "integer"
+                }
+              },
+              "required": ["time", "price", "credits"]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "time": {
+                  "type": "integer"
+                },
+                "price": {
+                  "type": "number"
+                },
+                "credits": {
+                  "type": "integer"
+                }
+              },
+              "required": ["time", "price", "credits"]
+            }
+          ]
+        },
+        "2": {
+          "type": "array",
+          "items": [
+            {
+              "type": "object",
+              "properties": {
+                "time": {
+                  "type": "integer"
+                },
+                "price": {
+                  "type": "number"
+                },
+                "credits": {
+                  "type": "integer"
+                }
+              },
+              "required": ["time", "price", "credits"]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "time": {
+                  "type": "integer"
+                },
+                "price": {
+                  "type": "number"
+                },
+                "credits": {
+                  "type": "integer"
+                }
+              },
+              "required": ["time", "price", "credits"]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "time": {
+                  "type": "integer"
+                },
+                "price": {
+                  "type": "number"
+                },
+                "credits": {
+                  "type": "integer"
+                }
+              },
+              "required": ["time", "price", "credits"]
+            }
+          ]
+        }
+      },
+      "required": ["1"]
+    },
+    "purchase": {
+      "type": "object",
+      "properties": {
+        "vehicleTypeDefault": {
+          "type": "integer"
+        },
+        "showBy": {
+          "type": "string"
+        },
+        "chargeback": {
+          "type": "boolean"
+        },
+        "minCreditsByVehicle": {
+          "type": "object",
+          "properties": {
+            "1": {
+              "type": "integer"
+            },
+            "2": {
+              "type": "integer"
+            }
+          },
+          "required": ["1"]
+        },
+        "products": {
+          "type": "object",
+          "properties": {
+            "1": {
+              "type": "array",
+              "items": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "credits": {
+                      "type": "integer"
+                    },
+                    "price": {
+                      "type": "number"
+                    }
+                  },
+                  "required": ["credits", "price"]
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "credits": {
+                      "type": "integer"
+                    },
+                    "price": {
+                      "type": "number"
+                    }
+                  },
+                  "required": ["credits", "price"]
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "credits": {
+                      "type": "integer"
+                    },
+                    "price": {
+                      "type": "number"
+                    }
+                  },
+                  "required": ["credits", "price"]
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "credits": {
+                      "type": "integer"
+                    },
+                    "price": {
+                      "type": "number"
+                    }
+                  },
+                  "required": ["credits", "price"]
+                }
+              ]
+            },
+            "2": {
+              "type": "array",
+              "items": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "credits": {
+                      "type": "integer"
+                    },
+                    "price": {
+                      "type": "number"
+                    }
+                  },
+                  "required": ["credits", "price"]
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "credits": {
+                      "type": "integer"
+                    },
+                    "price": {
+                      "type": "number"
+                    }
+                  },
+                  "required": ["credits", "price"]
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "credits": {
+                      "type": "integer"
+                    },
+                    "price": {
+                      "type": "number"
+                    }
+                  },
+                  "required": ["credits", "price"]
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "credits": {
+                      "type": "integer"
+                    },
+                    "price": {
+                      "type": "number"
+                    }
+                  },
+                  "required": ["credits", "price"]
+                }
+              ]
+            }
+          },
+          "required": ["1"]
+        },
+        "payment": {
+          "type": "object",
+          "properties": {
+            "creditCard": {
+              "type": "boolean"
+            },
+            "billet": {
+              "type": "boolean"
+            },
+            "pix": {
+              "type": "boolean"
+            }
+          },
+          "required": ["creditCard", "billet"]
+        }
+      },
+      "required": [
+        "vehicleTypeDefault",
+        "showBy",
+        "chargeback",
+        "minCreditsByVehicle",
+        "products",
+        "payment"
+      ]
+    },
+    "faq": {
+      "type": "array",
+      "items": [
+        {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string"
+            },
+            "content": {
+              "type": "string"
+            }
+          },
+          "required": ["title", "content"]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string"
+            },
+            "content": {
+              "type": "string"
+            }
+          },
+          "required": ["title", "content"]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string"
+            },
+            "content": {
+              "type": "string"
+            }
+          },
+          "required": ["title", "content"]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string"
+            },
+            "content": {
+              "type": "string"
+            }
+          },
+          "required": ["title", "content"]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string"
+            },
+            "content": {
+              "type": "string"
+            }
+          },
+          "required": ["title", "content"]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string"
+            },
+            "content": {
+              "type": "string"
+            }
+          },
+          "required": ["title", "content"]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string"
+            },
+            "content": {
+              "type": "string"
+            }
+          },
+          "required": ["title", "content"]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string"
+            },
+            "content": {
+              "type": "string"
+            }
+          },
+          "required": ["title", "content"]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string"
+            },
+            "content": {
+              "type": "string"
+            }
+          },
+          "required": ["title", "content"]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string"
+            },
+            "content": {
+              "type": "string"
+            }
+          },
+          "required": ["title", "content"]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string"
+            },
+            "content": {
+              "type": "string"
+            }
+          },
+          "required": ["title", "content"]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string"
+            },
+            "content": {
+              "type": "string"
+            }
+          },
+          "required": ["title", "content"]
+        }
+      ]
+    }
+  },
+  "required": [
+    "city",
+    "domain",
+    "latitude",
+    "longitude",
+    "downloadLink",
+    "androidPackage",
+    "iosPackage",
+    "products",
+    "vehicleTypes",
+    "mainLogo",
+    "logoMenu",
+    "balance",
+    "parkingRules",
+    "purchase",
+    "faq"
+  ]
+}

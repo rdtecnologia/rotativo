@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "111749169701",
+    "firebase_url": "https://rotativo-digital-itarare.firebaseio.com",
+    "project_id": "rotativo-digital-itarare",
+    "storage_bucket": "rotativo-digital-itarare.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:111749169701:android:9d07866d8daa6a73",
+        "android_client_info": {
+          "package_name": "com.rotativodigitalitarare"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "111749169701-2tri506m5i8ghnck52diggp3c8t22a80.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBoJvNOsYj82fOxUKw9s_lbRRLJ6pnlnCY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "111749169701-2tri506m5i8ghnck52diggp3c8t22a80.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "111749169701-mv76vrdpcq94jkpa5nc7i4f6rjs0296c.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.rotativodigitalitarare"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
