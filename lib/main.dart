@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'config/dynamic_app_config.dart';
 import 'debug_page.dart';
+import 'providers/auth_provider.dart';
+import 'screens/auth/login_screen.dart';
 
 void main() {
-  runApp(const RotativoApp());
+  runApp(const ProviderScope(child: RotativoApp()));
 }
 
-class RotativoApp extends StatelessWidget {
+class RotativoApp extends ConsumerWidget {
   const RotativoApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return FutureBuilder<String>(
       future: DynamicAppConfig.displayName,
       builder: (context, snapshot) {
@@ -21,18 +24,45 @@ class RotativoApp extends StatelessWidget {
             colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
             useMaterial3: true,
           ),
-          home: const HomePage(),
+          home: const AuthWrapper(),
+          routes: {
+            '/home': (context) => const HomePage(),
+            '/login': (context) => const LoginScreen(),
+          },
         );
       },
     );
   }
 }
 
-class HomePage extends StatelessWidget {
+class AuthWrapper extends ConsumerWidget {
+  const AuthWrapper({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final authState = ref.watch(authProvider);
+    
+    if (authState.isLoading) {
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+    
+    if (authState.isAuthenticated) {
+      return const HomePage();
+    } else {
+      return const LoginScreen();
+    }
+  }
+}
+
+class HomePage extends ConsumerWidget {
   const HomePage({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return FutureBuilder<Map<String, dynamic>>(
       future: _loadAllData(),
       builder: (context, snapshot) {
@@ -89,6 +119,13 @@ class HomePage extends StatelessWidget {
                 icon: const Icon(Icons.bug_report),
                 tooltip: 'Debug',
               ),
+              IconButton(
+                onPressed: () async {
+                  await ref.read(authProvider.notifier).logout();
+                },
+                icon: const Icon(Icons.logout),
+                tooltip: 'Sair',
+              ),
             ],
           ),
           body: Padding(
@@ -96,6 +133,35 @@ class HomePage extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // User Info Card
+                Consumer(
+                  builder: (context, ref, child) {
+                    final user = ref.watch(currentUserProvider);
+                    return Card(
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Usuário Logado',
+                              style: Theme.of(context).textTheme.titleLarge,
+                            ),
+                            const SizedBox(height: 8),
+                            if (user != null) ...[
+                              Text('Nome: ${user.name ?? 'N/A'}'),
+                              Text('E-mail: ${user.email ?? 'N/A'}'),
+                              Text('CPF: ${user.cpf ?? 'N/A'}'),
+                              Text('Telefone: ${user.phone ?? 'N/A'}'),
+                            ] else
+                              const Text('Dados do usuário não disponíveis'),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+                const SizedBox(height: 16),
                 Card(
                   child: Padding(
                     padding: const EdgeInsets.all(16.0),

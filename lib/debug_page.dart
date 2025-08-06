@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
-import 'config/environment.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'config/dynamic_app_config.dart';
+import 'providers/auth_provider.dart';
 
-class DebugPage extends StatelessWidget {
+class DebugPage extends ConsumerWidget {
   const DebugPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Debug - Configurações'),
@@ -68,6 +69,31 @@ class DebugPage extends StatelessWidget {
                       ]);
                     }
                     return const CircularProgressIndicator();
+                  },
+                ),
+                const SizedBox(height: 16),
+                
+                // Auth Debug Info
+                Consumer(
+                  builder: (context, ref, child) {
+                    final authState = ref.watch(authProvider);
+                    final user = authState.user;
+                    
+                    return _buildSection('🔐 Debug Autenticação', [
+                      'Autenticado: ${authState.isAuthenticated}',
+                      'Carregando: ${authState.isLoading}',
+                      'Erro: ${authState.error ?? 'Nenhum'}',
+                      if (user != null) ...[
+                        'User ID: ${user.id ?? 'N/A'}',
+                        'Nome: ${user.name ?? 'N/A'}',
+                        'Email: ${user.email ?? 'N/A'}',
+                        'CPF: ${user.cpf ?? 'N/A'}',
+                        'Telefone: ${user.phone ?? 'N/A'}',
+                        'Tem Token: ${user.token != null}',
+                        if (user.token != null) 'Token: ${user.token!.substring(0, 20)}...',
+                      ] else
+                        'Dados do usuário: Não disponível',
+                    ]);
                   },
                 ),
               ],

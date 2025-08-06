@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Rotativo Digital - CORS Info</title>
+</head>
+<body>
+    <h1>Desenvolvimento Web - CORS</h1>
+    <p>Para testar na web sem problemas de CORS, use uma das seguintes opções:</p>
+    
+    <h3>Opção 1: Chrome com CORS desabilitado</h3>
+    <pre>
+# Feche o Chrome completamente e execute:
+google-chrome --disable-web-security --user-data-dir="/tmp/chrome_dev"
+
+# No Mac:
+/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --disable-web-security --user-data-dir="/tmp/chrome_dev"
+    </pre>
+    
+    <h3>Opção 2: Use o emulador mobile (recomendado)</h3>
+    <pre>
+flutter run --dart-define=CITY_NAME="Ouro Preto" --dart-define=FLAVOR=ouroPreto -d emulator-5554
+    </pre>
+    
+    <h3>Opção 3: Proxy CORS (desenvolvimento)</h3>
+    <p>Use um proxy CORS como: <a href="https://cors-anywhere.herokuapp.com/">https://cors-anywhere.herokuapp.com/</a></p>
+    
+    <script>
+        // Para desenvolvimento, redirecione automaticamente
+        if (window.location.hostname === 'localhost') {
+            console.log('Detectado localhost - problemas de CORS esperados');
+            console.log('Use uma das opções acima ou execute no emulador mobile');
+        }
+    </script>
+</body>
+</html>
