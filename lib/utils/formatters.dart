@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 
 class AppFormatters {
@@ -12,6 +13,13 @@ class AppFormatters {
   static final phoneFormatter = MaskTextInputFormatter(
     mask: '(##) #####-####',
     filter: {"#": RegExp(r'[0-9]')},
+    type: MaskAutoCompletionType.lazy,
+  );
+
+  // License plate formatter (ABC-1234)
+  static final plateFormatter = MaskTextInputFormatter(
+    mask: 'AAA-####',
+    filter: {"A": RegExp(r'[A-Z]'), "#": RegExp(r'[0-9]')},
     type: MaskAutoCompletionType.lazy,
   );
 

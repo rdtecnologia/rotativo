@@ -55,6 +55,93 @@ flutter run --dart-define=CITY_NAME="Ouro Preto" --dart-define=FLAVOR=ouroPreto 
 - **Novo usuário**: "Cadastre-se" → Preenche dados → Entra automaticamente
 - **Esqueceu senha**: Link na tela de login → Recuperação por email
 
+## 🏠 **Tela Principal Implementada:**
+
+### **Interface:**
+- ✅ **Background gradient** azul similar ao React
+- ✅ **Top bar** com menu lateral, nome da cidade e debug
+- ✅ **Carrossel de veículos** nativo do Flutter (PageView)
+  - Cards com gradiente e informações do veículo
+  - Indicadores de página (pontinhos)
+  - Animações suaves entre páginas
+- ✅ **Cards de ação** na parte inferior:
+  - COMPRAR | SALDO/CRÉDITOS | HISTÓRICO
+
+### **Menu Lateral (Drawer):**
+- ✅ **Header** com avatar, nome e email do usuário
+- ✅ **Opções principais**: Comprar, Histórico, Veículos, Cartões
+- ✅ **Opções secundárias**: Avalie o app, Ajuda, Sair
+- ✅ **Botão configurações** no header
+
+### **Funcionalidades:**
+- ✅ **API Integration** real para veículos e saldo
+- ✅ **Feedback** com SnackBars para ações
+- ✅ **Loading states** para carregamento
+- ✅ **Pull to refresh** (toque no nome da cidade)
+- ✅ **Logout** funcionando
+
+## ⚙️ **Tela de Configurações Implementada:**
+
+### **Acesso:**
+- ✅ Via ícone de configurações no header do drawer
+- ✅ Interface moderna com cards organizados
+
+### **Seções:**
+1. **Minha Conta:**
+   - ✅ **Alterar meus dados** - formulário completo com validação
+   - ✅ **Alterar minha senha** - com validação de segurança
+
+2. **Preferências:**
+   - ✅ **Configurar alarmes** - notificações de estacionamento, pagamento, promoções
+   - ✅ **Compartilhar localização** - GPS, alta precisão, detecção automática
+
+3. **Sobre:**
+   - ✅ **Versão do app** - informações da versão
+   - ✅ **Ajuda e suporte** - link para central de ajuda
+
+4. **Ações:**
+   - ✅ **Sair da conta** - logout com confirmação
+
+### **Recursos das Telas:**
+
+**🔧 Alterar Meus Dados:**
+- ✅ Formulário com nome, email, CPF (readonly), telefone
+- ✅ Validação completa de campos
+- ✅ Avatar com inicial do nome
+- ✅ Interface responsiva e moderna
+- ✅ Integração com API (estrutura pronta)
+
+**🔒 Alterar Senha:**
+- ✅ Campos: senha atual, nova senha, confirmação
+- ✅ Validação de força da senha
+- ✅ Dicas de segurança
+- ✅ Verificação de senhas iguais
+- ✅ Loading state durante alteração
+
+**🔔 Configurar Alarmes:**
+- ✅ **Notificações de estacionamento** com tempo configurável (5-60min)
+- ✅ **Lembrete de pagamento** ativável
+- ✅ **Promoções e ofertas** opcionais
+- ✅ **Atualizações do sistema** importantes
+- ✅ **Teste de notificação** funcional
+
+**📍 Compartilhar Localização:**
+- ✅ **Toggle principal** para ativar/desativar
+- ✅ **Alta precisão GPS** configurável
+- ✅ **Localização em segundo plano** opcional
+- ✅ **Detecção automática de estacionamento**
+- ✅ **Status da localização** em tempo real
+- ✅ **Informações de privacidade** detalhadas
+- ✅ **Teste de localização** manual
+
+### **🎨 Design Highlights:**
+- ✅ **Cards elevados** com sombras sutis
+- ✅ **Gradientes** e cores consistentes
+- ✅ **Ícones** intuitivos para cada função
+- ✅ **Switches** e dropdowns modernos
+- ✅ **Feedback visual** em todas as ações
+- ✅ **Layout responsivo** para diferentes telas
+
 ## APIs utilizadas (mesmo do app React):
 
 - **Produção**: https://autentica.timob.com.br, https://cadastra.timob.com.br

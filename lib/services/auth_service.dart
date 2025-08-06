@@ -339,4 +339,23 @@ class AuthService {
         return 'Erro inesperado: ${e.message}';
     }
   }
+
+  // Create auth interceptor for external services
+  static Future<InterceptorsWrapper> createAuthInterceptor() async {
+    return InterceptorsWrapper(
+      onRequest: (options, handler) async {
+        // Add domain header
+        final domain = await DynamicAppConfig.domain;
+        options.headers['Domain'] = domain;
+        
+        // Add auth token if available
+        final token = await getStoredToken();
+        if (token != null) {
+          options.headers['Authorization'] = 'Jwt $token';
+        }
+        
+        handler.next(options);
+      },
+    );
+  }
 }

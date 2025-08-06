@@ -4,6 +4,12 @@ import 'config/dynamic_app_config.dart';
 import 'debug_page.dart';
 import 'providers/auth_provider.dart';
 import 'screens/auth/login_screen.dart';
+import 'widgets/custom_drawer.dart';
+import 'widgets/vehicle_carousel.dart';
+import 'widgets/balance_card.dart';
+import 'models/vehicle_models.dart';
+import 'providers/vehicle_provider.dart';
+import 'providers/balance_provider.dart';
 
 void main() {
   runApp(const ProviderScope(child: RotativoApp()));
@@ -58,221 +64,222 @@ class AuthWrapper extends ConsumerWidget {
   }
 }
 
-class HomePage extends ConsumerWidget {
+class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return FutureBuilder<Map<String, dynamic>>(
-      future: _loadAllData(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Scaffold(
-            body: Center(
-              child: CircularProgressIndicator(),
-            ),
-          );
-        }
+  ConsumerState<HomePage> createState() => _HomePageState();
+}
 
-        if (snapshot.hasError) {
-          return Scaffold(
-            appBar: AppBar(
-              title: const Text('Erro'),
-            ),
-            body: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.error, size: 64, color: Colors.red),
-                  const SizedBox(height: 16),
-                  Text('Erro ao carregar configurações: ${snapshot.error}'),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () {
-                      // Force rebuild
-                      DynamicAppConfig.clearCache();
-                      (context as Element).markNeedsBuild();
-                    },
-                    child: const Text('Tentar Novamente'),
-                  ),
-                ],
-              ),
-            ),
-          );
-        }
+class _HomePageState extends ConsumerState<HomePage> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  String? cityName;
 
-        final data = snapshot.data!;
-        return Scaffold(
-          appBar: AppBar(
-            backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-            title: Text(data['displayName']),
-            actions: [
-              IconButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const DebugPage(),
-                    ),
-                  );
-                },
-                icon: const Icon(Icons.bug_report),
-                tooltip: 'Debug',
-              ),
-              IconButton(
-                onPressed: () async {
-                  await ref.read(authProvider.notifier).logout();
-                },
-                icon: const Icon(Icons.logout),
-                tooltip: 'Sair',
-              ),
-            ],
-          ),
-          body: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // User Info Card
-                Consumer(
-                  builder: (context, ref, child) {
-                    final user = ref.watch(currentUserProvider);
-                    return Card(
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Usuário Logado',
-                              style: Theme.of(context).textTheme.titleLarge,
-                            ),
-                            const SizedBox(height: 8),
-                            if (user != null) ...[
-                              Text('Nome: ${user.name ?? 'N/A'}'),
-                              Text('E-mail: ${user.email ?? 'N/A'}'),
-                              Text('CPF: ${user.cpf ?? 'N/A'}'),
-                              Text('Telefone: ${user.phone ?? 'N/A'}'),
-                            ] else
-                              const Text('Dados do usuário não disponíveis'),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
-                ),
-                const SizedBox(height: 16),
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Cidade: ${data['cityName']}',
-                          style: Theme.of(context).textTheme.headlineSmall,
-                        ),
-                        const SizedBox(height: 8),
-                        Text('Domínio: ${data['domain']}'),
-                        Text('Latitude: ${data['latitude']}'),
-                        Text('Longitude: ${data['longitude']}'),
-                        Text('Package Android: ${data['androidPackage']}'),
-                        Text('Package iOS: ${data['iosPackage']}'),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Produtos Disponíveis',
-                          style: Theme.of(context).textTheme.titleLarge,
-                        ),
-                        const SizedBox(height: 8),
-                        ...(data['products'] as List<int>).map((productId) => 
-                          Text('• Produto ID: $productId')),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Tipos de Veículo',
-                          style: Theme.of(context).textTheme.titleLarge,
-                        ),
-                        const SizedBox(height: 8),
-                        ...(data['vehicleTypes'] as List<int>).map((typeId) => 
-                          Text('• Tipo ID: $typeId')),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Expanded(
-                  child: Card(
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'FAQ (${(data['faq'] as List).length} itens)',
-                            style: Theme.of(context).textTheme.titleLarge,
-                          ),
-                          const SizedBox(height: 8),
-                          Expanded(
-                            child: ListView.builder(
-                              itemCount: (data['faq'] as List).length,
-                              itemBuilder: (context, index) {
-                                final faqItem = (data['faq'] as List)[index];
-                                return ExpansionTile(
-                                  title: Text(faqItem['title']),
-                                  children: [
-                                    Padding(
-                                      padding: const EdgeInsets.all(16.0),
-                                      child: Text(faqItem['content']),
-                                    ),
-                                  ],
-                                );
-                              },
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
+  @override
+  void initState() {
+    super.initState();
+    _loadData();
+  }
+
+  Future<void> _loadData() async {
+    // Load city name
+    cityName = await DynamicAppConfig.cityName;
+    setState(() {}); // Update UI with city name
+
+    // Load vehicles and balance from API
+    ref.read(vehicleProvider.notifier).loadVehicles();
+    ref.read(balanceProvider.notifier).loadBalance();
+  }
+
+  void _refreshData() {
+    _loadData();
+  }
+
+  void _onVehicleTap(Vehicle vehicle) {
+    // TODO: Navigate to parking screen
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Estacionar veículo ${vehicle.licensePlate}'),
+        action: SnackBarAction(
+          label: 'OK',
+          onPressed: () {},
+        ),
+      ),
     );
   }
 
-  Future<Map<String, dynamic>> _loadAllData() async {
-    return {
-      'cityName': await DynamicAppConfig.cityName,
-      'displayName': await DynamicAppConfig.displayName,
-      'domain': await DynamicAppConfig.domain,
-      'latitude': await DynamicAppConfig.latitude,
-      'longitude': await DynamicAppConfig.longitude,
-      'androidPackage': await DynamicAppConfig.androidPackage,
-      'iosPackage': await DynamicAppConfig.iosPackage,
-      'products': await DynamicAppConfig.products,
-      'vehicleTypes': await DynamicAppConfig.vehicleTypes,
-      'faq': await DynamicAppConfig.faq,
-    };
+  void _onPurchaseTap() {
+    // TODO: Navigate to purchase screen
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Navegar para tela de compra')),
+    );
+  }
+
+  void _onBalanceTap() {
+    // TODO: Navigate to balance details screen
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Navegar para detalhes do saldo')),
+    );
+  }
+
+  void _onHistoryTap() {
+    // TODO: Navigate to history screen
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Navegar para histórico')),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      key: _scaffoldKey,
+      drawer: const CustomDrawer(),
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Theme.of(context).primaryColor,
+              Theme.of(context).primaryColor.withValues(alpha: 0.7),
+            ],
+          ),
+        ),
+        child: SafeArea(
+          child: Column(
+            children: [
+              // Top bar
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Row(
+                  children: [
+                    // Menu button
+                    IconButton(
+                      onPressed: () {
+                        _scaffoldKey.currentState?.openDrawer();
+                      },
+                      icon: const Icon(
+                        Icons.menu,
+                        color: Colors.white,
+                        size: 28,
+                      ),
+                    ),
+                    
+                    // City name
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: _refreshData,
+                        child: Center(
+                          child: Text(
+                            cityName ?? 'Carregando...',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    
+                    // Debug button
+                    IconButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const DebugPage(),
+                          ),
+                        );
+                      },
+                      icon: const Icon(
+                        Icons.bug_report,
+                        color: Colors.white,
+                        size: 24,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              // Vehicle carousel
+              Expanded(
+                flex: 3,
+                child: Center(
+                  child: Consumer(
+                    builder: (context, ref, child) {
+                      final vehicles = ref.watch(vehicleListProvider);
+                      final isLoading = ref.watch(vehicleLoadingProvider);
+                      
+                      if (isLoading) {
+                        return const CircularProgressIndicator(
+                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                        );
+                      }
+                      
+                      return VehicleCarousel(
+                        vehicles: vehicles,
+                        onVehicleTap: _onVehicleTap,
+                      );
+                    },
+                  ),
+                ),
+              ),
+
+              // Bottom action cards
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Row(
+                  children: [
+                    // Purchase card
+                    Expanded(
+                      child: ActionCard(
+                        icon: Icons.shopping_cart,
+                        label: 'COMPRAR',
+                        onTap: _onPurchaseTap,
+                        backgroundColor: Theme.of(context).primaryColor.withValues(alpha: 0.8),
+                      ),
+                    ),
+                    
+                    const SizedBox(width: 12),
+                    
+                    // Balance card
+                    Expanded(
+                      child: Consumer(
+                        builder: (context, ref, child) {
+                          final balance = ref.watch(currentBalanceProvider);
+                          final isLoading = ref.watch(balanceLoadingProvider);
+                          
+                          return BalanceCard(
+                            balance: balance,
+                            isLoading: isLoading,
+                            onTap: _onBalanceTap,
+                            displayType: 'credits',
+                          );
+                        },
+                      ),
+                    ),
+                    
+                    const SizedBox(width: 12),
+                    
+                    // History card
+                    Expanded(
+                      child: ActionCard(
+                        icon: Icons.history,
+                        label: 'HISTÓRICO',
+                        onTap: _onHistoryTap,
+                        backgroundColor: Theme.of(context).primaryColor.withValues(alpha: 0.8),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              
+              const SizedBox(height: 16),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }

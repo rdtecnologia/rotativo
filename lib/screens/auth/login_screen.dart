@@ -237,7 +237,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       Navigator.of(context).push(
                         MaterialPageRoute(
                           builder: (context) => ForgotPasswordScreen(
-                            //ßinitialCPF: _currentCPF,
+                            // initialCPF: _currentCPF, // Não mais necessário
                           ),
                         ),
                       );
