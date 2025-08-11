@@ -16,14 +16,18 @@ class OrderHistory {
   });
 
   factory OrderHistory.fromJson(Map<String, dynamic> json) {
-    return OrderHistory(
-      id: json['id'].toString(),
-      licensePlate: json['licensePlate'] ?? '',
-      value: (json['value'] ?? 0.0).toDouble(),
-      createdAt: DateTime.parse(json['createdAt']),
-      status: json['status'] ?? '',
-      description: json['description'],
-    );
+    try {
+      return OrderHistory(
+        id: json['id']?.toString() ?? '',
+        licensePlate: json['licensePlate']?.toString() ?? '',
+        value: (json['value'] ?? json['valueTotal'] ?? 0.0).toDouble(),
+        createdAt: DateTime.parse(json['createdAt'] ?? json['created_at'] ?? DateTime.now().toIso8601String()),
+        status: json['status']?.toString() ?? '',
+        description: json['description']?.toString(),
+      );
+    } catch (e) {
+      throw Exception('Erro ao fazer parse de OrderHistory: $e. JSON: $json');
+    }
   }
 
   Map<String, dynamic> toJson() {
@@ -58,15 +62,20 @@ class ActivationHistory {
   });
 
   factory ActivationHistory.fromJson(Map<String, dynamic> json) {
-    return ActivationHistory(
-      id: json['id'].toString(),
-      licensePlate: json['licensePlate'] ?? '',
-      quantity: json['quantity'] ?? 0,
-      activatedAt: DateTime.parse(json['activatedAt']),
-      expiresAt: json['expiresAt'] != null ? DateTime.parse(json['expiresAt']) : null,
-      status: json['status'] ?? '',
-      location: json['location'],
-    );
+    try {
+      return ActivationHistory(
+        id: json['id']?.toString() ?? '',
+        licensePlate: json['licensePlate']?.toString() ?? '',
+        quantity: json['quantity'] ?? 0,
+        activatedAt: DateTime.parse(json['activatedAt'] ?? json['activated_at'] ?? DateTime.now().toIso8601String()),
+        expiresAt: json['expiresAt'] != null ? DateTime.parse(json['expiresAt']) : 
+                  json['expires_at'] != null ? DateTime.parse(json['expires_at']) : null,
+        status: json['status']?.toString() ?? '',
+        location: json['location']?.toString(),
+      );
+    } catch (e) {
+      throw Exception('Erro ao fazer parse de ActivationHistory: $e. JSON: $json');
+    }
   }
 
   Map<String, dynamic> toJson() {
@@ -153,5 +162,216 @@ class HistoryState {
       currentPage: currentPage ?? this.currentPage,
       hasMoreData: hasMoreData ?? this.hasMoreData,
     );
+  }
+}
+
+// Detailed models for order details
+class OrderPaymentPix {
+  final String text;
+  final String url;
+
+  OrderPaymentPix({
+    required this.text,
+    required this.url,
+  });
+
+  factory OrderPaymentPix.fromJson(Map<String, dynamic> json) {
+    return OrderPaymentPix(
+      text: json['text']?.toString() ?? '',
+      url: json['url']?.toString() ?? '',
+    );
+  }
+}
+
+class OrderPaymentBillet {
+  final String url;
+  final String expirationDate;
+  final String lineCode;
+
+  OrderPaymentBillet({
+    required this.url,
+    required this.expirationDate,
+    required this.lineCode,
+  });
+
+  factory OrderPaymentBillet.fromJson(Map<String, dynamic> json) {
+    return OrderPaymentBillet(
+      url: json['url']?.toString() ?? '',
+      expirationDate: json['expirationDate']?.toString() ?? '',
+      lineCode: json['lineCode']?.toString() ?? '',
+    );
+  }
+}
+
+class OrderPaymentCreditCard {
+  final String number;
+  final String? holderName;
+
+  OrderPaymentCreditCard({
+    required this.number,
+    this.holderName,
+  });
+
+  factory OrderPaymentCreditCard.fromJson(Map<String, dynamic> json) {
+    final holder = json['holder'];
+    return OrderPaymentCreditCard(
+      number: json['number']?.toString() ?? '',
+      holderName: holder != null ? holder['name']?.toString() : null,
+    );
+  }
+}
+
+class OrderPayment {
+  final String id;
+  final String status;
+  final String gateway;
+  final String method;
+  final OrderPaymentPix? pix;
+  final OrderPaymentBillet? billet;
+  final OrderPaymentCreditCard? creditCard;
+
+  OrderPayment({
+    required this.id,
+    required this.status,
+    required this.gateway,
+    required this.method,
+    this.pix,
+    this.billet,
+    this.creditCard,
+  });
+
+  factory OrderPayment.fromJson(Map<String, dynamic> json) {
+    return OrderPayment(
+      id: json['id']?.toString() ?? '',
+      status: json['status']?.toString() ?? '',
+      gateway: json['gateway']?.toString() ?? '',
+      method: json['method']?.toString() ?? 'Dinheiro',
+      pix: json['pix'] != null ? OrderPaymentPix.fromJson(json['pix']) : null,
+      billet: json['billet'] != null ? OrderPaymentBillet.fromJson(json['billet']) : null,
+      creditCard: json['creditCard'] != null ? OrderPaymentCreditCard.fromJson(json['creditCard']) : null,
+    );
+  }
+}
+
+class OrderProduct {
+  final int? vehicleType;
+
+  OrderProduct({
+    this.vehicleType,
+  });
+
+  factory OrderProduct.fromJson(Map<String, dynamic> json) {
+    return OrderProduct(
+      vehicleType: json['vehicleType']?.toInt(),
+    );
+  }
+}
+
+class OrderChargeback {
+  final String message;
+  final OrderChargebackAction action;
+  final OrderChargebackLast? last;
+
+  OrderChargeback({
+    required this.message,
+    required this.action,
+    this.last,
+  });
+
+  factory OrderChargeback.fromJson(Map<String, dynamic> json) {
+    return OrderChargeback(
+      message: json['message']?.toString() ?? '',
+      action: OrderChargebackAction.fromJson(json['action'] ?? {}),
+      last: json['last'] != null ? OrderChargebackLast.fromJson(json['last']) : null,
+    );
+  }
+}
+
+class OrderChargebackAction {
+  final double value;
+  final int quantity;
+
+  OrderChargebackAction({
+    required this.value,
+    required this.quantity,
+  });
+
+  factory OrderChargebackAction.fromJson(Map<String, dynamic> json) {
+    return OrderChargebackAction(
+      value: (json['value'] ?? 0).toDouble(),
+      quantity: (json['quantity'] ?? 0).toInt(),
+    );
+  }
+}
+
+class OrderChargebackLast {
+  final String status;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  final double value;
+
+  OrderChargebackLast({
+    required this.status,
+    required this.createdAt,
+    required this.updatedAt,
+    required this.value,
+  });
+
+  factory OrderChargebackLast.fromJson(Map<String, dynamic> json) {
+    return OrderChargebackLast(
+      status: json['status']?.toString() ?? '',
+      createdAt: DateTime.tryParse(json['createdAt']?.toString() ?? '') ?? DateTime.now(),
+      updatedAt: DateTime.tryParse(json['updatedAt']?.toString() ?? '') ?? DateTime.now(),
+      value: (json['value'] ?? 0).toDouble(),
+    );
+  }
+}
+
+class OrderDetail {
+  final String id;
+  final DateTime createdAt;
+  final String status;
+  final String? action;
+  final double value;
+  final String gateway;
+  final List<OrderProduct> products;
+  final List<OrderPayment> payments;
+  final OrderChargeback? chargeback;
+  final String? referenceCode;
+
+  OrderDetail({
+    required this.id,
+    required this.createdAt,
+    required this.status,
+    this.action,
+    required this.value,
+    required this.gateway,
+    required this.products,
+    required this.payments,
+    this.chargeback,
+    this.referenceCode,
+  });
+
+  factory OrderDetail.fromJson(Map<String, dynamic> json) {
+    try {
+      return OrderDetail(
+        id: json['id']?.toString() ?? '',
+        createdAt: DateTime.tryParse(json['createdAt']?.toString() ?? '') ?? DateTime.now(),
+        status: json['status']?.toString() ?? 'Desconhecido',
+        action: json['action']?.toString(),
+        value: (json['value'] ?? 0).toDouble(),
+        gateway: json['gateway']?.toString() ?? '',
+        products: (json['products'] as List<dynamic>?)
+            ?.map((p) => OrderProduct.fromJson(p as Map<String, dynamic>))
+            .toList() ?? [],
+        payments: (json['payments'] as List<dynamic>?)
+            ?.map((p) => OrderPayment.fromJson(p as Map<String, dynamic>))
+            .toList() ?? [],
+        chargeback: json['chargeback'] != null ? OrderChargeback.fromJson(json['chargeback']) : null,
+        referenceCode: json['referenceCode']?.toString(),
+      );
+    } catch (e) {
+      throw Exception('Erro ao fazer parse de OrderDetail: $e. JSON: $json');
+    }
   }
 }

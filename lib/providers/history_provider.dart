@@ -1,6 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/foundation.dart';
 import '../models/history_models.dart';
 import '../services/history_service.dart';
+import '../services/auth_service.dart';
 
 class HistoryNotifier extends StateNotifier<HistoryState> {
   HistoryNotifier() : super(HistoryState());
@@ -11,6 +13,10 @@ class HistoryNotifier extends StateNotifier<HistoryState> {
     HistoryFilter? filters,
   }) async {
     try {
+      if (kDebugMode) {
+        print('📱 HistoryProvider.loadOrders - refresh: $refresh');
+      }
+      
       if (refresh) {
         state = state.copyWith(
           orders: [],
@@ -20,18 +26,41 @@ class HistoryNotifier extends StateNotifier<HistoryState> {
         );
       }
 
-      if (!state.hasMoreData && !refresh) return;
+      if (!state.hasMoreData && !refresh) {
+        if (kDebugMode) {
+          print('📱 HistoryProvider.loadOrders - No more data available');
+        }
+        return;
+      }
 
       state = state.copyWith(isLoadingOrders: true, clearError: true);
       
       final offset = refresh ? 0 : state.orders.length;
-      const limit = 20;
+      const limit = 100; // Match React Native behavior
+      
+      if (kDebugMode) {
+        print('📱 HistoryProvider.loadOrders - Calling service with offset: $offset, limit: $limit');
+        
+        // Debug user authentication
+        final user = await AuthService.getStoredUser();
+        final token = await AuthService.getStoredToken();
+        if (user != null) {
+          print('📱 HistoryProvider.loadOrders - Current user: ${user.name} (CPF: ${user.cpf})');
+        }
+        if (token != null) {
+          print('📱 HistoryProvider.loadOrders - Token available: ${token.substring(0, 20)}...');
+        }
+      }
       
       final newOrders = await HistoryService.getOrders(
         offset: offset,
         limit: limit,
-        filters: filters,
+        // Don't pass filters like React Native (it passes undefined)
       );
+      
+      if (kDebugMode) {
+        print('📱 HistoryProvider.loadOrders - Service returned ${newOrders.length} orders');
+      }
       
       List<OrderHistory> allOrders;
       if (refresh) {
@@ -46,7 +75,14 @@ class HistoryNotifier extends StateNotifier<HistoryState> {
         hasMoreData: newOrders.length == limit,
         currentPage: refresh ? 1 : state.currentPage + 1,
       );
+      
+      if (kDebugMode) {
+        print('📱 HistoryProvider.loadOrders - State updated with ${allOrders.length} total orders');
+      }
     } catch (e) {
+      if (kDebugMode) {
+        print('📱 HistoryProvider.loadOrders - Error: $e');
+      }
       state = state.copyWith(
         isLoadingOrders: false,
         error: e.toString(),
@@ -54,12 +90,16 @@ class HistoryNotifier extends StateNotifier<HistoryState> {
     }
   }
 
-  /// Load activation history
+    /// Load activation history
   Future<void> loadActivations({
     bool refresh = false,
     HistoryFilter? filters,
   }) async {
     try {
+      if (kDebugMode) {
+        print('📱 HistoryProvider.loadActivations - refresh: $refresh');
+      }
+      
       if (refresh) {
         state = state.copyWith(
           activations: [],
@@ -69,18 +109,31 @@ class HistoryNotifier extends StateNotifier<HistoryState> {
         );
       }
 
-      if (!state.hasMoreData && !refresh) return;
+      if (!state.hasMoreData && !refresh) {
+        if (kDebugMode) {
+          print('📱 HistoryProvider.loadActivations - No more data available');
+        }
+        return;
+      }
 
       state = state.copyWith(isLoadingActivations: true, clearError: true);
       
       final offset = refresh ? 0 : state.activations.length;
-      const limit = 20;
+      const limit = 100; // Match React Native behavior
+      
+      if (kDebugMode) {
+        print('📱 HistoryProvider.loadActivations - Calling service with offset: $offset, limit: $limit');
+      }
       
       final newActivations = await HistoryService.getActivations(
         offset: offset,
         limit: limit,
-        filters: filters,
+        // Don't pass filters like React Native (it passes undefined)
       );
+      
+      if (kDebugMode) {
+        print('📱 HistoryProvider.loadActivations - Service returned ${newActivations.length} activations');
+      }
       
       List<ActivationHistory> allActivations;
       if (refresh) {
@@ -95,7 +148,14 @@ class HistoryNotifier extends StateNotifier<HistoryState> {
         hasMoreData: newActivations.length == limit,
         currentPage: refresh ? 1 : state.currentPage + 1,
       );
+      
+      if (kDebugMode) {
+        print('📱 HistoryProvider.loadActivations - State updated with ${allActivations.length} total activations');
+      }
     } catch (e) {
+      if (kDebugMode) {
+        print('📱 HistoryProvider.loadActivations - Error: $e');
+      }
       state = state.copyWith(
         isLoadingActivations: false,
         error: e.toString(),

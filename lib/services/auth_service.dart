@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 import '../config/dynamic_app_config.dart';
+import '../config/environment.dart';
 import '../models/auth_models.dart';
 
 class AuthService {
@@ -12,29 +13,10 @@ class AuthService {
   static const String _tokenKey = 'auth_token';
   
   // Environment configuration - default to production
-  static String _currentEnvironment = 'prod';
-  
-  // API endpoints configuration
-  static const Map<String, ApiConfig> _apiConfigs = {
-    'dev': ApiConfig(
-      register: 'https://cadastrah.timob.com.br',
-      autentica: 'https://autenticah.timob.com.br',
-      transaciona: 'https://transacionah.timob.com.br',
-      voucher: 'https://voucherh.timob.com.br',
-    ),
-    'prod': ApiConfig(
-      register: 'https://cadastra.timob.com.br',
-      autentica: 'https://autentica.timob.com.br',
-      transaciona: 'https://transaciona.timob.com.br',
-      voucher: 'https://voucher.timob.com.br',
-    ),
-  };
+  // Removed: Now using centralized Environment configuration
 
-  static ApiConfig get _currentApiConfig => _apiConfigs[_currentEnvironment]!;
-
-  static void changeEnvironment(String environment) {
-    _currentEnvironment = environment;
-  }
+  // Get API configuration from centralized Environment
+  static ApiConfig get _currentApiConfig => Environment.apiConfig;
 
   // Create Dio instance for login/register operations
   static Dio _createLoginRegisterDio(String apiType) {
@@ -268,12 +250,15 @@ class AuthService {
   }
 
   // Change password
-  static Future<void> changePassword(String newPassword) async {
+  static Future<void> changePassword(String oldPassword, String newPassword) async {
     try {
       final dio = _createAuthenticatedDio('REGISTER');
       
       await dio.post('/driver/changePassword', data: {
-        'password': newPassword,
+        'password': {
+          'old': oldPassword,
+          'new': newPassword,
+        },
       });
     } on DioException catch (e) {
       throw _handleDioError(e);
@@ -344,14 +329,39 @@ class AuthService {
   static Future<InterceptorsWrapper> createAuthInterceptor() async {
     return InterceptorsWrapper(
       onRequest: (options, handler) async {
-        // Add domain header
-        final domain = await DynamicAppConfig.domain;
-        options.headers['Domain'] = domain;
-        
-        // Add auth token if available
-        final token = await getStoredToken();
-        if (token != null) {
-          options.headers['Authorization'] = 'Jwt $token';
+        try {
+          // Add domain header
+          final domain = await DynamicAppConfig.domain;
+          options.headers['Domain'] = domain;
+          
+          // Add auth token if available
+          final token = await getStoredToken();
+          if (token != null && token.isNotEmpty) {
+            options.headers['Authorization'] = 'Jwt $token';
+            
+                             if (kDebugMode) {
+                   print('🔐 AuthService - Added token to request: ${token.substring(0, 20)}...');
+                   print('🔐 AuthService - Domain: $domain');
+                   print('🔐 AuthService - Full token: $token');
+                   print('🔐 AuthService - Request URL: ${options.baseUrl}${options.path}');
+                   print('🔐 AuthService - Request Method: ${options.method}');
+                   print('🔐 AuthService - All Headers: ${options.headers}');
+
+                   // Log current user info
+                   final user = await getStoredUser();
+                   if (user != null) {
+                     print('🔐 AuthService - Current user: ${user.name} (CPF: ${user.cpf})');
+                   }
+                 }
+          } else {
+            if (kDebugMode) {
+              print('🔐 AuthService - No token available for request');
+            }
+          }
+        } catch (e) {
+          if (kDebugMode) {
+            print('🔐 AuthService - Error adding auth headers: $e');
+          }
         }
         
         handler.next(options);

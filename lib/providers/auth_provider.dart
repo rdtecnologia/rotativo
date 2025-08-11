@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/auth_models.dart';
 import '../services/auth_service.dart';
+import '../config/environment.dart';
 
 // Auth state provider
 final authProvider = StateNotifierProvider<AuthNotifier, AuthState>((ref) {
@@ -125,10 +126,10 @@ class AuthNotifier extends StateNotifier<AuthState> {
   }
 
   // Change password
-  Future<void> changePassword(String newPassword) async {
+  Future<void> changePassword(String oldPassword, String newPassword) async {
     try {
       state = state.copyWith(isLoading: true, error: null);
-      await AuthService.changePassword(newPassword);
+      await AuthService.changePassword(oldPassword, newPassword);
       state = state.copyWith(isLoading: false);
     } catch (e) {
       state = state.copyWith(
@@ -151,7 +152,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
   // Change environment (for development/testing)
   void changeEnvironment(String environment) {
-    AuthService.changeEnvironment(environment);
+    Environment.setEnvironment(environment);
   }
 }
 

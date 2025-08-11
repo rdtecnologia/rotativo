@@ -4,6 +4,7 @@ import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import '../../utils/validators.dart';
+import '../../services/auth_service.dart';
 
 class ChangePasswordScreen extends ConsumerStatefulWidget {
   const ChangePasswordScreen({super.key});
@@ -15,6 +16,9 @@ class ChangePasswordScreen extends ConsumerStatefulWidget {
 class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
   final _formKey = GlobalKey<FormBuilderState>();
   bool _isLoading = false;
+  bool _obscureCurrentPassword = true;
+  bool _obscureNewPassword = true;
+  bool _obscureConfirmPassword = true;
 
   @override
   Widget build(BuildContext context) {
@@ -101,10 +105,22 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
                         // Current password field
                         FormBuilderTextField(
                           name: 'currentPassword',
-                          obscureText: true,
+                          obscureText: _obscureCurrentPassword,
                           decoration: InputDecoration(
                             labelText: 'Senha atual',
                             prefixIcon: const Icon(Icons.lock_outline),
+                            suffixIcon: IconButton(
+                              icon: Icon(
+                                _obscureCurrentPassword
+                                    ? Icons.visibility_off
+                                    : Icons.visibility,
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  _obscureCurrentPassword = !_obscureCurrentPassword;
+                                });
+                              },
+                            ),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
@@ -121,10 +137,22 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
                         // New password field
                         FormBuilderTextField(
                           name: 'newPassword',
-                          obscureText: true,
+                          obscureText: _obscureNewPassword,
                           decoration: InputDecoration(
                             labelText: 'Nova senha',
                             prefixIcon: const Icon(Icons.lock),
+                            suffixIcon: IconButton(
+                              icon: Icon(
+                                _obscureNewPassword
+                                    ? Icons.visibility_off
+                                    : Icons.visibility,
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  _obscureNewPassword = !_obscureNewPassword;
+                                });
+                              },
+                            ),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
@@ -137,10 +165,22 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
                         // Confirm new password field
                         FormBuilderTextField(
                           name: 'confirmPassword',
-                          obscureText: true,
+                          obscureText: _obscureConfirmPassword,
                           decoration: InputDecoration(
                             labelText: 'Confirmar nova senha',
                             prefixIcon: const Icon(Icons.lock),
+                            suffixIcon: IconButton(
+                              icon: Icon(
+                                _obscureConfirmPassword
+                                    ? Icons.visibility_off
+                                    : Icons.visibility,
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  _obscureConfirmPassword = !_obscureConfirmPassword;
+                                });
+                              },
+                            ),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
@@ -261,15 +301,17 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
 
     try {
       final formData = _formKey.currentState!.value;
+      final currentPassword = formData['currentPassword'] as String;
+      final newPassword = formData['newPassword'] as String;
+      final confirmPassword = formData['confirmPassword'] as String;
       
-      // TODO: Implement password change API call
-      // await AuthService.changePassword(
-      //   currentPassword: formData['currentPassword'],
-      //   newPassword: formData['newPassword'],
-      // );
-
-      // Simulate API call
-      await Future.delayed(const Duration(seconds: 2));
+      // Validate if new passwords match
+      if (newPassword != confirmPassword) {
+        throw Exception('As senhas não coincidem');
+      }
+      
+      // Call the actual API
+      await AuthService.changePassword(currentPassword, newPassword);
       
       if (mounted) {
         Fluttertoast.showToast(

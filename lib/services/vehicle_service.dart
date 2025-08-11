@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 import '../config/dynamic_app_config.dart';
+import '../config/environment.dart';
 import '../models/vehicle_models.dart';
 import 'auth_service.dart';
 
@@ -11,10 +12,10 @@ class VehicleService {
   static Future<Dio> _getDio() async {
     if (_dio != null) return _dio!;
 
-    final config = await _getApiConfig();
+    final baseUrl = Environment.registerApi;
     
     _dio = Dio(BaseOptions(
-      baseUrl: config['register']!,
+      baseUrl: baseUrl,
       connectTimeout: const Duration(seconds: 30),
       receiveTimeout: const Duration(seconds: 30),
       headers: {
@@ -54,14 +55,7 @@ class VehicleService {
     return _dio!;
   }
 
-  static Future<Map<String, String>> _getApiConfig() async {
-    // TODO: Get from environment configuration
-    // For now, using hardcoded values based on React app
-    return {
-      'register': 'https://cadastra.timob.com.br',
-      'transaciona': 'https://autentica.timob.com.br',
-    };
-  }
+
 
   /// Get user vehicles
   static Future<List<Vehicle>> getVehicles() async {

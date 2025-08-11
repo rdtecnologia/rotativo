@@ -1,5 +1,6 @@
 import 'package:flutter/services.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
+import 'package:intl/intl.dart';
 
 class AppFormatters {
   // CPF formatter
@@ -46,5 +47,33 @@ class AppFormatters {
       return '(${clean.substring(0, 2)}) ${clean.substring(2, 6)}-${clean.substring(6)}';
     }
     return phone;
+  }
+
+  // Format currency (Brazilian Real)
+  static String formatCurrency(double value) {
+    final formatter = NumberFormat.currency(
+      locale: 'pt_BR',
+      symbol: '',
+      decimalDigits: 2,
+    );
+    return formatter.format(value);
+  }
+
+  // Format date and time
+  static String formatDateTime(DateTime dateTime) {
+    final formatter = DateFormat('dd/MM/yyyy HH:mm');
+    return formatter.format(dateTime);
+  }
+
+  // Format date only
+  static String formatDate(DateTime dateTime) {
+    final formatter = DateFormat('dd/MM/yyyy');
+    return formatter.format(dateTime);
+  }
+
+  // Format time only
+  static String formatTime(DateTime dateTime) {
+    final formatter = DateFormat('HH:mm');
+    return formatter.format(dateTime);
   }
 }

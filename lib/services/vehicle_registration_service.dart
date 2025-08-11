@@ -9,10 +9,10 @@ class VehicleRegistrationService {
   static Future<Dio> _getDio() async {
     if (_dio != null) return _dio!;
 
-    final config = await _getApiConfig();
+    final baseUrl = Environment.registerApi;
     
     _dio = Dio(BaseOptions(
-      baseUrl: config['register']!,
+      baseUrl: baseUrl,
       connectTimeout: const Duration(seconds: 30),
       receiveTimeout: const Duration(seconds: 30),
       headers: {
@@ -27,15 +27,7 @@ class VehicleRegistrationService {
     return _dio!;
   }
 
-  static Future<Map<String, dynamic>> _getApiConfig() async {
-    final env = Environment.flavor;
-    
-    return {
-      'register': env == 'prod'
-          ? 'https://cadastra.timob.com.br'
-          : 'https://cadastrah.timob.com.br',
-    };
-  }
+
 
   /// Get vehicle model by license plate
   static Future<GetModelVehicleResponse> getModelByPlate(String licensePlate) async {

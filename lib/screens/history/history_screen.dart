@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import '../../models/history_models.dart';
 import '../../providers/history_provider.dart';
+import 'order_detail_screen.dart';
 import 'package:intl/intl.dart';
 
 class HistoryScreen extends ConsumerStatefulWidget {
@@ -151,6 +152,48 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen>
         final orders = ref.watch(ordersProvider);
         final isLoading = ref.watch(historyLoadingOrdersProvider);
         final hasMoreData = ref.watch(historyHasMoreDataProvider);
+        final error = ref.watch(historyErrorProvider);
+
+        // Show error if exists
+        if (error != null && orders.isEmpty && !isLoading) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.error_outline,
+                  size: 64,
+                  color: Colors.red.shade400,
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'Erro ao carregar compras',
+                  style: TextStyle(
+                    fontSize: 18,
+                    color: Colors.grey.shade600,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 32),
+                  child: Text(
+                    error,
+                    style: TextStyle(
+                      color: Colors.grey.shade500,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: () => ref.read(historyProvider.notifier).loadOrders(refresh: true),
+                  child: const Text('Tentar novamente'),
+                ),
+              ],
+            ),
+          );
+        }
 
         if (orders.isEmpty && isLoading) {
           return const Center(child: CircularProgressIndicator());
@@ -217,6 +260,48 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen>
         final activations = ref.watch(activationsProvider);
         final isLoading = ref.watch(historyLoadingActivationsProvider);
         final hasMoreData = ref.watch(historyHasMoreDataProvider);
+        final error = ref.watch(historyErrorProvider);
+
+        // Show error if exists
+        if (error != null && activations.isEmpty && !isLoading) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.error_outline,
+                  size: 64,
+                  color: Colors.red.shade400,
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'Erro ao carregar ativações',
+                  style: TextStyle(
+                    fontSize: 18,
+                    color: Colors.grey.shade600,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 32),
+                  child: Text(
+                    error,
+                    style: TextStyle(
+                      color: Colors.grey.shade500,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: () => ref.read(historyProvider.notifier).loadActivations(refresh: true),
+                  child: const Text('Tentar novamente'),
+                ),
+              ],
+            ),
+          );
+        }
 
         if (activations.isEmpty && isLoading) {
           return const Center(child: CircularProgressIndicator());
@@ -286,101 +371,123 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen>
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Compra #${order.id}',
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                  ),
-                ),
-                _buildStatusChip(order.status),
-              ],
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: () {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => OrderDetailScreen(orderId: order.id),
             ),
-            
-            const SizedBox(height: 8),
-            
-            Row(
-              children: [
-                Icon(
-                  Icons.directions_car,
-                  size: 18,
-                  color: Colors.grey.shade600,
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  order.licensePlate,
-                  style: TextStyle(
-                    color: Colors.grey.shade700,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
-            ),
-            
-            const SizedBox(height: 4),
-            
-            Row(
-              children: [
-                Icon(
-                  Icons.access_time,
-                  size: 18,
-                  color: Colors.grey.shade600,
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  dateFormat.format(order.createdAt),
-                  style: TextStyle(
-                    color: Colors.grey.shade600,
-                  ),
-                ),
-              ],
-            ),
-            
-            const SizedBox(height: 12),
-            
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'R\$ ${order.value.toStringAsFixed(2)}',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Theme.of(context).primaryColor,
-                  ),
-                ),
-                
-                if (order.status.toLowerCase() == 'pending')
-                  TextButton.icon(
-                    onPressed: () => _deleteOrder(order),
-                    icon: const Icon(Icons.cancel, size: 18),
-                    label: const Text('Cancelar'),
-                    style: TextButton.styleFrom(
-                      foregroundColor: Colors.red,
+          );
+        },
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Text(
+                      'Compra #${order.id}',
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
                     ),
                   ),
-              ],
-            ),
-            
-            if (order.description != null) ...[
-              const SizedBox(height: 8),
-              Text(
-                order.description!,
-                style: TextStyle(
-                  color: Colors.grey.shade600,
-                  fontSize: 14,
-                ),
+                  _buildStatusChip(order.status),
+                ],
               ),
+              
+              const SizedBox(height: 8),
+              
+              Row(
+                children: [
+                  Icon(
+                    Icons.directions_car,
+                    size: 18,
+                    color: Colors.grey.shade600,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    order.licensePlate,
+                    style: TextStyle(
+                      color: Colors.grey.shade700,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+              
+              const SizedBox(height: 4),
+              
+              Row(
+                children: [
+                  Icon(
+                    Icons.access_time,
+                    size: 18,
+                    color: Colors.grey.shade600,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    dateFormat.format(order.createdAt),
+                    style: TextStyle(
+                      color: Colors.grey.shade600,
+                    ),
+                  ),
+                ],
+              ),
+              
+              const SizedBox(height: 12),
+              
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'R\$ ${order.value.toStringAsFixed(2)}',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).primaryColor,
+                    ),
+                  ),
+                  
+                  Row(
+                    children: [
+                      if (order.status.toLowerCase() == 'pending')
+                        TextButton.icon(
+                          onPressed: () => _deleteOrder(order),
+                          icon: const Icon(Icons.cancel, size: 18),
+                          label: const Text('Cancelar'),
+                          style: TextButton.styleFrom(
+                            foregroundColor: Colors.red,
+                          ),
+                        ),
+                      
+                      Icon(
+                        Icons.arrow_forward_ios,
+                        size: 16,
+                        color: Colors.grey.shade400,
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              
+              if (order.description != null) ...[
+                const SizedBox(height: 8),
+                Text(
+                  order.description!,
+                  style: TextStyle(
+                    color: Colors.grey.shade600,
+                    fontSize: 14,
+                  ),
+                ),
+              ],
             ],
-          ],
+          ),
         ),
       ),
     );

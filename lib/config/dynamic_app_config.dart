@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/services.dart';
+import 'package:flutter/foundation.dart';
 import 'environment.dart';
 
 /// Dynamic app configuration that loads city config based on environment variables
@@ -36,6 +37,16 @@ class DynamicAppConfig {
       final configPath = 'assets/config/cities/$cityDirectory/$cityDirectory.json';
       final configString = await rootBundle.loadString(configPath);
       _cachedConfig = jsonDecode(configString) as Map<String, dynamic>;
+      
+      // Debug log
+      if (kDebugMode) {
+        print('🏙️ DynamicAppConfig - Flavor: $flavor');
+        print('🏙️ DynamicAppConfig - City Directory: $cityDirectory');
+        print('🏙️ DynamicAppConfig - Config Path: $configPath');
+        print('🏙️ DynamicAppConfig - Loaded city: ${_cachedConfig!['city']}');
+        print('🏙️ DynamicAppConfig - Loaded domain: ${_cachedConfig!['domain']}');
+      }
+      
       return _cachedConfig!;
     } catch (e) {
       throw Exception('Failed to load config for flavor $flavor (city: $cityDirectory): $e');

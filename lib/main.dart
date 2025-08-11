@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'config/dynamic_app_config.dart';
+import 'config/environment.dart';
 import 'debug_page.dart';
 import 'providers/auth_provider.dart';
 import 'screens/auth/login_screen.dart';
+import 'screens/history/history_screen.dart';
+import 'screens/purchase/vehicle_type_screen.dart';
 import 'widgets/custom_drawer.dart';
 import 'widgets/vehicle_carousel.dart';
 import 'widgets/balance_card.dart';
@@ -12,7 +15,21 @@ import 'providers/vehicle_provider.dart';
 import 'providers/balance_provider.dart';
 
 void main() {
+  // Initialize app environment configuration
+  _initializeApp();
+  
   runApp(const ProviderScope(child: RotativoApp()));
+}
+
+/// Initialize app configuration
+/// Change Environment.setEnvironment('dev') to switch to development
+void _initializeApp() {
+  // 🔧 CONFIGURE ENVIRONMENT HERE:
+  // Environment.setEnvironment('dev');   // Use development APIs
+  Environment.setEnvironment('prod');     // Use production APIs (default)
+  
+  // Print current configuration for debugging
+  Environment.printCurrentConfig();
 }
 
 class RotativoApp extends ConsumerWidget {
@@ -109,9 +126,11 @@ class _HomePageState extends ConsumerState<HomePage> {
   }
 
   void _onPurchaseTap() {
-    // TODO: Navigate to purchase screen
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Navegar para tela de compra')),
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const VehicleTypeScreen(),
+      ),
     );
   }
 
@@ -123,9 +142,11 @@ class _HomePageState extends ConsumerState<HomePage> {
   }
 
   void _onHistoryTap() {
-    // TODO: Navigate to history screen
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Navegar para histórico')),
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const HistoryScreen(),
+      ),
     );
   }
 
