@@ -4,6 +4,7 @@ class Vehicle {
   final String? brand;
   final String? color;
   final int? year;
+  final int type;
   final bool isActive;
 
   const Vehicle({
@@ -12,6 +13,7 @@ class Vehicle {
     this.brand,
     this.color,
     this.year,
+    required this.type,
     this.isActive = true,
   });
 
@@ -22,6 +24,7 @@ class Vehicle {
       brand: json['brand'],
       color: json['color'],
       year: json['year'],
+      type: json['type'] ?? 1,
       isActive: json['isActive'] ?? true,
     );
   }
@@ -33,6 +36,7 @@ class Vehicle {
       'brand': brand,
       'color': color,
       'year': year,
+      'type': type,
       'isActive': isActive,
     };
   }
@@ -43,6 +47,7 @@ class Vehicle {
     String? brand,
     String? color,
     int? year,
+    int? type,
     bool? isActive,
   }) {
     return Vehicle(
@@ -51,6 +56,7 @@ class Vehicle {
       brand: brand ?? this.brand,
       color: color ?? this.color,
       year: year ?? this.year,
+      type: type ?? this.type,
       isActive: isActive ?? this.isActive,
     );
   }
@@ -96,7 +102,7 @@ class BalanceItem {
 }
 
 class Product {
-  final int id;
+  final String id; // Changed from int to String since API returns string
   final String name;
   final double price;
   final int duration; // em minutos
@@ -110,8 +116,8 @@ class Product {
 
   factory Product.fromJson(Map<String, dynamic> json) {
     return Product(
-      id: json['id'] ?? 0,
-      name: json['name'] ?? '',
+      id: json['id']?.toString() ?? '0', // Convert to string safely
+      name: json['description'] ?? '', // API returns 'description' not 'name'
       price: (json['price'] ?? 0).toDouble(),
       duration: json['duration'] ?? 0,
     );

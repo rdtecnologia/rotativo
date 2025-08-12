@@ -39,6 +39,7 @@
                 "--flavor", "demo",
                 "--dart-define-from-file", "env/demo.json",
                 "--target", "lib/main.dart",
+				"--web-browser-flag",
                 "--disable-web-security"
             ]
         },
@@ -51,6 +52,7 @@
                 "--flavor", "patosDeMinas",
                 "--dart-define-from-file", "env/patosDeMinas.json",
                 "--target", "lib/main.dart",
+				"--web-browser-flag",
                 "--disable-web-security"
             ]
         },
@@ -63,6 +65,7 @@
                 "--flavor", "janauba",
                 "--dart-define-from-file", "env/janauba.json",
                 "--target", "lib/main.dart",
+				"--web-browser-flag",
                 "--disable-web-security"
             ]
         },
@@ -75,6 +78,7 @@
                 "--flavor", "conselheiroLafaiete",
                 "--dart-define-from-file", "env/conselheiroLafaiete.json",
                 "--target", "lib/main.dart",
+				"--web-browser-flag",
                 "--disable-web-security"
             ]
         },
@@ -87,6 +91,7 @@
                 "--flavor", "capaoBonito",
                 "--dart-define-from-file", "env/capaoBonito.json",
                 "--target", "lib/main.dart",
+				"--web-browser-flag",
                 "--disable-web-security"
             ]
         },
@@ -98,7 +103,9 @@
             "args": [
                 "--flavor", "joaoMonlevade",
                 "--dart-define-from-file", "env/joaoMonlevade.json",
-                "--target", "lib/main.dart"
+                "--target", "lib/main.dart",
+				"--web-browser-flag",
+                "--disable-web-security"
             ]
         },
         {
@@ -110,6 +117,7 @@
                 "--flavor", "itarare",
                 "--dart-define-from-file", "env/itarare.json",
                 "--target", "lib/main.dart",
+				"--web-browser-flag",
                 "--disable-web-security"
             ]
         },
@@ -122,6 +130,7 @@
                 "--flavor", "passos",
                 "--dart-define-from-file", "env/passos.json",
                 "--target", "lib/main.dart",
+				"--web-browser-flag",
                 "--disable-web-security"
             ]
         },
@@ -134,6 +143,7 @@
                 "--flavor", "ribeiraoDasNeves",
                 "--dart-define-from-file", "env/ribeiraoDasNeves.json",
                 "--target", "lib/main.dart",
+				"--web-browser-flag",
                 "--disable-web-security"
             ]
         },
@@ -146,6 +156,7 @@
                 "--flavor", "igarape",
                 "--dart-define-from-file", "env/igarape.json",
                 "--target", "lib/main.dart",
+				"--web-browser-flag",
                 "--disable-web-security"
             ]
         },

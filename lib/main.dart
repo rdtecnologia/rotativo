@@ -7,6 +7,7 @@ import 'providers/auth_provider.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/history/history_screen.dart';
 import 'screens/purchase/vehicle_type_screen.dart';
+import 'screens/parking/parking_screen.dart';
 import 'widgets/custom_drawer.dart';
 import 'widgets/vehicle_carousel.dart';
 import 'widgets/balance_card.dart';
@@ -108,19 +109,15 @@ class _HomePageState extends ConsumerState<HomePage> {
     ref.read(balanceProvider.notifier).loadBalance();
   }
 
-  void _refreshData() {
-    _loadData();
+  Future<void> _refreshData() async {
+    await _loadData();
   }
 
   void _onVehicleTap(Vehicle vehicle) {
-    // TODO: Navigate to parking screen
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Estacionar veículo ${vehicle.licensePlate}'),
-        action: SnackBarAction(
-          label: 'OK',
-          onPressed: () {},
-        ),
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ParkingScreen(vehicle: vehicle),
       ),
     );
   }
@@ -223,26 +220,31 @@ class _HomePageState extends ConsumerState<HomePage> {
                 ),
               ),
 
-              // Vehicle carousel
+              // Vehicle carousel with refresh
               Expanded(
                 flex: 3,
-                child: Center(
-                  child: Consumer(
-                    builder: (context, ref, child) {
-                      final vehicles = ref.watch(vehicleListProvider);
-                      final isLoading = ref.watch(vehicleLoadingProvider);
-                      
-                      if (isLoading) {
-                        return const CircularProgressIndicator(
-                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                child: RefreshIndicator(
+                  onRefresh: _refreshData,
+                  color: Theme.of(context).primaryColor,
+                  backgroundColor: Colors.white,
+                  child: Center(
+                    child: Consumer(
+                      builder: (context, ref, child) {
+                        final vehicles = ref.watch(vehicleListProvider);
+                        final isLoading = ref.watch(vehicleLoadingProvider);
+                        
+                        if (isLoading) {
+                          return const CircularProgressIndicator(
+                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                          );
+                        }
+                        
+                        return VehicleCarousel(
+                          vehicles: vehicles,
+                          onVehicleTap: _onVehicleTap,
                         );
-                      }
-                      
-                      return VehicleCarousel(
-                        vehicles: vehicles,
-                        onVehicleTap: _onVehicleTap,
-                      );
-                    },
+                      },
+                    ),
                   ),
                 ),
               ),

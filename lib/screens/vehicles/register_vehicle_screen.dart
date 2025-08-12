@@ -36,15 +36,19 @@ class _RegisterVehicleScreenState extends ConsumerState<RegisterVehicleScreen> {
   }
 
   void _onPlateChanged(String? value) async {
-    if (value != null && value.length == 8) {
-      // Remove mask and get model
+    if (value != null) {
       final cleanPlate = value.replaceAll(RegExp(r'[^A-Z0-9]'), '');
-      await ref.read(vehicleRegistrationProvider.notifier).getModelByPlate(cleanPlate);
       
-      // Check if model was found and fill the field
-      final modelResponse = ref.read(vehicleModelResponseProvider);
-      if (modelResponse?.model != null) {
-        _formKey.currentState?.fields['model']?.didChange(modelResponse!.model!);
+      // Check if plate has valid length for either format
+      if (cleanPlate.length == 7 || cleanPlate.length == 8) {
+        // Get model by plate
+        await ref.read(vehicleRegistrationProvider.notifier).getModelByPlate(cleanPlate);
+        
+        // Check if model was found and fill the field
+        final modelResponse = ref.read(vehicleModelResponseProvider);
+        if (modelResponse?.model != null) {
+          _formKey.currentState?.fields['model']?.didChange(modelResponse!.model!);
+        }
       }
     }
   }
@@ -53,10 +57,22 @@ class _RegisterVehicleScreenState extends ConsumerState<RegisterVehicleScreen> {
     if (_formKey.currentState?.saveAndValidate() ?? false) {
       final formData = _formKey.currentState!.value;
       
+      final licensePlate = (formData['licensePlate'] as String)
+          .replaceAll(RegExp(r'[^A-Z0-9]'), '')
+          .toUpperCase();
+      
+      // Validate plate format before submitting
+      if (!AppFormatters.isValidPlateFormat(licensePlate)) {
+        Fluttertoast.showToast(
+          msg: 'Formato de placa inválido',
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+        );
+        return;
+      }
+      
       final vehicle = VehicleRegistration(
-        licensePlate: (formData['licensePlate'] as String)
-            .replaceAll(RegExp(r'[^A-Z0-9]'), '')
-            .toUpperCase(),
+        licensePlate: licensePlate,
         model: formData['model'] as String,
         type: _selectedVehicleType,
       );
@@ -210,22 +226,35 @@ class _RegisterVehicleScreenState extends ConsumerState<RegisterVehicleScreen> {
                         name: 'licensePlate',
                         decoration: InputDecoration(
                           labelText: 'Placa do veículo',
-                          hintText: 'ABC-1234',
+                          hintText: 'ABC-1234 ou ABC-1D23',
                           prefixIcon: const Icon(Icons.directions_car),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
+                          helperText: 'Formato antigo: ABC-1234 | Mercosul: ABC-1D23',
                         ),
-                        inputFormatters: [AppFormatters.plateFormatter],
+                        inputFormatters: [AppFormatters.universalPlateFormatter],
                         textCapitalization: TextCapitalization.characters,
                         validator: FormBuilderValidators.compose([
                           FormBuilderValidators.required(
                             errorText: 'Placa é obrigatória',
                           ),
-                          FormBuilderValidators.minLength(
-                            8,
-                            errorText: 'Placa deve ter 8 caracteres',
-                          ),
+                          (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Placa é obrigatória';
+                            }
+                            
+                            final cleanPlate = value.replaceAll(RegExp(r'[^A-Z0-9]'), '');
+                            if (cleanPlate.length != 7 && cleanPlate.length != 8) {
+                              return 'Placa deve ter 7 (antiga) ou 8 (Mercosul) caracteres';
+                            }
+                            
+                            if (!AppFormatters.isValidPlateFormat(value)) {
+                              return 'Formato de placa inválido';
+                            }
+                            
+                            return null;
+                          },
                         ]),
                         onChanged: _onPlateChanged,
                       ),

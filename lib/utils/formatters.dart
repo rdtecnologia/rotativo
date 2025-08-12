@@ -17,12 +17,90 @@ class AppFormatters {
     type: MaskAutoCompletionType.lazy,
   );
 
-  // License plate formatter (ABC-1234)
+  // License plate formatter (supports both old Brazilian and Mercosul formats)
   static final plateFormatter = MaskTextInputFormatter(
     mask: 'AAA-####',
     filter: {"A": RegExp(r'[A-Z]'), "#": RegExp(r'[0-9]')},
     type: MaskAutoCompletionType.lazy,
   );
+
+  // Mercosul plate formatter (ABC-1D23) - allowing letter or number in second position of second segment
+  static final mercosulPlateFormatter = MaskTextInputFormatter(
+    mask: 'AAA-#A##',
+    filter: {"A": RegExp(r'[A-Z]'), "#": RegExp(r'[0-9]')},
+    type: MaskAutoCompletionType.lazy,
+  );
+
+  // Custom Mercosul formatter that allows both letter and number in the second position of second segment
+  static final flexibleMercosulPlateFormatter = MaskTextInputFormatter(
+    mask: 'AAA-#A##',
+    filter: {"A": RegExp(r'[A-Z]'), "#": RegExp(r'[0-9]')},
+    type: MaskAutoCompletionType.lazy,
+  );
+
+  // Smart plate formatter that detects format automatically
+  static final smartPlateFormatter = MaskTextInputFormatter(
+    mask: 'AAA-####',
+    filter: {"A": RegExp(r'[A-Z]'), "#": RegExp(r'[0-9]')},
+    type: MaskAutoCompletionType.lazy,
+  );
+
+  // Universal plate formatter that handles both formats
+  static final universalPlateFormatter = MaskTextInputFormatter(
+    mask: 'AAA-####',
+    filter: {"A": RegExp(r'[A-Z]'), "#": RegExp(r'[0-9]')},
+    type: MaskAutoCompletionType.lazy,
+  );
+
+  // Detect plate format and return appropriate formatter
+  static MaskTextInputFormatter getPlateFormatter(String plate) {
+    final cleanPlate = plate.replaceAll(RegExp(r'[^A-Z0-9]'), '');
+    
+    if (cleanPlate.length == 7) {
+      // Old Brazilian format: ABC1234
+      return MaskTextInputFormatter(
+        mask: 'AAA-####',
+        filter: {"A": RegExp(r'[A-Z]'), "#": RegExp(r'[0-9]')},
+        type: MaskAutoCompletionType.lazy,
+      );
+    } else if (cleanPlate.length == 8) {
+      // Mercosul format: ABC1D23 (allowing letter or number in second position)
+      return flexibleMercosulPlateFormatter;
+    }
+    
+    // Default to old format
+    return plateFormatter;
+  }
+
+  // Validate plate format
+  static bool isValidPlateFormat(String plate) {
+    final cleanPlate = plate.replaceAll(RegExp(r'[^A-Z0-9]'), '');
+    
+    if (cleanPlate.length == 7) {
+      // Old Brazilian format: ABC1234
+      return RegExp(r'^[A-Z]{3}[0-9]{4}$').hasMatch(cleanPlate);
+    } else if (cleanPlate.length == 8) {
+      // Mercosul format: ABC1D23 (allowing letter or number in second position of second segment)
+      return RegExp(r'^[A-Z]{3}[0-9][A-Z0-9][0-9]{2}$').hasMatch(cleanPlate);
+    }
+    
+    return false;
+  }
+
+  // Format plate for display
+  static String formatPlate(String plate) {
+    final cleanPlate = plate.replaceAll(RegExp(r'[^A-Z0-9]'), '').toUpperCase();
+    
+    if (cleanPlate.length == 7) {
+      // Old Brazilian format: ABC-1234
+      return '${cleanPlate.substring(0, 3)}-${cleanPlate.substring(3)}';
+    } else if (cleanPlate.length == 8) {
+      // Mercosul format: ABC-1D23
+      return '${cleanPlate.substring(0, 3)}-${cleanPlate.substring(3)}';
+    }
+    
+    return plate;
+  }
 
   // Remove all non-numeric characters
   static String removeNonNumeric(String text) {

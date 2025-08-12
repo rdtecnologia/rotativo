@@ -105,6 +105,60 @@ class VehicleCard extends StatelessWidget {
     required this.onTap,
   });
 
+  IconData _getVehicleIcon(int vehicleType) {
+    switch (vehicleType) {
+      case 1:
+        return Icons.directions_car; // Carro
+      case 2:
+        return Icons.motorcycle; // Moto
+      case 3:
+        return Icons.local_shipping; // Caminhão
+      case 4:
+        return Icons.motorcycle; // Motocicleta
+      case 5:
+        return Icons.local_shipping; // Caminhão Grande
+      case 6:
+        return Icons.directions_bus; // Ônibus
+      case 7:
+        return Icons.directions_bus; // Microônibus
+      case 8:
+        return Icons.directions_car; // Van
+      case 9:
+        return Icons.motorcycle; // Triciclo
+      case 10:
+        return Icons.directions_car; // Quadriciclo
+      default:
+        return Icons.directions_car; // Padrão
+    }
+  }
+
+  String _getVehicleTypeName(int vehicleType) {
+    switch (vehicleType) {
+      case 1:
+        return 'Carro';
+      case 2:
+        return 'Moto';
+      case 3:
+        return 'Caminhão';
+      case 4:
+        return 'Motocicleta';
+      case 5:
+        return 'Caminhão Grande';
+      case 6:
+        return 'Ônibus';
+      case 7:
+        return 'Microônibus';
+      case 8:
+        return 'Van';
+      case 9:
+        return 'Triciclo';
+      case 10:
+        return 'Quadriciclo';
+      default:
+        return 'Veículo';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -134,11 +188,22 @@ class VehicleCard extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // Car icon
-              const Icon(
-                Icons.directions_car,
+              // Vehicle icon based on type
+              Icon(
+                _getVehicleIcon(vehicle.type),
                 size: 48,
                 color: Colors.white,
+              ),
+              const SizedBox(height: 8),
+              
+              // Vehicle type name
+              Text(
+                _getVehicleTypeName(vehicle.type),
+                style: const TextStyle(
+                  fontSize: 14,
+                  color: Colors.white70,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
               const SizedBox(height: 16),
               

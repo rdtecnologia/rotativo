@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 class OrderHistory {
   final String id;
   final String licensePlate;
@@ -5,6 +7,7 @@ class OrderHistory {
   final DateTime createdAt;
   final String status;
   final String? description;
+  final String? paymentMethod;
 
   OrderHistory({
     required this.id,
@@ -13,6 +16,7 @@ class OrderHistory {
     required this.createdAt,
     required this.status,
     this.description,
+    this.paymentMethod,
   });
 
   factory OrderHistory.fromJson(Map<String, dynamic> json) {
@@ -24,6 +28,7 @@ class OrderHistory {
         createdAt: DateTime.parse(json['createdAt'] ?? json['created_at'] ?? DateTime.now().toIso8601String()),
         status: json['status']?.toString() ?? '',
         description: json['description']?.toString(),
+        paymentMethod: json['paymentMethod']?.toString() ?? json['payment_method']?.toString(),
       );
     } catch (e) {
       throw Exception('Erro ao fazer parse de OrderHistory: $e. JSON: $json');
@@ -38,6 +43,7 @@ class OrderHistory {
       'createdAt': createdAt.toIso8601String(),
       'status': status,
       'description': description,
+      'paymentMethod': paymentMethod,
     };
   }
 }
@@ -45,7 +51,7 @@ class OrderHistory {
 class ActivationHistory {
   final String id;
   final String licensePlate;
-  final int quantity;
+  final int parkingTime;
   final DateTime activatedAt;
   final DateTime? expiresAt;
   final String status;
@@ -54,19 +60,87 @@ class ActivationHistory {
   ActivationHistory({
     required this.id,
     required this.licensePlate,
-    required this.quantity,
+    required this.parkingTime,
     required this.activatedAt,
     this.expiresAt,
     required this.status,
     this.location,
   });
 
+  /// Calcula a quantidade de créditos baseado no tempo de estacionamento
+  /// Baseado nas regras da cidade (1h = 4 créditos, 2h = 7 créditos, 3h = 10 créditos)
+  int get quantity {
+    switch (parkingTime) {
+      case 60: // 1 hora
+        return 4;
+      case 120: // 2 horas
+        return 7;
+      case 180: // 3 horas
+        return 10;
+      default:
+        // Para outros tempos, calcula proporcionalmente (1 crédito = 15 minutos)
+        return (parkingTime / 15).ceil();
+    }
+  }
+
+  /// Verifica se o estacionamento ainda está ativo (dentro do tempo)
+  bool get isActive {
+    if (expiresAt != null) {
+      return DateTime.now().isBefore(expiresAt!);
+    }
+    // Se não tem expiresAt, calcula baseado no parkingTime
+    final expirationTime = activatedAt.add(Duration(minutes: parkingTime));
+    return DateTime.now().isBefore(expirationTime);
+  }
+
+  /// Retorna o tempo restante em minutos (0 se expirado)
+  int get remainingMinutes {
+    if (expiresAt != null) {
+      final remaining = expiresAt!.difference(DateTime.now()).inMinutes;
+      return remaining > 0 ? remaining : 0;
+    }
+    // Se não tem expiresAt, calcula baseado no parkingTime
+    final expirationTime = activatedAt.add(Duration(minutes: parkingTime));
+    final remaining = expirationTime.difference(DateTime.now()).inMinutes;
+    return remaining > 0 ? remaining : 0;
+  }
+
+  /// Retorna o status visual do estacionamento
+  String get displayStatus {
+    if (isActive) {
+      if (remainingMinutes <= 15) {
+        return 'Expirando em ${remainingMinutes}min';
+      } else if (remainingMinutes <= 30) {
+        return 'Expira em ${remainingMinutes}min';
+      } else {
+        return 'Ativo';
+      }
+    } else {
+      return 'Expirado';
+    }
+  }
+
+  /// Retorna a cor do status
+  Color get statusColor {
+    if (isActive) {
+      if (remainingMinutes <= 15) {
+        return Colors.red;
+      } else if (remainingMinutes <= 30) {
+        return Colors.orange;
+      } else {
+        return Colors.green;
+      }
+    } else {
+      return Colors.grey;
+    }
+  }
+
   factory ActivationHistory.fromJson(Map<String, dynamic> json) {
     try {
       return ActivationHistory(
         id: json['id']?.toString() ?? '',
         licensePlate: json['licensePlate']?.toString() ?? '',
-        quantity: json['quantity'] ?? 0,
+        parkingTime: json['parkingTime'] ?? 0,
         activatedAt: DateTime.parse(json['activatedAt'] ?? json['activated_at'] ?? DateTime.now().toIso8601String()),
         expiresAt: json['expiresAt'] != null ? DateTime.parse(json['expiresAt']) : 
                   json['expires_at'] != null ? DateTime.parse(json['expires_at']) : null,
@@ -82,7 +156,7 @@ class ActivationHistory {
     return {
       'id': id,
       'licensePlate': licensePlate,
-      'quantity': quantity,
+      'parkingTime': parkingTime,
       'activatedAt': activatedAt.toIso8601String(),
       'expiresAt': expiresAt?.toIso8601String(),
       'status': status,

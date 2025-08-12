@@ -4,6 +4,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import '../../models/history_models.dart';
 import '../../providers/history_provider.dart';
 import 'order_detail_screen.dart';
+import 'activation_detail_screen.dart';
 import 'package:intl/intl.dart';
 
 class HistoryScreen extends ConsumerStatefulWidget {
@@ -107,6 +108,34 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen>
           textColor: Colors.white,
         );
       }
+    }
+  }
+
+  IconData _getPaymentMethodIcon(String method) {
+    switch (method.toLowerCase()) {
+      case 'pix':
+        return Icons.pix;
+      case 'billet':
+        return Icons.receipt_long;
+      case 'credit_card':
+      case 'creditcard':
+        return Icons.credit_card;
+      default:
+        return Icons.money;
+    }
+  }
+
+  Color _getPaymentMethodColor(String method) {
+    switch (method.toLowerCase()) {
+      case 'pix':
+        return Colors.green;
+      case 'billet':
+        return Colors.orange;
+      case 'credit_card':
+      case 'creditcard':
+        return Colors.blue;
+      default:
+        return Colors.grey;
     }
   }
 
@@ -405,12 +434,6 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen>
               
               Row(
                 children: [
-                  Icon(
-                    Icons.directions_car,
-                    size: 18,
-                    color: Colors.grey.shade600,
-                  ),
-                  const SizedBox(width: 8),
                   Text(
                     order.licensePlate,
                     style: TextStyle(
@@ -502,9 +525,21 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen>
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ActivationDetailScreen(
+                activationId: activation.id,
+              ),
+            ),
+          );
+        },
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
@@ -517,7 +552,17 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen>
                     fontSize: 16,
                   ),
                 ),
-                _buildStatusChip(activation.status),
+                Row(
+                  children: [
+                    _buildParkingStatusChip(activation),
+                    const SizedBox(width: 8),
+                    Icon(
+                      Icons.arrow_forward_ios,
+                      size: 16,
+                      color: Colors.grey[400],
+                    ),
+                  ],
+                ),
               ],
             ),
             
@@ -544,18 +589,39 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen>
             const SizedBox(height: 4),
             
             Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Icon(
-                  Icons.confirmation_number,
-                  size: 18,
-                  color: Colors.grey.shade600,
+                Row(
+                  children: [
+                    Icon(
+                      Icons.credit_card,
+                      size: 18,
+                      color: Colors.grey.shade600,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      '${activation.quantity} créditos',
+                      style: TextStyle(
+                        color: Colors.grey.shade600,
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(width: 8),
-                Text(
-                  '${activation.quantity} tickets',
-                  style: TextStyle(
-                    color: Colors.grey.shade600,
-                  ),
+                Row(
+                  children: [
+                    Icon(
+                      Icons.timer,
+                      size: 18,
+                      color: Colors.grey.shade600,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      '${activation.parkingTime} min',
+                      style: TextStyle(
+                        color: Colors.grey.shade600,
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -623,6 +689,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen>
           ],
         ),
       ),
+    )
     );
   }
 
@@ -632,26 +699,28 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen>
     String displayText;
 
     switch (status.toLowerCase()) {
+      case 'pago':
       case 'completed':
       case 'active':
-        backgroundColor = Colors.green;
-        textColor = Colors.white;
-        displayText = 'Ativo';
+        backgroundColor = Colors.green.shade100;
+        textColor = Colors.green.shade700;
+        displayText = 'Pago';
         break;
+      case 'aguardando pagamento':
       case 'pending':
-        backgroundColor = Colors.orange;
-        textColor = Colors.white;
-        displayText = 'Pendente';
+        backgroundColor = Colors.orange.shade100;
+        textColor = Colors.orange.shade700;
+        displayText = 'Aguardando pagamento';
         break;
       case 'cancelled':
       case 'expired':
-        backgroundColor = Colors.red;
-        textColor = Colors.white;
+        backgroundColor = Colors.red.shade100;
+        textColor = Colors.red.shade700;
         displayText = status.toLowerCase() == 'cancelled' ? 'Cancelado' : 'Expirado';
         break;
       default:
-        backgroundColor = Colors.grey;
-        textColor = Colors.white;
+        backgroundColor = Colors.grey.shade100;
+        textColor = Colors.grey.shade700;
         displayText = status;
     }
 
@@ -665,6 +734,24 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen>
         displayText,
         style: TextStyle(
           color: textColor,
+          fontSize: 12,
+          fontWeight: FontWeight.normal,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildParkingStatusChip(ActivationHistory activation) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: activation.statusColor,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Text(
+        activation.displayStatus,
+        style: const TextStyle(
+          color: Colors.white,
           fontSize: 12,
           fontWeight: FontWeight.bold,
         ),

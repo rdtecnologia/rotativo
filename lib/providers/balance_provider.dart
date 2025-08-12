@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/vehicle_models.dart';
 import '../services/balance_service.dart';
@@ -38,13 +39,29 @@ class BalanceNotifier extends StateNotifier<BalanceState> {
 
   Future<void> loadBalance() async {
     try {
+      if (kDebugMode) {
+        print('🔍 BalanceProvider - Starting loadBalance');
+      }
+      
       state = state.copyWith(isLoading: true, clearError: true);
       final balance = await BalanceService.getBalance();
+      
+      if (kDebugMode) {
+        print('🔍 BalanceProvider - Received balance: ${balance.credits} credits, ${balance.realValue} real');
+      }
+      
       state = state.copyWith(
         balance: balance,
         isLoading: false,
       );
+      
+      if (kDebugMode) {
+        print('🔍 BalanceProvider - State updated with balance: ${state.balance?.credits} credits');
+      }
     } catch (e) {
+      if (kDebugMode) {
+        print('❌ BalanceProvider - Error loading balance: $e');
+      }
       state = state.copyWith(
         isLoading: false,
         error: e.toString(),

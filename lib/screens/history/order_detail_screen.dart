@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:qr_flutter/qr_flutter.dart';
+import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 import '../../models/history_models.dart';
 import '../../providers/order_detail_provider.dart';
 import '../../utils/formatters.dart';
@@ -81,6 +83,140 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
       default:
         return method.isEmpty ? 'Dinheiro' : method;
     }
+  }
+
+  IconData _getPaymentMethodIcon(String method) {
+    switch (method.toLowerCase()) {
+      case 'pix':
+        return Icons.pix;
+      case 'billet':
+        return Icons.receipt_long;
+      case 'credit_card':
+      case 'creditcard':
+        return Icons.credit_card;
+      default:
+        return Icons.money;
+    }
+  }
+
+  Color _getPaymentMethodColor(String method) {
+    switch (method.toLowerCase()) {
+      case 'pix':
+        return Colors.green;
+      case 'billet':
+        return Colors.orange;
+      case 'credit_card':
+      case 'creditcard':
+        return Colors.blue;
+      default:
+        return Colors.grey;
+    }
+  }
+
+  Color _getStatusColor(String status) {
+    switch (status.toLowerCase()) {
+      case 'pago':
+        return Colors.green.shade700;
+      case 'aguardando pagamento':
+        return Colors.orange.shade700;
+      case 'cancelado':
+      case 'cancelled':
+        return Colors.red.shade700;
+      case 'expirado':
+      case 'expired':
+        return Colors.red.shade700;
+      default:
+        return Colors.grey.shade700;
+    }
+  }
+
+  void _showQRCodePopup(String pixKey) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Container(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  'QR Code PIX',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.grey.shade300),
+                  ),
+                  child: QrImageView(
+                    data: pixKey,
+                    version: QrVersions.auto,
+                    size: 200.0,
+                    backgroundColor: Colors.white,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    TextButton(
+                      onPressed: () => _copyToClipboard(
+                        pixKey,
+                        'Código PIX copiado para sua área de transferência',
+                      ),
+                      child: const Text('Copiar Código'),
+                    ),
+                    ElevatedButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      child: const Text('Fechar'),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _showPDFPopup(String pdfUrl) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => Scaffold(
+          appBar: AppBar(
+            title: const Text('Visualizar Boleto'),
+            backgroundColor: Theme.of(context).primaryColor,
+            foregroundColor: Colors.white,
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.close),
+                onPressed: () => Navigator.of(context).pop(),
+              ),
+            ],
+          ),
+          body: SfPdfViewer.network(
+            pdfUrl,
+            canShowPaginationDialog: true,
+            canShowScrollHead: true,
+            canShowScrollStatus: true,
+            enableDoubleTapZooming: true,
+            enableTextSelection: true,
+            enableHyperlinkNavigation: true,
+          ),
+        ),
+      ),
+    );
   }
 
   Widget _buildDetailBox({
@@ -209,18 +345,64 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
           AppFormatters.formatDateTime(order.createdAt),
         ),
         
-        _buildDetailItem('Status da compra:', order.status),
-        
-        _buildDetailItem(
-          'Meio de pagamento:', 
-          payment != null ? _getPaymentMethodText(payment.method) : 'Dinheiro',
+        // Status da compra destacado
+        Row(
+          children: [
+            Expanded(
+              child: _buildDetailItem(
+                'Status da compra:', 
+                '',
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: _getStatusColor(order.status).withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Text(
+                order.status,
+                style: TextStyle(
+                  color: _getStatusColor(order.status),
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
         ),
         
-        // PIX details
-        if (payment?.pix != null) ...[
+        // Payment method with icon
+        Row(
+          children: [
+            Expanded(
+              child: _buildDetailItem(
+                'Meio de pagamento:', 
+                payment != null ? _getPaymentMethodText(payment.method) : 'Dinheiro',
+              ),
+            ),
+            if (payment != null) ...[
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: _getPaymentMethodColor(payment.method).withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(
+                  _getPaymentMethodIcon(payment.method),
+                  color: _getPaymentMethodColor(payment.method),
+                  size: 24,
+                ),
+              ),
+            ],
+          ],
+        ),
+        
+        // PIX details - only show if payment is pending
+        if (payment?.pix != null && payment!.status == 'Aguardando Pagamento') ...[
           _buildDetailItem(
             'Chave PIX: Clique na chave abaixo para copiar o código:',
-            payment!.pix!.text,
+            payment.pix!.text,
             isLink: true,
             onTap: () => _copyToClipboard(
               payment.pix!.text,
@@ -229,7 +411,7 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
           ),
           const SizedBox(height: 8),
           GestureDetector(
-            onTap: () => _launchUrl(payment.pix!.url),
+            onTap: () => _showQRCodePopup(payment.pix!.text),
             child: const Text(
               'Visualizar QRCode',
               style: TextStyle(
@@ -262,7 +444,7 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
           if (payment.status == 'Aguardando Pagamento') ...[
             const SizedBox(height: 8),
             GestureDetector(
-              onTap: () => _launchUrl(payment.billet!.url),
+              onTap: () => _showPDFPopup(payment.billet!.url),
               child: const Text(
                 'Visualizar boleto',
                 style: TextStyle(

@@ -70,14 +70,59 @@ class BalanceService {
       
       if (response.statusCode == 200) {
         final data = response.data;
-        if (data != null) {
-          return Balance.fromJson(data);
+        if (kDebugMode) {
+          print('🔍 BalanceService - Raw API response: $data');
+        }
+        
+        if (data != null && data is List) {
+          // API returns array of balance items, we need to calculate totals
+          final items = data as List<dynamic>;
+          double totalCredits = 0;
+          double totalRealValue = 0;
+          
+          if (kDebugMode) {
+            print('🔍 BalanceService - Processing ${items.length} items');
+          }
+          
+          for (final item in items) {
+            if (item is Map<String, dynamic>) {
+              final quantity = (item['quantity'] ?? 0) as int;
+              final product = item['product'] as Map<String, dynamic>?;
+              final price = (product?['price'] ?? 0) as num;
+              
+              if (kDebugMode) {
+                print('🔍 BalanceService - Item: quantity=$quantity, price=$price');
+              }
+              
+              totalCredits += quantity;
+              totalRealValue += quantity * price;
+            }
+          }
+          
+          if (kDebugMode) {
+            print('🔍 BalanceService - Calculated totals: credits=$totalCredits, realValue=$totalRealValue');
+          }
+          
+          final balance = Balance(
+            credits: totalCredits,
+            realValue: totalRealValue,
+            items: items.map((item) => BalanceItem.fromJson(item)).toList(),
+          );
+          
+          if (kDebugMode) {
+            print('🔍 BalanceService - Created Balance object: ${balance.credits} credits, ${balance.realValue} real');
+          }
+          
+          return balance;
         }
         return const Balance(credits: 0, realValue: 0, items: []);
       } else {
         throw Exception('Erro ao buscar saldo: ${response.statusMessage}');
       }
     } catch (e) {
+      if (kDebugMode) {
+        print('❌ BalanceService - Error: $e');
+      }
       throw Exception('Erro ao buscar saldo: $e');
     }
   }

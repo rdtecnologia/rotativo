@@ -321,33 +321,40 @@ class ChooseValueScreen extends ConsumerWidget {
                     );
                   }
 
-                  return parkingRulesAsync.when(
-                    loading: () => ListView.builder(
-                      itemCount: products.length,
-                      itemBuilder: (context, index) {
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 12),
-                          child: _buildProductCard(context, ref, products[index], null),
-                        );
-                      },
-                    ),
-                    error: (_, __) => ListView.builder(
-                      itemCount: products.length,
-                      itemBuilder: (context, index) {
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 12),
-                          child: _buildProductCard(context, ref, products[index], null),
-                        );
-                      },
-                    ),
-                    data: (parkingRules) => ListView.builder(
-                      itemCount: products.length,
-                      itemBuilder: (context, index) {
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 12),
-                          child: _buildProductCard(context, ref, products[index], parkingRules),
-                        );
-                      },
+                  return RefreshIndicator(
+                    onRefresh: () async {
+                      // Refresh city config and parking rules
+                      ref.invalidate(cityConfigProvider);
+                      ref.invalidate(parkingRulesProvider);
+                    },
+                    child: parkingRulesAsync.when(
+                      loading: () => ListView.builder(
+                        itemCount: products.length,
+                        itemBuilder: (context, index) {
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 12),
+                            child: _buildProductCard(context, ref, products[index], null),
+                          );
+                        },
+                      ),
+                      error: (_, __) => ListView.builder(
+                        itemCount: products.length,
+                        itemBuilder: (context, index) {
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 12),
+                            child: _buildProductCard(context, ref, products[index], null),
+                          );
+                        },
+                      ),
+                      data: (parkingRules) => ListView.builder(
+                        itemCount: products.length,
+                        itemBuilder: (context, index) {
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 12),
+                            child: _buildProductCard(context, ref, products[index], parkingRules),
+                          );
+                        },
+                      ),
                     ),
                   );
                 },
