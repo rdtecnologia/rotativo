@@ -5,6 +5,7 @@ import '../providers/auth_provider.dart';
 import '../screens/settings/settings_screen.dart';
 import '../screens/history/history_screen.dart';
 import '../screens/vehicles/register_vehicle_screen.dart';
+import '../screens/purchase/vehicle_type_screen.dart';
 
 class CustomDrawer extends ConsumerWidget {
   const CustomDrawer({super.key});
@@ -81,7 +82,12 @@ class CustomDrawer extends ConsumerWidget {
                   title: 'Comprar',
                   onTap: () {
                     Navigator.pop(context);
-                    // TODO: Navigate to purchase screen
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const VehicleTypeScreen(),
+                      ),
+                    );
                   },
                 ),
                 _buildMenuItem(

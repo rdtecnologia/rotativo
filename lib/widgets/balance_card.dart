@@ -52,23 +52,50 @@ class BalanceCard extends StatelessWidget {
                 color: Theme.of(context).primaryColor,
               ),
               const SizedBox(height: 8),
+              // Available label (top)
               Text(
-                _getBalanceText(),
+                'DISPONÍVEL',
                 style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Theme.of(context).primaryColor,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                displayType == 'credits' ? 'CRÉDITOS' : 'SALDO',
-                style: TextStyle(
-                  fontSize: 12,
+                  fontSize: 10,
                   fontWeight: FontWeight.w600,
                   color: Colors.grey.shade600,
-                  letterSpacing: 1,
+                  letterSpacing: 0.5,
                 ),
+              ),
+              const SizedBox(height: 2),
+              // Real value
+              Text(
+                'R\$ ${balance?.realValue.toStringAsFixed(2).replaceAll('.', ',') ?? '0,00'}',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.green.shade700,
+                ),
+              ),
+              const SizedBox(height: 8),
+              // Credits (bottom, compact)
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    balance?.credits.toStringAsFixed(0) ?? '0',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).primaryColor,
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    'créditos',
+                    style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.grey.shade600,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                ],
               ),
             ],
           ],
@@ -77,15 +104,7 @@ class BalanceCard extends StatelessWidget {
     );
   }
 
-  String _getBalanceText() {
-    if (balance == null) return '0';
-    
-    if (displayType == 'credits') {
-      return balance!.credits.toStringAsFixed(0);
-    } else {
-      return 'R\$ ${balance!.realValue.toStringAsFixed(2).replaceAll('.', ',')}';
-    }
-  }
+
 }
 
 class ActionCard extends StatelessWidget {

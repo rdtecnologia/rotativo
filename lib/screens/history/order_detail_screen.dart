@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:qr_flutter/qr_flutter.dart';
@@ -191,32 +192,58 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
   }
 
   void _showPDFPopup(String pdfUrl) {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => Scaffold(
-          appBar: AppBar(
-            title: const Text('Visualizar Boleto'),
-            backgroundColor: Theme.of(context).primaryColor,
-            foregroundColor: Colors.white,
-            actions: [
-              IconButton(
-                icon: const Icon(Icons.close),
-                onPressed: () => Navigator.of(context).pop(),
-              ),
-            ],
-          ),
-          body: SfPdfViewer.network(
-            pdfUrl,
-            canShowPaginationDialog: true,
-            canShowScrollHead: true,
-            canShowScrollStatus: true,
-            enableDoubleTapZooming: true,
-            enableTextSelection: true,
-            enableHyperlinkNavigation: true,
+    if (kDebugMode) {
+      print('📄 PDF Viewer - Tentando abrir URL: $pdfUrl');
+    }
+    
+    // Primeiro tenta abrir no visualizador interno
+    try {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => Scaffold(
+            appBar: AppBar(
+              title: const Text('Visualizar Boleto'),
+              backgroundColor: Theme.of(context).primaryColor,
+              foregroundColor: Colors.white,
+              actions: [
+                IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.open_in_browser),
+                  onPressed: () => _launchUrl(pdfUrl),
+                  tooltip: 'Abrir no navegador',
+                ),
+              ],
+            ),
+            body: SfPdfViewer.network(
+              pdfUrl,
+              canShowPaginationDialog: true,
+              canShowScrollHead: true,
+              canShowScrollStatus: true,
+              enableDoubleTapZooming: true,
+              enableTextSelection: true,
+              enableHyperlinkNavigation: true,
+            ),
           ),
         ),
-      ),
-    );
+      );
+    } catch (e) {
+      if (kDebugMode) {
+        print('📄 PDF Viewer - Erro ao abrir visualizador interno: $e');
+      }
+      
+      // Se falhar, abre no navegador
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Erro ao abrir PDF. Abrindo no navegador...'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+      
+      _launchUrl(pdfUrl);
+    }
   }
 
   Widget _buildDetailBox({

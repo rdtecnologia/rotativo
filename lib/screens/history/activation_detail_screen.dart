@@ -382,6 +382,38 @@ class _ActivationDetailScreenState extends ConsumerState<ActivationDetailScreen>
                   
                   const SizedBox(height: 16),
                   
+                  // Informação sobre status e atualização
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.orange.shade50,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.orange.shade200),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.info_outline,
+                          color: Colors.orange.shade700,
+                          size: 20,
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            'Para mostrar corretamente o status de ativação, mantenha a data e hora do seu celular sempre atualizadas.',
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: Colors.orange.shade800,
+                              height: 1.4,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  
+                  const SizedBox(height: 16),
+                  
                   // Location section
                   const Text(
                     'Localização',
