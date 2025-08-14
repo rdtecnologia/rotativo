@@ -16,6 +16,7 @@ class AppTextField extends StatelessWidget {
   final int? maxLines;
   final TextCapitalization textCapitalization;
   final String? initialValue;
+  final Color? fillColor; // Nova propriedade para cor de fundo personalizada
 
   const AppTextField({
     super.key,
@@ -32,6 +33,7 @@ class AppTextField extends StatelessWidget {
     this.maxLines = 1,
     this.textCapitalization = TextCapitalization.none,
     this.initialValue,
+    this.fillColor, // Nova propriedade opcional
   });
 
   @override
@@ -76,7 +78,7 @@ class AppTextField extends StatelessWidget {
           ),
         ),
         filled: true,
-        fillColor: enabled ? Colors.white : Colors.grey.shade100,
+        fillColor: fillColor ?? (enabled ? Colors.white : Colors.grey.shade100), // Usa cor personalizada ou padrão
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 16,
           vertical: 16,

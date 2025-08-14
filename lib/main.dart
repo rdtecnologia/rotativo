@@ -99,11 +99,17 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
   @override
   void initState() {
     super.initState();
+    debugPrint('🅿️ Main - initState: Iniciando tela principal');
     _focusNode = FocusNode();
     _loadData();
+    debugPrint('🅿️ Main - initState: _loadData chamado');
     
     // Adiciona listener para detectar quando a tela recebe foco
-    WidgetsBinding.instance.addObserver(this);
+    _focusNode.addListener(() {
+      if (_focusNode.hasFocus) {
+        debugPrint('🅿️ Main - FocusNode: Tela recebeu foco');
+      }
+    });
   }
 
   @override
@@ -154,7 +160,9 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
     final vehicleState = ref.read(vehicleProvider);
     debugPrint('🅿️ Main - _loadActiveActivations: ${vehicleState.vehicles.length} veículos carregados');
     if (vehicleState.vehicles.isNotEmpty) {
+      debugPrint('🅿️ Main - _loadActiveActivations: Iniciando carregamento para veículos: ${vehicleState.vehicles.map((v) => v.licensePlate).join(', ')}');
       await ref.read(activeActivationsProvider.notifier).loadActiveActivationsForVehicles(vehicleState.vehicles);
+      debugPrint('🅿️ Main - _loadActiveActivations: Carregamento finalizado');
     } else {
       debugPrint('🅿️ Main - _loadActiveActivations: Nenhum veículo disponível ainda');
     }

@@ -5,6 +5,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import '../../providers/auth_provider.dart';
 import '../../utils/validators.dart';
 import '../../utils/formatters.dart';
+import '../../widgets/parking_background.dart';
 import '../widgets/loading_button.dart';
 import '../widgets/app_text_field.dart';
 
@@ -70,17 +71,9 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
     final authState = ref.watch(authProvider);
 
     return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Theme.of(context).primaryColor,
-              Theme.of(context).primaryColor.withValues(alpha: 0.8),
-            ],
-          ),
-        ),
+      body: ParkingBackground(
+        primaryColor: Theme.of(context).primaryColor,
+        opacity: 0.25,
         child: SafeArea(
           child: Center(
             child: SingleChildScrollView(

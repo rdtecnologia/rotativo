@@ -40,37 +40,24 @@ class ActiveActivationsNotifier extends StateNotifier<Map<String, ActivationHist
 
       debugPrint('🅿️ ActiveActivationsProvider - Encontradas ${activations.length} ativações para ${vehicle.licensePlate}');
 
-      // Filtra ativações que ainda estão ativas OU foram ativadas nas últimas 24 horas
-      final activeActivations = activations.where((activation) {
-        final isActive = activation.isActive;
-        final isRecent = DateTime.now().difference(activation.activatedAt).inHours < 24;
-        final shouldShow = isActive || isRecent;
-        
-        debugPrint('🅿️ ActiveActivationsProvider - Ativação ${activation.id}: isActive=$isActive, isRecent=$isRecent, shouldShow=$shouldShow, activatedAt=${activation.activatedAt}, parkingTime=${activation.parkingTime}');
-        
-        return shouldShow;
-      }).toList();
-      
-      debugPrint('🅿️ ActiveActivationsProvider - ${activeActivations.length} ativações ativas para ${vehicle.licensePlate}');
-      
-      if (activeActivations.isNotEmpty) {
-        // Pega a ativação mais recente (última ativada)
-        final mostRecent = activeActivations.reduce((a, b) => 
+      if (activations.isNotEmpty) {
+        // SEMPRE pega a ativação mais recente, independentemente do status
+        final mostRecent = activations.reduce((a, b) => 
           a.activatedAt.isAfter(b.activatedAt) ? a : b
         );
         
-        debugPrint('🅿️ ActiveActivationsProvider - Ativação mais recente: ${mostRecent.id}, tempo restante: ${mostRecent.remainingMinutes}min');
+        debugPrint('🅿️ ActiveActivationsProvider - Ativação mais recente: ${mostRecent.id}, tempo restante: ${mostRecent.remainingMinutes}min, isActive: ${mostRecent.isActive}');
         
         state = {
           ...state,
           vehicle.licensePlate: mostRecent,
         };
       } else {
-        // Remove o veículo do estado se não há ativação ativa
+        // Remove o veículo do estado se não há ativação
         final newState = Map<String, ActivationHistory>.from(state);
         newState.remove(vehicle.licensePlate);
         state = newState;
-        debugPrint('🅿️ ActiveActivationsProvider - Nenhuma ativação ativa para ${vehicle.licensePlate}, removido do estado');
+        debugPrint('🅿️ ActiveActivationsProvider - Nenhuma ativação para ${vehicle.licensePlate}, removido do estado');
       }
     } catch (e) {
       debugPrint('🚨 ActiveActivationsProvider - Erro ao carregar ativação ativa para ${vehicle.licensePlate}: $e');

@@ -63,6 +63,7 @@ flutter:
   
   # Assets
   assets:
+    - assets/images/
     - assets/config/cities/
     - assets/config/cities/Main/
     - assets/config/cities/PatosDeMinas/

@@ -27,17 +27,12 @@ class ParkingTimer extends ConsumerWidget {
     
     if (activeActivation == null) {
       debugPrint('🅿️ ParkingTimer - Nenhuma ativação ativa para ${vehicle.licensePlate}');
-      return const SizedBox.shrink(); // Não mostra nada se não há ativação ativa
+      return const SizedBox.shrink(); // Não mostra nada se não há ativação
     }
 
-    // Verifica se ainda está ativa OU se foi ativada nas últimas 24 horas
+    // SEMPRE mostra a ativação se ela existir, independentemente do status
     final isActive = activeActivation.isActive;
     final isRecent = DateTime.now().difference(activeActivation.activatedAt).inHours < 24;
-    
-    if (!isActive && !isRecent) {
-      debugPrint('🅿️ ParkingTimer - Ativação ${activeActivation.id} não está ativa nem é recente para ${vehicle.licensePlate}');
-      return const SizedBox.shrink();
-    }
     
     debugPrint('🅿️ ParkingTimer - Mostrando timer para ${vehicle.licensePlate}: ${activeActivation.remainingMinutes}min restantes, isActive=$isActive, isRecent=$isRecent');
 
@@ -149,6 +144,20 @@ class ParkingTimer extends ConsumerWidget {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
+          
+          // Status adicional para ativações expiradas
+          if (!isActive) ...[
+            const SizedBox(height: 2),
+            Text(
+              'Expirado',
+              style: TextStyle(
+                color: Colors.red[300],
+                fontSize: 9,
+                fontWeight: FontWeight.w500,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
         ],
       ),
     );
