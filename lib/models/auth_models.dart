@@ -1,4 +1,5 @@
 // Models for authentication
+import '../utils/date_utils.dart' as AppDateUtils;
 
 class User {
   final String? id;
@@ -29,8 +30,8 @@ class User {
       cpf: json['cpf']?.toString(),
       phone: json['mobile']?.toString(),
       token: json['token']?.toString(),
-      createdAt: json['createdAt'] != null ? DateTime.tryParse(json['createdAt']) : null,
-      updatedAt: json['updatedAt'] != null ? DateTime.tryParse(json['updatedAt']) : null,
+      createdAt: json['createdAt'] != null ? AppDateUtils.DateUtils.parseUtcDate(json['createdAt']) : null,
+      updatedAt: json['updatedAt'] != null ? AppDateUtils.DateUtils.parseUtcDate(json['updatedAt']) : null,
     );
   }
 

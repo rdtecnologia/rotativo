@@ -347,14 +347,28 @@ class HistoryService {
     }
   }
 
-  /// Delete an order
+  /// Delete an order (request cancellation/chargeback)
   static Future<bool> deleteOrder(String orderId, String value) async {
     try {
+      if (kDebugMode) {
+        print('🗑️ HistoryService.deleteOrder - orderId: $orderId, value: $value');
+      }
+
       final dio = await _getDio();
-      await dio.delete('/order/$orderId?value=$value');
+      final response = await dio.delete('/order/$orderId?value=$value');
+
+      if (kDebugMode) {
+        print('🗑️ HistoryService.deleteOrder - Response status: ${response.statusCode}');
+        print('🗑️ HistoryService.deleteOrder - Response data: ${response.data}');
+      }
 
       return true;
     } on DioException catch (e) {
+      if (kDebugMode) {
+        print('🗑️ HistoryService.deleteOrder - DioException: ${e.message}');
+        print('🗑️ HistoryService.deleteOrder - Response: ${e.response?.data}');
+      }
+      
       if (e.response?.statusCode == 404) {
         throw Exception('Compra não encontrada');
       } else if (e.response?.statusCode == 400) {
@@ -362,6 +376,9 @@ class HistoryService {
       }
       throw Exception('Erro ao cancelar compra: ${e.message}');
     } catch (e) {
+      if (kDebugMode) {
+        print('🗑️ HistoryService.deleteOrder - Exception: $e');
+      }
       throw Exception('Erro inesperado ao cancelar: $e');
     }
   }

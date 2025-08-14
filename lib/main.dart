@@ -6,7 +6,8 @@ import 'debug_page.dart';
 import 'providers/auth_provider.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/history/history_screen.dart';
-import 'screens/purchase/vehicle_type_screen.dart';
+
+import 'screens/purchase/choose_value_screen.dart';
 import 'screens/parking/parking_screen.dart';
 import 'widgets/custom_drawer.dart';
 import 'widgets/vehicle_carousel.dart';
@@ -14,6 +15,7 @@ import 'widgets/balance_card.dart';
 import 'models/vehicle_models.dart';
 import 'providers/vehicle_provider.dart';
 import 'providers/balance_provider.dart';
+import 'providers/active_activations_provider.dart';
 
 void main() {
   // Initialize app environment configuration
@@ -89,14 +91,36 @@ class HomePage extends ConsumerStatefulWidget {
   ConsumerState<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends ConsumerState<HomePage> {
+class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   String? cityName;
+  late FocusNode _focusNode;
 
   @override
   void initState() {
     super.initState();
+    _focusNode = FocusNode();
     _loadData();
+    
+    // Adiciona listener para detectar quando a tela recebe foco
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    _focusNode.dispose();
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    
+    // Quando o app volta ao estado ativo (resumed), atualiza o saldo
+    if (state == AppLifecycleState.resumed) {
+      _updateBalanceOnly();
+    }
   }
 
   Future<void> _loadData() async {
@@ -105,30 +129,59 @@ class _HomePageState extends ConsumerState<HomePage> {
     setState(() {}); // Update UI with city name
 
     // Load vehicles and balance from API
-    ref.read(vehicleProvider.notifier).loadVehicles();
+    await ref.read(vehicleProvider.notifier).loadVehicles();
     ref.read(balanceProvider.notifier).loadBalance();
+    
+    // Carrega as ativações ativas para todos os veículos após os veículos serem carregados
+    await _loadActiveActivations();
   }
 
   Future<void> _refreshData() async {
     await _loadData();
+    // Recarrega as ativações ativas
+    await _loadActiveActivations();
   }
 
-  void _onVehicleTap(Vehicle vehicle) {
-    Navigator.push(
+  /// Atualiza apenas o saldo sem recarregar toda a tela
+  Future<void> _updateBalanceOnly() async {
+    ref.read(balanceProvider.notifier).loadBalance();
+    // Também atualiza as ativações ativas
+    await _loadActiveActivations();
+  }
+
+  /// Carrega as ativações ativas para todos os veículos
+  Future<void> _loadActiveActivations() async {
+    final vehicleState = ref.read(vehicleProvider);
+    debugPrint('🅿️ Main - _loadActiveActivations: ${vehicleState.vehicles.length} veículos carregados');
+    if (vehicleState.vehicles.isNotEmpty) {
+      await ref.read(activeActivationsProvider.notifier).loadActiveActivationsForVehicles(vehicleState.vehicles);
+    } else {
+      debugPrint('🅿️ Main - _loadActiveActivations: Nenhum veículo disponível ainda');
+    }
+  }
+
+  void _onVehicleTap(Vehicle vehicle) async {
+    await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => ParkingScreen(vehicle: vehicle),
       ),
     );
+    // Quando retorna da tela de estacionamento, atualiza o saldo e ativações
+    await _updateBalanceOnly();
+    await _loadActiveActivations();
   }
 
-  void _onPurchaseTap() {
-    Navigator.push(
+  void _onPurchaseTap() async {
+    await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => const VehicleTypeScreen(),
+        builder: (context) => const ChooseValueScreen(vehicleType: 1), // 1 = carro
       ),
     );
+    // Quando retorna da tela de compra, atualiza o saldo e ativações
+    await _updateBalanceOnly();
+    await _loadActiveActivations();
   }
 
   void _onBalanceTap() {
@@ -138,13 +191,16 @@ class _HomePageState extends ConsumerState<HomePage> {
     );
   }
 
-  void _onHistoryTap() {
-    Navigator.push(
+  void _onHistoryTap() async {
+    await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => const HistoryScreen(),
       ),
     );
+    // Quando retorna da tela de histórico, atualiza o saldo e ativações
+    await _updateBalanceOnly();
+    await _loadActiveActivations();
   }
 
   @override
@@ -152,7 +208,15 @@ class _HomePageState extends ConsumerState<HomePage> {
     return Scaffold(
       key: _scaffoldKey,
       drawer: const CustomDrawer(),
-      body: Container(
+      body: Focus(
+        focusNode: _focusNode,
+        onFocusChange: (hasFocus) async {
+          // Quando a tela recebe foco, atualiza o saldo
+          if (hasFocus) {
+            await _updateBalanceOnly();
+          }
+        },
+        child: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
@@ -251,7 +315,7 @@ class _HomePageState extends ConsumerState<HomePage> {
 
               // Bottom action cards
               Padding(
-                padding: const EdgeInsets.all(16.0),
+                padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0), // Reduzido padding
                 child: Row(
                   children: [
                     // Purchase card
@@ -264,7 +328,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                       ),
                     ),
                     
-                    const SizedBox(width: 12),
+                    const SizedBox(width: 8), // Reduzido de 12 para 8
                     
                     // Balance card
                     Expanded(
@@ -283,7 +347,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                       ),
                     ),
                     
-                    const SizedBox(width: 12),
+                    const SizedBox(width: 8), // Reduzido de 12 para 8
                     
                     // History card
                     Expanded(
@@ -298,9 +362,10 @@ class _HomePageState extends ConsumerState<HomePage> {
                 ),
               ),
               
-              const SizedBox(height: 16),
+              const SizedBox(height: 12), // Reduzido de 16 para 12
             ],
           ),
+        ),
         ),
       ),
     );

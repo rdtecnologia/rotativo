@@ -1,4 +1,5 @@
 // Purchase models following React Native patterns
+import '../utils/date_utils.dart' as AppDateUtils;
 
 enum PaymentMethodType {
   creditCard('CREDIT_CARD'),
@@ -328,6 +329,9 @@ class OrderResponse {
   final double value;
   final DateTime createdAt;
   final String? paymentUrl; // For PIX QR Code or Billet URL
+  final String? pixCode; // PIX code for copying
+  final String? boletoLine; // Boleto line for copying
+  final List<PaymentDetail>? payments; // Payment details including boleto data
 
   OrderResponse({
     required this.id,
@@ -335,15 +339,136 @@ class OrderResponse {
     required this.value,
     required this.createdAt,
     this.paymentUrl,
+    this.pixCode,
+    this.boletoLine,
+    this.payments,
   });
 
   factory OrderResponse.fromJson(Map<String, dynamic> json) {
+    final paymentsList = json['payments'] as List<dynamic>?;
+    final payments = paymentsList?.map((p) => PaymentDetail.fromJson(p)).toList();
+
     return OrderResponse(
       id: json['id']?.toString() ?? '',
       status: json['status']?.toString() ?? '',
       value: (json['value'] ?? 0).toDouble(),
-      createdAt: DateTime.tryParse(json['createdAt']?.toString() ?? '') ?? DateTime.now(),
+      createdAt: AppDateUtils.DateUtils.parseUtcDate(json['createdAt']?.toString()) ?? DateTime.now(),
       paymentUrl: json['paymentUrl']?.toString(),
+      pixCode: json['pixCode']?.toString(),
+      boletoLine: json['boletoLine']?.toString(),
+      payments: payments,
+    );
+  }
+
+  // Helper methods to get boleto data
+  String? get boletoLineCode {
+    if (payments == null || payments!.isEmpty) return null;
+    final boletoPayment = payments!.firstWhere(
+      (p) => p.method == 'Boleto Bancário',
+      orElse: () => PaymentDetail.empty(),
+    );
+    return boletoPayment.billet?.lineCode;
+  }
+
+  String? get boletoUrl {
+    if (payments == null || payments!.isEmpty) return null;
+    final boletoPayment = payments!.firstWhere(
+      (p) => p.method == 'Boleto Bancário',
+      orElse: () => PaymentDetail.empty(),
+    );
+    return boletoPayment.billet?.url;
+  }
+
+  // Helper methods to get PIX data
+  String? get pixCodeFromPayments {
+    if (payments == null || payments!.isEmpty) return null;
+    final pixPayment = payments!.firstWhere(
+      (p) => p.method == 'Pix',
+      orElse: () => PaymentDetail.empty(),
+    );
+    return pixPayment.pix?.text;
+  }
+
+  String? get pixUrl {
+    if (payments == null || payments!.isEmpty) return null;
+    final pixPayment = payments!.firstWhere(
+      (p) => p.method == 'Pix',
+      orElse: () => PaymentDetail.empty(),
+    );
+    return pixPayment.pix?.url;
+  }
+}
+
+// Payment detail models
+class PaymentDetail {
+  final String status;
+  final String gateway;
+  final String method;
+  final BoletoData? billet;
+  final PixData? pix;
+
+  PaymentDetail({
+    required this.status,
+    required this.gateway,
+    required this.method,
+    this.billet,
+    this.pix,
+  });
+
+  factory PaymentDetail.fromJson(Map<String, dynamic> json) {
+    return PaymentDetail(
+      status: json['status']?.toString() ?? '',
+      gateway: json['gateway']?.toString() ?? '',
+      method: json['method']?.toString() ?? '',
+      billet: json['billet'] != null ? BoletoData.fromJson(json['billet']) : null,
+      pix: json['pix'] != null ? PixData.fromJson(json['pix']) : null,
+    );
+  }
+
+  factory PaymentDetail.empty() {
+    return PaymentDetail(
+      status: '',
+      gateway: '',
+      method: '',
+      billet: null,
+      pix: null,
+    );
+  }
+}
+
+class BoletoData {
+  final String? expirationDate;
+  final String? lineCode;
+  final String? url;
+
+  BoletoData({
+    this.expirationDate,
+    this.lineCode,
+    this.url,
+  });
+
+  factory BoletoData.fromJson(Map<String, dynamic> json) {
+    return BoletoData(
+      expirationDate: json['expirationDate']?.toString(),
+      lineCode: json['lineCode']?.toString(),
+      url: json['url']?.toString(),
+    );
+  }
+}
+
+class PixData {
+  final String? text;
+  final String? url;
+
+  PixData({
+    this.text,
+    this.url,
+  });
+
+  factory PixData.fromJson(Map<String, dynamic> json) {
+    return PixData(
+      text: json['text']?.toString(),
+      url: json['url']?.toString(),
     );
   }
 }

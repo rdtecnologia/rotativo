@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../utils/date_utils.dart' as AppDateUtils;
 
 class OrderHistory {
   final String id;
@@ -25,7 +26,7 @@ class OrderHistory {
         id: json['id']?.toString() ?? '',
         licensePlate: json['licensePlate']?.toString() ?? '',
         value: (json['value'] ?? json['valueTotal'] ?? 0.0).toDouble(),
-        createdAt: DateTime.parse(json['createdAt'] ?? json['created_at'] ?? DateTime.now().toIso8601String()),
+        createdAt: AppDateUtils.DateUtils.parseUtcDate(json['createdAt'] ?? json['created_at']),
         status: json['status']?.toString() ?? '',
         description: json['description']?.toString(),
         paymentMethod: json['paymentMethod']?.toString() ?? json['payment_method']?.toString(),
@@ -141,10 +142,10 @@ class ActivationHistory {
         id: json['id']?.toString() ?? '',
         licensePlate: json['licensePlate']?.toString() ?? '',
         parkingTime: json['parkingTime'] ?? 0,
-        activatedAt: DateTime.parse(json['activatedAt'] ?? json['activated_at'] ?? DateTime.now().toIso8601String()),
-        expiresAt: json['expiresAt'] != null ? DateTime.parse(json['expiresAt']) : 
-                  json['expires_at'] != null ? DateTime.parse(json['expires_at']) : null,
-        status: json['status']?.toString() ?? '',
+        activatedAt: AppDateUtils.DateUtils.parseUtcDate(json['activatedAt'] ?? json['activated_at']),
+        expiresAt: json['expiresAt'] != null ? AppDateUtils.DateUtils.parseUtcDate(json['expiresAt']) : 
+                  json['expires_at'] != null ? AppDateUtils.DateUtils.parseUtcDate(json['expires_at']) : null,
+        status: json['status']?.toString() ?? 'active', // Default para 'active' se não existir
         location: json['location']?.toString(),
       );
     } catch (e) {
@@ -394,8 +395,8 @@ class OrderChargebackLast {
   factory OrderChargebackLast.fromJson(Map<String, dynamic> json) {
     return OrderChargebackLast(
       status: json['status']?.toString() ?? '',
-      createdAt: DateTime.tryParse(json['createdAt']?.toString() ?? '') ?? DateTime.now(),
-      updatedAt: DateTime.tryParse(json['updatedAt']?.toString() ?? '') ?? DateTime.now(),
+      createdAt: AppDateUtils.DateUtils.parseUtcDate(json['createdAt']?.toString()),
+      updatedAt: AppDateUtils.DateUtils.parseUtcDate(json['updatedAt']?.toString()),
       value: (json['value'] ?? 0).toDouble(),
     );
   }
@@ -430,7 +431,7 @@ class OrderDetail {
     try {
       return OrderDetail(
         id: json['id']?.toString() ?? '',
-        createdAt: DateTime.tryParse(json['createdAt']?.toString() ?? '') ?? DateTime.now(),
+        createdAt: AppDateUtils.DateUtils.parseUtcDate(json['createdAt']?.toString()),
         status: json['status']?.toString() ?? 'Desconhecido',
         action: json['action']?.toString(),
         value: (json['value'] ?? 0).toDouble(),

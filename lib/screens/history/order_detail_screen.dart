@@ -7,6 +7,7 @@ import 'package:qr_flutter/qr_flutter.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 import '../../models/history_models.dart';
 import '../../providers/order_detail_provider.dart';
+import '../../services/history_service.dart';
 import '../../utils/formatters.dart';
 
 class OrderDetailScreen extends ConsumerStatefulWidget {
@@ -128,6 +129,211 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
         return Colors.red.shade700;
       default:
         return Colors.grey.shade700;
+    }
+  }
+
+  void _showCancelOrderDialog(OrderDetail order) {
+    final chargeback = order.chargeback;
+    if (chargeback?.action == null) return;
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          title: Row(
+            children: [
+              Icon(
+                Icons.warning_amber_rounded,
+                color: Colors.orange.shade700,
+                size: 28,
+              ),
+              const SizedBox(width: 12),
+              const Text(
+                'Solicitar Cancelamento',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Tem certeza que deseja solicitar o cancelamento desta compra?',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.black87,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.orange.shade50,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.orange.shade200),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Detalhes do Cancelamento:',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.orange.shade800,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      '• Valor a ser reembolsado: R\$ ${AppFormatters.formatCurrency(chargeback!.action!.value)}',
+                      style: const TextStyle(fontSize: 14),
+                    ),
+                    Text(
+                      '• Créditos a serem reembolsados: ${chargeback.action!.quantity}',
+                      style: const TextStyle(fontSize: 14),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      '⚠️ Atenção: Após a solicitação, os créditos ficarão bloqueados até a análise.',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.orange.shade700,
+                        fontStyle: FontStyle.italic,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text(
+                'Cancelar',
+                style: TextStyle(color: Colors.grey),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                _requestOrderCancellation(order);
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.orange,
+                foregroundColor: Colors.white,
+              ),
+              child: const Text(
+                'Confirmar Solicitação',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _requestOrderCancellation(OrderDetail order) async {
+    try {
+      // Mostra loading
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return const AlertDialog(
+            content: Row(
+              children: [
+                CircularProgressIndicator(),
+                SizedBox(width: 20),
+                Text('Solicitando cancelamento...'),
+              ],
+            ),
+          );
+        },
+      );
+
+      // Chama a API de cancelamento
+      final chargeback = order.chargeback;
+      if (chargeback?.action == null) {
+        Navigator.of(context).pop(); // Remove loading
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Erro: Dados de cancelamento não disponíveis'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return;
+      }
+
+      final success = await HistoryService.deleteOrder(
+        order.id,
+        chargeback!.action!.value.toString(),
+      );
+
+      Navigator.of(context).pop(); // Remove loading
+
+      if (success) {
+        // Sucesso
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.check_circle, color: Colors.white),
+                const SizedBox(width: 12),
+                const Expanded(
+                  child: Text(
+                    'Solicitação de cancelamento enviada com sucesso!',
+                    style: TextStyle(fontSize: 16),
+                  ),
+                ),
+              ],
+            ),
+            backgroundColor: Colors.green,
+            duration: const Duration(seconds: 4),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+        );
+        
+        // Recarrega os detalhes da compra para atualizar o status
+        ref.read(orderDetailProvider.notifier).loadOrderDetail(widget.orderId);
+      }
+    } catch (e) {
+      Navigator.of(context).pop(); // Remove loading
+      
+      // Erro
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              const Icon(Icons.error, color: Colors.white),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  'Erro ao solicitar cancelamento: ${e.toString()}',
+                  style: const TextStyle(fontSize: 16),
+                ),
+              ),
+            ],
+          ),
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 4),
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+        ),
+      );
     }
   }
 
@@ -399,6 +605,41 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
           ],
         ),
         
+        // Botão de cancelamento para compras pagas
+        if (order.status == 'Pago' && order.chargeback?.action != null) ...[
+          const SizedBox(height: 16),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              onPressed: (order.chargeback?.last != null || (order.chargeback?.message != null && order.chargeback!.message.isNotEmpty))
+                ? null // Desabilita se já há solicitação em curso OU se passou dos 15 dias (mensagem não vazia)
+                : () => _showCancelOrderDialog(order),
+              icon: Icon(
+                (order.chargeback?.last != null || (order.chargeback?.message != null && order.chargeback!.message.isNotEmpty))
+                  ? Icons.block 
+                  : Icons.cancel_outlined,
+              ),
+              label: Text(
+                order.chargeback?.last != null 
+                  ? 'Solicitação em Andamento'
+                  : (order.chargeback?.message != null && order.chargeback!.message.isNotEmpty)
+                    ? 'Prazo Expirado'
+                    : 'Solicitar Cancelamento',
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: (order.chargeback?.last != null || (order.chargeback?.message != null && order.chargeback!.message.isNotEmpty))
+                  ? Colors.grey 
+                  : Colors.orange,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+            ),
+          ),
+        ],
+        
         // Payment method with icon
         Row(
           children: [
@@ -427,62 +668,213 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
         
         // PIX details - only show if payment is pending
         if (payment?.pix != null && payment!.status == 'Aguardando Pagamento') ...[
-          _buildDetailItem(
-            'Chave PIX: Clique na chave abaixo para copiar o código:',
-            payment.pix!.text,
-            isLink: true,
-            onTap: () => _copyToClipboard(
-              payment.pix!.text,
-              'Código PIX copiado para sua área de transferência',
+          const SizedBox(height: 16),
+          
+          // Container atrativo para PIX
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.green.shade50,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.green.shade200),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Pagamento via PIX',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.green.shade800,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Escaneie o QR Code ou copie a chave PIX para efetuar o pagamento.',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey.shade700,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                
+                // Código PIX copiável
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.green.shade300),
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Código PIX:',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              payment.pix!.text,
+                              style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                                fontFamily: 'monospace',
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      IconButton(
+                        onPressed: () => _copyToClipboard(
+                          payment.pix!.text,
+                          'Código PIX copiado para sua área de transferência',
+                        ),
+                        icon: const Icon(Icons.copy, color: Colors.green),
+                        tooltip: 'Copiar código PIX',
+                      ),
+                    ],
+                  ),
+                ),
+                
+                const SizedBox(height: 16),
+                
+                // Botão para visualizar QR Code
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: () => _showQRCodePopup(payment.pix!.text),
+                    icon: const Icon(Icons.qr_code),
+                    label: const Text('Ver QR Code'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
-          const SizedBox(height: 8),
-          GestureDetector(
-            onTap: () => _showQRCodePopup(payment.pix!.text),
-            child: const Text(
-              'Visualizar QRCode',
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.blue,
-                decoration: TextDecoration.underline,
-              ),
-            ),
-          ),
-          const SizedBox(height: 8),
         ],
         
         // Billet details
         if (payment?.billet != null) ...[
-          _buildDetailItem(
-            'Data de vencimento:', 
-            payment!.billet!.expirationDate.isNotEmpty 
-              ? payment.billet!.expirationDate 
-              : 'Não informada',
-          ),
-          _buildDetailItem(
-            'Linha Digitável (Clique para copiar):',
-            payment.billet!.lineCode,
-            isLink: true,
-            onTap: () => _copyToClipboard(
-              payment.billet!.lineCode,
-              'Linha digitável copiada para sua área de transferência',
+          const SizedBox(height: 16),
+          
+          // Container atrativo para Boleto
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.orange.shade50,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.orange.shade200),
             ),
-          ),
-          if (payment.status == 'Aguardando Pagamento') ...[
-            const SizedBox(height: 8),
-            GestureDetector(
-              onTap: () => _showPDFPopup(payment.billet!.url),
-              child: const Text(
-                'Visualizar boleto',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.blue,
-                  decoration: TextDecoration.underline,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Pagamento via Boleto',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.orange.shade800,
+                  ),
                 ),
-              ),
+                const SizedBox(height: 8),
+                Text(
+                  'Seu boleto foi gerado. Pague até o vencimento em qualquer banco, lotérica ou internet banking.',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey.shade700,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                
+                // Data de vencimento
+                if (payment!.billet!.expirationDate.isNotEmpty) ...[
+                  _buildDetailItem(
+                    'Data de vencimento:', 
+                    payment.billet!.expirationDate,
+                  ),
+                  const SizedBox(height: 16),
+                ],
+                
+                // Linha digitável copiável
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.orange.shade300),
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Linha Digitável:',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              payment.billet!.lineCode,
+                              style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                                fontFamily: 'monospace',
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      IconButton(
+                        onPressed: () => _copyToClipboard(
+                          payment.billet!.lineCode,
+                          'Linha digitável copiada para sua área de transferência',
+                        ),
+                        icon: const Icon(Icons.copy, color: Colors.orange),
+                        tooltip: 'Copiar linha digitável',
+                      ),
+                    ],
+                  ),
+                ),
+                
+                const SizedBox(height: 16),
+                
+                // Botão de visualizar boleto
+                if (payment.status == 'Aguardando Pagamento') ...[
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      onPressed: () => _showPDFPopup(payment.billet!.url),
+                      icon: const Icon(Icons.picture_as_pdf),
+                      label: const Text('Visualizar Boleto'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.orange,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                      ),
+                    ),
+                  ),
+                ],
+              ],
             ),
-          ],
-          const SizedBox(height: 8),
+          ),
         ],
         
         // Credit card details
@@ -590,8 +982,8 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
                           ),
                         ],
                         
-                        // Chargeback message (if exists)
-                        if (orderDetail.chargeback?.message != null) ...[
+                        // Chargeback message (only for paid orders with non-empty message)
+                        if (orderDetail.status == 'Pago' && orderDetail.chargeback?.message != null && orderDetail.chargeback!.message.isNotEmpty) ...[
                           Container(
                             width: double.infinity,
                             padding: const EdgeInsets.all(12),

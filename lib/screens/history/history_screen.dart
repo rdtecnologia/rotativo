@@ -410,7 +410,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen>
           );
         },
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(12),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -434,20 +434,6 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen>
               
               Row(
                 children: [
-                  Text(
-                    order.licensePlate,
-                    style: TextStyle(
-                      color: Colors.grey.shade700,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
-              ),
-              
-              const SizedBox(height: 4),
-              
-              Row(
-                children: [
                   Icon(
                     Icons.access_time,
                     size: 18,
@@ -463,7 +449,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen>
                 ],
               ),
               
-              const SizedBox(height: 12),
+              const SizedBox(height: 8),
               
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,

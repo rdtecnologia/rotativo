@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 import '../../models/purchase_models.dart';
 import '../../providers/purchase_provider.dart';
 import '../../providers/auth_provider.dart';
@@ -143,6 +145,138 @@ class _PaymentDetailScreenState extends ConsumerState<PaymentDetailScreen> {
     }
   }
 
+  void _showQRCodePopup(String pixCode) {
+    if (pixCode.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Código PIX não disponível'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Container(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  'QR Code PIX',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.grey.shade300),
+                  ),
+                  child: QrImageView(
+                    data: pixCode,
+                    version: QrVersions.auto,
+                    size: 200.0,
+                    backgroundColor: Colors.white,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    TextButton(
+                      onPressed: () {
+                        Clipboard.setData(ClipboardData(text: pixCode));
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Código PIX copiado para sua área de transferência'),
+                            backgroundColor: Colors.green,
+                          ),
+                        );
+                      },
+                      child: const Text('Copiar Código'),
+                    ),
+                    ElevatedButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      child: const Text('Fechar'),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _showPDFPopup(String pdfUrl) {
+    if (pdfUrl.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('URL do boleto não disponível'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    // Primeiro tenta abrir no visualizador interno
+    try {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => Scaffold(
+            appBar: AppBar(
+              title: const Text('Visualizar Boleto'),
+              backgroundColor: Theme.of(context).primaryColor,
+              foregroundColor: Colors.white,
+              actions: [
+                IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.open_in_browser),
+                  onPressed: () => _launchUrl(pdfUrl),
+                  tooltip: 'Abrir no navegador',
+                ),
+              ],
+            ),
+            body: SfPdfViewer.network(
+              pdfUrl,
+              canShowPaginationDialog: true,
+              canShowScrollHead: true,
+              canShowScrollStatus: true,
+              enableDoubleTapZooming: true,
+              enableTextSelection: true,
+              enableHyperlinkNavigation: true,
+            ),
+          ),
+        ),
+      );
+    } catch (e) {
+      // Se falhar, abre no navegador
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Erro ao abrir PDF. Abrindo no navegador...'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+      
+      _launchUrl(pdfUrl);
+    }
+  }
+
   Widget _buildOrderSummary() {
     return Container(
       padding: const EdgeInsets.all(16),
@@ -165,18 +299,7 @@ class _PaymentDetailScreenState extends ConsumerState<PaymentDetailScreen> {
           ),
           const SizedBox(height: 12),
           
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text('Créditos:', style: TextStyle(fontSize: 16)),
-              Text(
-                '${widget.product.credits} créditos',
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              ),
-            ],
-          ),
-          
-          const SizedBox(height: 8),
+
           
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -393,18 +516,75 @@ class _PaymentDetailScreenState extends ConsumerState<PaymentDetailScreen> {
                 const Text(
                   'Seu boleto foi gerado. Pague até o vencimento em qualquer banco, lotérica ou internet banking.',
                 ),
-                if (order.paymentUrl != null) ...[
-                  const SizedBox(height: 12),
-                  ElevatedButton.icon(
-                    onPressed: () => _launchUrl(order.paymentUrl!),
-                    icon: const Icon(Icons.open_in_new),
+                const SizedBox(height: 16),
+                
+                // Linha digitável copiável
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.orange[300]!),
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Linha Digitável:',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              order.boletoLineCode ?? 'Linha digitável não disponível',
+                              style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                                fontFamily: 'monospace',
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      IconButton(
+                        onPressed: () {
+                          if (order.boletoLineCode != null) {
+                            Clipboard.setData(ClipboardData(text: order.boletoLineCode!));
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Linha digitável copiada para a área de transferência!'),
+                                backgroundColor: Colors.orange,
+                              ),
+                            );
+                          }
+                        },
+                        icon: const Icon(Icons.copy, color: Colors.orange),
+                        tooltip: 'Copiar linha digitável',
+                      ),
+                    ],
+                  ),
+                ),
+                
+                const SizedBox(height: 16),
+                
+                // Botão de visualizar boleto
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: () => _showPDFPopup(order.boletoUrl ?? ''),
+                    icon: const Icon(Icons.picture_as_pdf),
                     label: const Text('Visualizar Boleto'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.orange,
                       foregroundColor: Colors.white,
                     ),
                   ),
-                ],
+                ),
               ],
             ),
           ),
@@ -434,18 +614,76 @@ class _PaymentDetailScreenState extends ConsumerState<PaymentDetailScreen> {
                 const Text(
                   'Escaneie o QR Code ou copie a chave PIX para efetuar o pagamento.',
                 ),
-                if (order.paymentUrl != null) ...[
-                  const SizedBox(height: 12),
-                  ElevatedButton.icon(
-                    onPressed: () => _launchUrl(order.paymentUrl!),
+                const SizedBox(height: 16),
+                
+                // Código PIX copiável
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.green[300]!),
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Código PIX:',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              order.pixCodeFromPayments ?? 'Código PIX não disponível',
+                              style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                                fontFamily: 'monospace',
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      IconButton(
+                        onPressed: () {
+                          if (order.pixCodeFromPayments != null) {
+                            Clipboard.setData(ClipboardData(text: order.pixCodeFromPayments!));
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Código PIX copiado para a área de transferência!'),
+                                backgroundColor: Colors.green,
+                              ),
+                            );
+                          }
+                        },
+                        icon: const Icon(Icons.copy, color: Colors.green),
+                        tooltip: 'Copiar código PIX',
+                      ),
+                    ],
+                  ),
+                ),
+                
+                const SizedBox(height: 16),
+                
+                // Botões de ação
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: () => _showQRCodePopup(order.pixCodeFromPayments ?? ''),
                     icon: const Icon(Icons.qr_code),
-                    label: const Text('Ver QR Code PIX'),
+                    label: const Text('Ver QR Code'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.green,
                       foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
                     ),
                   ),
-                ],
+                ),
               ],
             ),
           ),
@@ -453,38 +691,20 @@ class _PaymentDetailScreenState extends ConsumerState<PaymentDetailScreen> {
         
         const SizedBox(height: 24),
         
-        // Action buttons
-        Row(
-          children: [
-            Expanded(
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.of(context).popUntil((route) => route.isFirst);
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Theme.of(context).primaryColor,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                ),
-                child: const Text('Voltar ao Início'),
-              ),
+        // Botão voltar ao início
+        SizedBox(
+          width: double.infinity,
+          child: ElevatedButton(
+            onPressed: () {
+              Navigator.of(context).popUntil((route) => route.isFirst);
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Theme.of(context).primaryColor,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(vertical: 16),
             ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: OutlinedButton(
-                onPressed: () {
-                  Navigator.of(context).pushNamedAndRemoveUntil(
-                    '/home',
-                    (route) => false,
-                  );
-                },
-                style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                ),
-                child: const Text('Ver Histórico'),
-              ),
-            ),
-          ],
+            child: const Text('Voltar ao início para ativar'),
+          ),
         ),
       ],
     );
@@ -500,12 +720,12 @@ class _PaymentDetailScreenState extends ConsumerState<PaymentDetailScreen> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            _buildOrderSummary(),
-            
-            Expanded(
-              child: _isProcessing
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              _buildOrderSummary(),
+              
+              _isProcessing
                   ? _buildProcessingView()
                   : _error != null
                       ? _buildErrorView()
@@ -537,8 +757,11 @@ class _PaymentDetailScreenState extends ConsumerState<PaymentDetailScreen> {
                                   ),
                                 )
                               : const SizedBox.shrink(),
-            ),
-          ],
+              
+              // Espaço extra no final para evitar que o último elemento fique cortado
+              const SizedBox(height: 32),
+            ],
+          ),
         ),
       ),
     );

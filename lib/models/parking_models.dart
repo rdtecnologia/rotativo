@@ -1,4 +1,5 @@
 // Parking and activation models following React Native patterns
+import '../utils/date_utils.dart' as AppDateUtils;
 
 class Product {
   final String? id;
@@ -197,7 +198,7 @@ class Activation {
       parkingTime: json['parkingTime'] ?? 0,
       origin: json['origin']?.toString() ?? '',
       product: Product.fromJson(json['product'] as Map<String, dynamic>? ?? {}),
-      activatedAt: DateTime.tryParse(json['activatedAt']?.toString() ?? '') ?? DateTime.now(),
+      activatedAt: AppDateUtils.DateUtils.parseUtcDate(json['activatedAt']?.toString()),
     );
   }
 
@@ -251,10 +252,10 @@ class ActivationDetail {
       latitude: json['latitude']?.toString(),
       longitude: json['longitude']?.toString(),
       scheduledAt: json['scheduledAt'] != null
-          ? DateTime.tryParse(json['scheduledAt'])
+          ? AppDateUtils.DateUtils.parseUtcDate(json['scheduledAt'])
           : null,
       area: json['area']?.toString(),
-      transactionDate: DateTime.tryParse(json['transactionDate']?.toString() ?? '') ?? DateTime.now(),
+      transactionDate: AppDateUtils.DateUtils.parseUtcDate(json['transactionDate']?.toString()),
     );
   }
 

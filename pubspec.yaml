@@ -41,6 +41,9 @@ dependencies:
   # Location services
   geolocator: ^10.1.0
   
+  # Maps
+  google_maps_flutter: ^2.5.3
+  
   # UUID generator
   uuid: ^4.2.1
   

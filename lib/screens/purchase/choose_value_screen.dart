@@ -50,129 +50,30 @@ class ChooseValueScreen extends ConsumerWidget {
     ProductOption product,
     Map<String, List<ParkingRule>>? parkingRules,
   ) {
-    final rules = parkingRules?[vehicleType.toString()] ?? [];
-    
-    // Find what this amount of credits can buy in parking time
-    String timeDescription = '';
-    if (rules.isNotEmpty) {
-      int totalMinutes = 0;
-      int remainingCredits = product.credits;
-      
-      for (final rule in rules) {
-        final timesCanBuy = remainingCredits ~/ rule.credits;
-        if (timesCanBuy > 0) {
-          totalMinutes += timesCanBuy * rule.time;
-          remainingCredits -= timesCanBuy * rule.credits;
-        }
-      }
-      
-      if (totalMinutes > 0) {
-        if (totalMinutes < 60) {
-          timeDescription = '≈ ${totalMinutes}min de estacionamento';
-        } else {
-          final hours = totalMinutes ~/ 60;
-          final minutes = totalMinutes % 60;
-          if (minutes == 0) {
-            timeDescription = '≈ ${hours}h de estacionamento';
-          } else {
-            timeDescription = '≈ ${hours}h ${minutes}min de estacionamento';
-          }
-        }
-      }
-    }
-
     return Card(
-      elevation: 3,
+      elevation: 2,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(8),
       ),
       child: InkWell(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(8),
         onTap: () => _selectProduct(context, ref, product),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
+        child: Container(
+          height: 80, // Aumentando a altura do card
+          padding: const EdgeInsets.all(12),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  // Credits
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        '${product.credits}',
-                        style: TextStyle(
-                          fontSize: 32,
-                          fontWeight: FontWeight.bold,
-                          color: Theme.of(context).primaryColor,
-                        ),
-                      ),
-                      const Text(
-                        'créditos',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey,
-                        ),
-                      ),
-                    ],
-                  ),
-                  
-                  // Price
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Text(
-                        'R\$ ${AppFormatters.formatCurrency(product.price)}',
-                        style: const TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black87,
-                        ),
-                      ),
-                      const Text(
-                        'valor total',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-              
-              if (timeDescription.isNotEmpty) ...[
-                const SizedBox(height: 12),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: Colors.blue.shade50,
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  child: Text(
-                    timeDescription,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.blue.shade700,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
+              // Price (apenas valor monetário)
+              Text(
+                'R\$ ${AppFormatters.formatCurrency(product.price)}',
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
                 ),
-              ],
-              
-              const SizedBox(height: 8),
-              
-              Row(
-                children: [
-                  const Expanded(child: SizedBox()),
-                  Icon(
-                    Icons.arrow_forward_ios,
-                    size: 16,
-                    color: Colors.grey[400],
-                  ),
-                ],
+                textAlign: TextAlign.center,
               ),
             ],
           ),
@@ -182,40 +83,87 @@ class ChooseValueScreen extends ConsumerWidget {
   }
 
   Widget _buildParkingRulesInfo(Map<String, List<ParkingRule>>? parkingRules) {
-    final rules = parkingRules?[vehicleType.toString()] ?? [];
+    final carRules = parkingRules?['1'] ?? []; // Carro
+    final motorcycleRules = parkingRules?['2'] ?? []; // Moto
     
-    if (rules.isEmpty) return const SizedBox.shrink();
+    print('🔍 ChooseValueScreen - Building parking rules info');
+    print('🔍 ChooseValueScreen - Car rules: ${carRules.length}');
+    print('🔍 ChooseValueScreen - Motorcycle rules: ${motorcycleRules.length}');
+    
+    if (carRules.isEmpty && motorcycleRules.isEmpty) {
+      print('🔍 ChooseValueScreen - No parking rules found, returning SizedBox.shrink');
+      return const SizedBox.shrink();
+    }
 
+    print('🔍 ChooseValueScreen - Building Row with parking rules');
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.blue.shade50,
         borderRadius: BorderRadius.circular(8),
         border: Border.all(color: Colors.blue.shade200),
       ),
-      child: Column(
+      child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Valores de estacionamento para ${_getVehicleTypeName(vehicleType)}:',
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
-              color: Colors.blue.shade800,
+          // Primeira column - Valores para Carro
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Valores para Carro',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.blue.shade800,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                ...carRules.map((rule) => Padding(
+                  padding: const EdgeInsets.only(bottom: 4),
+                  child: Text(
+                    '${rule.formattedTime} = R\$ ${AppFormatters.formatCurrency(rule.price)} (${rule.credits} créditos)',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.blue.shade700,
+                    ),
+                  ),
+                )),
+              ],
             ),
           ),
-          const SizedBox(height: 8),
-          ...rules.map((rule) => Padding(
-            padding: const EdgeInsets.only(bottom: 4),
-            child: Text(
-              '${rule.formattedTime} = R\$ ${AppFormatters.formatCurrency(rule.price)} (${rule.credits} créditos)',
-              style: TextStyle(
-                fontSize: 12,
-                color: Colors.blue.shade700,
-              ),
+          
+          const SizedBox(width: 16),
+          
+          // Segunda column - Valores para Moto
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Valores para Moto',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.blue.shade800,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                ...motorcycleRules.map((rule) => Padding(
+                  padding: const EdgeInsets.only(bottom: 4),
+                  child: Text(
+                    '${rule.formattedTime} = R\$ ${AppFormatters.formatCurrency(rule.price)} (${rule.credits} créditos)',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.blue.shade700,
+                    ),
+                  ),
+                )),
+              ],
             ),
-          )),
+          ),
         ],
       ),
     );
@@ -228,34 +176,53 @@ class ChooseValueScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Créditos para ${_getVehicleTypeName(vehicleType)}'),
+        title: const Text('Compra de estacionamento'),
         backgroundColor: Theme.of(context).primaryColor,
         foregroundColor: Colors.white,
       ),
-      body: Container(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Escolha a quantidade de créditos:',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Colors.black87,
+      body: RefreshIndicator(
+        onRefresh: () async {
+          // Refresh city config and parking rules
+          ref.invalidate(cityConfigProvider);
+          ref.invalidate(parkingRulesProvider);
+        },
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Referência de valores para estacionar',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
               ),
-            ),
-            const SizedBox(height: 16),
-            
-            // Parking rules info
-            parkingRulesAsync.when(
-              loading: () => const SizedBox.shrink(),
-              error: (_, __) => const SizedBox.shrink(),
-              data: (parkingRules) => _buildParkingRulesInfo(parkingRules),
-            ),
-            
-            Expanded(
-              child: cityConfigAsync.when(
+              const SizedBox(height: 16),
+              
+              // Parking rules info for both car and motorcycle
+              parkingRulesAsync.when(
+                loading: () => const SizedBox.shrink(),
+                error: (_, __) => const SizedBox.shrink(),
+                data: (parkingRules) => _buildParkingRulesInfo(parkingRules),
+              ),
+              
+              const SizedBox(height: 24),
+              
+              const Text(
+                'Selecione o valor a adquirir',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
+              ),
+              
+              const SizedBox(height: 16),
+              
+              // Grid de produtos
+              cityConfigAsync.when(
                 loading: () => const Center(
                   child: CircularProgressIndicator(),
                 ),
@@ -297,6 +264,9 @@ class ChooseValueScreen extends ConsumerWidget {
                 data: (config) {
                   final products = config.getProductsForVehicleType(vehicleType);
                   
+                  print('🔍 ChooseValueScreen - Products found: ${products.length}');
+                  print('🔍 ChooseValueScreen - Vehicle type: $vehicleType');
+                  
                   if (products.isEmpty) {
                     return const Center(
                       child: Column(
@@ -321,46 +291,21 @@ class ChooseValueScreen extends ConsumerWidget {
                     );
                   }
 
-                  return RefreshIndicator(
-                    onRefresh: () async {
-                      // Refresh city config and parking rules
-                      ref.invalidate(cityConfigProvider);
-                      ref.invalidate(parkingRulesProvider);
-                    },
-                    child: parkingRulesAsync.when(
-                      loading: () => ListView.builder(
-                        itemCount: products.length,
-                        itemBuilder: (context, index) {
-                          return Padding(
-                            padding: const EdgeInsets.only(bottom: 12),
-                            child: _buildProductCard(context, ref, products[index], null),
-                          );
-                        },
-                      ),
-                      error: (_, __) => ListView.builder(
-                        itemCount: products.length,
-                        itemBuilder: (context, index) {
-                          return Padding(
-                            padding: const EdgeInsets.only(bottom: 12),
-                            child: _buildProductCard(context, ref, products[index], null),
-                          );
-                        },
-                      ),
-                      data: (parkingRules) => ListView.builder(
-                        itemCount: products.length,
-                        itemBuilder: (context, index) {
-                          return Padding(
-                            padding: const EdgeInsets.only(bottom: 12),
-                            child: _buildProductCard(context, ref, products[index], parkingRules),
-                          );
-                        },
-                      ),
-                    ),
+                  return Wrap(
+                    spacing: 12,
+                    runSpacing: 12,
+                    children: products.map((product) {
+                      print('🔍 ChooseValueScreen - Building card for product: ${product.credits} créditos, R\$ ${product.price}');
+                      return SizedBox(
+                        width: (MediaQuery.of(context).size.width - 48) / 2,
+                        child: _buildProductCard(context, ref, product, null),
+                      );
+                    }).toList(),
                   );
                 },
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

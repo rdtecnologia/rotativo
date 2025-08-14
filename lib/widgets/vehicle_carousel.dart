@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/vehicle_models.dart';
+import '../widgets/parking_timer.dart';
 
 class VehicleCarousel extends StatefulWidget {
   final List<Vehicle> vehicles;
@@ -22,7 +23,7 @@ class _VehicleCarouselState extends State<VehicleCarousel> {
   @override
   void initState() {
     super.initState();
-    _pageController = PageController(viewportFraction: 0.8);
+    _pageController = PageController(viewportFraction: 0.85); // Aumentado de 0.8 para 0.85 para melhor uso do espaço
   }
 
   @override
@@ -50,12 +51,9 @@ class _VehicleCarouselState extends State<VehicleCarousel> {
             itemCount: widget.vehicles.length,
             itemBuilder: (context, index) {
               final vehicle = widget.vehicles[index];
-              return Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                child: VehicleCard(
-                  vehicle: vehicle,
-                  onTap: () => widget.onVehicleTap(vehicle),
-                ),
+              return VehicleCard(
+                vehicle: vehicle,
+                onTap: () => widget.onVehicleTap(vehicle),
               );
             },
           ),
@@ -184,65 +182,70 @@ class VehicleCard extends StatelessWidget {
           ],
         ),
         child: Padding(
-          padding: const EdgeInsets.all(20.0),
+          padding: const EdgeInsets.all(12.0),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // Vehicle icon based on type
-              Icon(
-                _getVehicleIcon(vehicle.type),
-                size: 48,
-                color: Colors.white,
-              ),
-              const SizedBox(height: 8),
-              
-              // Vehicle type name
-              Text(
-                _getVehicleTypeName(vehicle.type),
-                style: const TextStyle(
-                  fontSize: 14,
-                  color: Colors.white70,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
+              // ESPAÇO SUPERIOR - Afasta elementos da borda superior
               const SizedBox(height: 16),
               
-              // License plate
-              Text(
-                vehicle.licensePlate,
-                style: const TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                  letterSpacing: 2,
-                ),
+              // PARTE SUPERIOR: Dados do carro
+              Column(
+                children: [
+                  // Vehicle icon based on type
+                  Icon(
+                    _getVehicleIcon(vehicle.type),
+                    size: 56,
+                    color: Colors.white,
+                  ),
+                  const SizedBox(height: 8),
+                  
+                  // License plate
+                  Text(
+                    vehicle.licensePlate,
+                    style: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                      letterSpacing: 2.0,
+                    ),
+                    textAlign: TextAlign.center,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  
+                  const SizedBox(height: 6),
+                  
+                  // Vehicle details (modelo/marca)
+                  if (vehicle.model != null || vehicle.brand != null) ...[
+                    Text(
+                      '${vehicle.brand ?? ''} ${vehicle.model ?? ''}'.trim(),
+                      style: const TextStyle(
+                        fontSize: 15,
+                        color: Colors.white70,
+                      ),
+                      textAlign: TextAlign.center,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 4),
+                  ],
+                  
+                  if (vehicle.color != null) ...[
+                    Text(
+                      vehicle.color!,
+                      style: const TextStyle(
+                        fontSize: 13,
+                        color: Colors.white60,
+                      ),
+                      textAlign: TextAlign.center,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ],
               ),
               
-              const SizedBox(height: 8),
-              
-              // Vehicle details
-              if (vehicle.model != null || vehicle.brand != null) ...[
-                Text(
-                  '${vehicle.brand ?? ''} ${vehicle.model ?? ''}'.trim(),
-                  style: const TextStyle(
-                    fontSize: 16,
-                    color: Colors.white70,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 4),
-              ],
-              
-              if (vehicle.color != null) ...[
-                Text(
-                  vehicle.color!,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: Colors.white60,
-                  ),
-                ),
-              ],
-              
+              // Botão Estacionar logo abaixo do modelo
               const SizedBox(height: 16),
               
               // Action button
@@ -253,7 +256,7 @@ class VehicleCard extends StatelessWidget {
                 ),
                 decoration: BoxDecoration(
                   color: Colors.white.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(18),
                   border: Border.all(
                     color: Colors.white.withValues(alpha: 0.3),
                     width: 1,
@@ -267,6 +270,28 @@ class VehicleCard extends StatelessWidget {
                     fontSize: 12,
                   ),
                 ),
+              ),
+              
+              // ESPAÇO FLEXÍVEL NO MEIO - Se adapta à resolução
+              const Expanded(child: SizedBox()),
+              
+              // PARTE INFERIOR: Timer
+              Column(
+                children: [
+                  // Parking timer (se houver estacionamento ativo)
+                  Container(
+                    width: double.infinity,
+                    height: 80,
+                    child: ParkingTimer(
+                      vehicle: vehicle,
+                      width: double.infinity,
+                      height: 80,
+                    ),
+                  ),
+                  
+                  // ESPAÇO INFERIOR - Afasta elementos da borda inferior
+                  const SizedBox(height: 16),
+                ],
               ),
             ],
           ),

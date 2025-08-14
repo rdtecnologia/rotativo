@@ -166,28 +166,7 @@ class PaymentMethodScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 12),
           
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                'Créditos:',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.black87,
-                ),
-              ),
-              Text(
-                '${product.credits} créditos',
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87,
-                ),
-              ),
-            ],
-          ),
-          
-          const SizedBox(height: 8),
+
           
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -224,7 +203,7 @@ class PaymentMethodScreen extends ConsumerWidget {
         backgroundColor: Theme.of(context).primaryColor,
         foregroundColor: Colors.white,
       ),
-      body: Container(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -241,8 +220,8 @@ class PaymentMethodScreen extends ConsumerWidget {
             ),
             const SizedBox(height: 16),
             
-            Expanded(
-              child: cityConfigAsync.when(
+            // Lista de métodos de pagamento
+            cityConfigAsync.when(
                 loading: () => const Center(
                   child: CircularProgressIndicator(),
                 ),
@@ -308,25 +287,22 @@ class PaymentMethodScreen extends ConsumerWidget {
                     );
                   }
 
-                  return ListView.builder(
-                    itemCount: availableMethods.length,
-                    itemBuilder: (context, index) {
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 12),
-                        child: _buildPaymentMethodCard(
-                          context,
-                          ref,
-                          availableMethods[index],
-                        ),
-                      );
-                    },
+                  return Column(
+                    children: availableMethods.map((method) => Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: _buildPaymentMethodCard(
+                        context,
+                        ref,
+                        method,
+                      ),
+                    )).toList(),
                   );
                 },
               ),
-            ),
-          ],
+            ],
+          ),
         ),
-      ),
+      
     );
   }
 }
