@@ -1,7 +1,9 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../models/parking_models.dart';
 import '../services/parking_service.dart';
+import '../utils/logger.dart';
 
 // Parking provider
 class ParkingNotifier extends StateNotifier<ParkingState> {
@@ -13,7 +15,7 @@ class ParkingNotifier extends StateNotifier<ParkingState> {
     required String quantity,
   }) async {
     if (kDebugMode) {
-      print('🚗 ParkingProvider.getPossibleParking - License: $licensePlate, Quantity: $quantity');
+      AppLogger.parking('License: $licensePlate, Quantity: $quantity');
     }
 
     state = state.copyWith(isLoadingTickets: true, clearError: true);
@@ -25,7 +27,7 @@ class ParkingNotifier extends StateNotifier<ParkingState> {
       );
       
       if (kDebugMode) {
-        print('🚗 ParkingProvider.getPossibleParking - Got ${response.tickets.length} tickets');
+        AppLogger.parking('Got ${response.tickets.length} tickets');
       }
 
       state = state.copyWith(
@@ -36,7 +38,7 @@ class ParkingNotifier extends StateNotifier<ParkingState> {
       return response;
     } catch (e) {
       if (kDebugMode) {
-        print('🚗 ParkingProvider.getPossibleParking - Error: $e');
+        AppLogger.error('Error: $e');
       }
       
       state = state.copyWith(
@@ -51,23 +53,32 @@ class ParkingNotifier extends StateNotifier<ParkingState> {
   Future<ParkingResponse> activateParking({
     required String licensePlate,
     required List<int> ticketIds,
-    required ParkingData parkingData,
   }) async {
     if (kDebugMode) {
-      print('🚗 ParkingProvider.activateParking - License: $licensePlate');
+      AppLogger.parking('License: $licensePlate');
     }
 
     state = state.copyWith(isLoadingParking: true, clearError: true);
 
     try {
+      // Get the selected parking time from state
+      final parkingTime = state.selectedParkingTime;
+      if (parkingTime == null || parkingTime <= 0) {
+        throw Exception('Tempo de estacionamento não selecionado');
+      }
+
+      if (kDebugMode) {
+        AppLogger.parking('Selected parking time: $parkingTime minutos');
+      }
+
       final response = await ParkingService.activateParking(
         licensePlate: licensePlate,
         ticketIds: ticketIds,
-        parkingData: parkingData,
+        parkingTime: parkingTime, // Passar o tempo selecionado
       );
       
       if (kDebugMode) {
-        print('🚗 ParkingProvider.activateParking - Activated: ${response.id}');
+        AppLogger.parking('Activated: ${response.id}');
       }
 
       state = state.copyWith(
@@ -78,7 +89,7 @@ class ParkingNotifier extends StateNotifier<ParkingState> {
       return response;
     } catch (e) {
       if (kDebugMode) {
-        print('🚗 ParkingProvider.activateParking - Error: $e');
+        AppLogger.error('Error: $e');
       }
       
       state = state.copyWith(
@@ -92,7 +103,7 @@ class ParkingNotifier extends StateNotifier<ParkingState> {
   /// Get activation detail by ID
   Future<ActivationDetail> getActivationDetail(String activationId) async {
     if (kDebugMode) {
-      print('🚗 ParkingProvider.getActivationDetail - ID: $activationId');
+      AppLogger.parking('ID: $activationId');
     }
 
     state = state.copyWith(isLoadingActivationDetail: true, clearError: true);
@@ -101,7 +112,7 @@ class ParkingNotifier extends StateNotifier<ParkingState> {
       final response = await ParkingService.getActivationDetail(activationId);
       
       if (kDebugMode) {
-        print('🚗 ParkingProvider.getActivationDetail - Loaded: ${response.id}');
+        AppLogger.parking('ID: $activationId');
       }
 
       state = state.copyWith(
@@ -112,7 +123,7 @@ class ParkingNotifier extends StateNotifier<ParkingState> {
       return response;
     } catch (e) {
       if (kDebugMode) {
-        print('🚗 ParkingProvider.getActivationDetail - Error: $e');
+        AppLogger.error('Error: $e');
       }
       
       state = state.copyWith(
@@ -132,7 +143,7 @@ class ParkingNotifier extends StateNotifier<ParkingState> {
     );
 
     if (kDebugMode) {
-      print('🚗 ParkingProvider.selectParkingTime - Time: ${time}min, Credits: $credits');
+      AppLogger.parking('Time: ${time}min, Credits: $credits');
     }
   }
 
@@ -141,7 +152,7 @@ class ParkingNotifier extends StateNotifier<ParkingState> {
     state = ParkingState();
     
     if (kDebugMode) {
-      print('🚗 ParkingProvider.reset - State reset');
+      AppLogger.parking('State reset');
     }
   }
 

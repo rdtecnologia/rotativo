@@ -9,6 +9,7 @@ import '../../providers/vehicle_provider.dart';
 import '../../services/vehicle_service.dart';
 import '../../utils/formatters.dart';
 import 'dart:async'; // Added for Timer
+import '../../providers/active_activations_provider.dart'; // Added for active activations
 
 class RegisterVehicleScreen extends ConsumerStatefulWidget {
   const RegisterVehicleScreen({super.key});
@@ -303,6 +304,47 @@ class _RegisterVehicleScreenState extends ConsumerState<RegisterVehicleScreen> {
   }
 
   Future<void> _deleteVehicle(Vehicle vehicle) async {
+    // Verificar se há ativações em curso para este veículo
+    try {
+      final activeActivations = ref.read(activeActivationsProvider);
+      final hasActiveActivation = activeActivations.containsKey(vehicle.licensePlate);
+      
+      if (hasActiveActivation) {
+        final activeActivation = activeActivations[vehicle.licensePlate]!;
+        
+        // Permitir exclusão se o tempo restante for 0min
+        if (activeActivation.remainingMinutes > 0) {
+          // Capturar o contexto antes do async gap
+          if (!mounted) return;
+          
+          // Mostrar alerta informando que não é possível excluir
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: const Text('Não é possível excluir'),
+                content: Text('O veículo ${vehicle.licensePlate} não pode ser excluído porque possui um estacionamento ativo.'),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: const Text('Entendi'),
+                  ),
+                ],
+              );
+            },
+          );
+          return;
+        }
+        // Se o tempo restante for 0min, permite a exclusão
+      }
+    } catch (e) {
+      debugPrint('❌ Erro ao verificar ativações ativas: $e');
+      // Em caso de erro, permite a exclusão (fallback)
+    }
+
+    // Se não há ativações ativas ou se o tempo restante é 0min, prossegue com a exclusão
+    if (!mounted) return;
+    
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (BuildContext context) {
@@ -327,6 +369,9 @@ class _RegisterVehicleScreenState extends ConsumerState<RegisterVehicleScreen> {
     if (confirmed == true) {
       try {
         await ref.read(vehicleProvider.notifier).deleteVehicle(vehicle.licensePlate);
+        
+        if (!mounted) return;
+        
         Fluttertoast.showToast(
           msg: 'Veículo excluído com sucesso!',
           backgroundColor: Colors.green,
@@ -335,6 +380,8 @@ class _RegisterVehicleScreenState extends ConsumerState<RegisterVehicleScreen> {
         // Refresh vehicle list
         ref.read(vehicleProvider.notifier).loadVehicles();
       } catch (e) {
+        if (!mounted) return;
+        
         Fluttertoast.showToast(
           msg: 'Erro ao excluir veículo: ${e.toString()}',
           backgroundColor: Colors.red,
@@ -697,6 +744,7 @@ class _RegisterVehicleScreenState extends ConsumerState<RegisterVehicleScreen> {
                                         fontStyle: FontStyle.italic,
                                       ),
                                     ),
+                                  // Removido o indicador visual de ativação ativa
                                 ],
                               ),
                               trailing: Row(
@@ -707,10 +755,32 @@ class _RegisterVehicleScreenState extends ConsumerState<RegisterVehicleScreen> {
                                     icon: const Icon(Icons.edit, color: Colors.blue),
                                     tooltip: 'Editar',
                                   ),
-                                  IconButton(
-                                    onPressed: () => _deleteVehicle(vehicle),
-                                    icon: const Icon(Icons.delete, color: Colors.red),
-                                    tooltip: 'Excluir',
+                                  Consumer(
+                                    builder: (context, ref, child) {
+                                      final activeActivations = ref.watch(activeActivationsProvider);
+                                      final hasActiveActivation = activeActivations.containsKey(vehicle.licensePlate);
+                                      
+                                      // Verificar se pode excluir (sem ativação ou com tempo restante 0min)
+                                      bool canDelete = true;
+                                      String tooltipText = 'Excluir';
+                                      
+                                      if (hasActiveActivation) {
+                                        final activeActivation = activeActivations[vehicle.licensePlate]!;
+                                        canDelete = activeActivation.remainingMinutes <= 0;
+                                        tooltipText = canDelete 
+                                          ? 'Excluir' 
+                                          : 'Não é possível excluir (estacionamento ativo)';
+                                      }
+                                      
+                                      return IconButton(
+                                        onPressed: canDelete ? () => _deleteVehicle(vehicle) : null,
+                                        icon: Icon(
+                                          Icons.delete,
+                                          color: canDelete ? Colors.red : Colors.grey.shade400,
+                                        ),
+                                        tooltip: tooltipText,
+                                      );
+                                    },
                                   ),
                                 ],
                               ),

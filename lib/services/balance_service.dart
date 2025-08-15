@@ -4,6 +4,7 @@ import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 import '../config/dynamic_app_config.dart';
 import '../config/environment.dart';
 import '../models/vehicle_models.dart';
+import '../utils/logger.dart';
 import 'auth_service.dart';
 
 class BalanceService {
@@ -71,7 +72,7 @@ class BalanceService {
       if (response.statusCode == 200) {
         final data = response.data;
         if (kDebugMode) {
-          print('🔍 BalanceService - Raw API response: $data');
+          AppLogger.balance('Raw API response: $data');
         }
         
         if (data != null && data is List) {
@@ -81,7 +82,7 @@ class BalanceService {
           double totalRealValue = 0;
           
           if (kDebugMode) {
-            print('🔍 BalanceService - Processing ${items.length} items');
+            AppLogger.balance('Processing ${items.length} items');
           }
           
           for (final item in items) {
@@ -91,7 +92,7 @@ class BalanceService {
               final price = (product?['price'] ?? 0) as num;
               
               if (kDebugMode) {
-                print('🔍 BalanceService - Item: quantity=$quantity, price=$price');
+                AppLogger.balance('Item: quantity=$quantity, price=$price');
               }
               
               totalCredits += quantity;
@@ -100,7 +101,7 @@ class BalanceService {
           }
           
           if (kDebugMode) {
-            print('🔍 BalanceService - Calculated totals: credits=$totalCredits, realValue=$totalRealValue');
+            AppLogger.balance('Calculated totals: credits=$totalCredits, realValue=$totalRealValue');
           }
           
           final balance = Balance(
@@ -110,7 +111,7 @@ class BalanceService {
           );
           
           if (kDebugMode) {
-            print('🔍 BalanceService - Created Balance object: ${balance.credits} credits, ${balance.realValue} real');
+            AppLogger.balance('Created Balance object: ${balance.credits} credits, ${balance.realValue} real');
           }
           
           return balance;
@@ -121,7 +122,7 @@ class BalanceService {
       }
     } catch (e) {
       if (kDebugMode) {
-        print('❌ BalanceService - Error: $e');
+        AppLogger.error('Error: $e');
       }
       throw Exception('Erro ao buscar saldo: $e');
     }

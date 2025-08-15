@@ -1,9 +1,11 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:pretty_dio_logger/pretty_dio_logger.dart';
-import '../models/purchase_models.dart';
+
 import '../config/dynamic_app_config.dart';
 import '../config/environment.dart';
+import '../models/purchase_models.dart';
+import '../utils/logger.dart';
 import 'auth_service.dart';
 
 class PurchaseService {
@@ -17,6 +19,8 @@ class PurchaseService {
     if (_dio != null) return _dio!;
 
     final baseUrl = Environment.transacionaApi;
+    
+    AppLogger.purchase('Using TRANSACIONA API: $baseUrl');
     
     _dio = Dio(BaseOptions(
       baseUrl: baseUrl,
@@ -39,21 +43,19 @@ class PurchaseService {
         compact: true,
       ));
 
-      print('🛒 PurchaseService - Using TRANSACIONA API: $baseUrl');
-
       // Add response interceptor for detailed debugging
       _dio!.interceptors.add(InterceptorsWrapper(
         onResponse: (response, handler) {
-          print('🌐 PurchaseService Response - Status: ${response.statusCode}');
-          print('🌐 PurchaseService Response - URL: ${response.requestOptions.uri}');
-          print('🌐 PurchaseService Response - Headers: ${response.headers}');
-          print('🌐 PurchaseService Response - Data Type: ${response.data.runtimeType}');
-          print('🌐 PurchaseService Response - Raw Data: ${response.data}');
+          AppLogger.api('Response - Status: ${response.statusCode}');
+          AppLogger.api('Response - URL: ${response.requestOptions.uri}');
+          AppLogger.api('Response - Headers: ${response.headers}');
+          AppLogger.api('Response - Data Type: ${response.data.runtimeType}');
+          AppLogger.api('Response - Raw Data: ${response.data}');
           handler.next(response);
         },
         onError: (error, handler) {
-          print('🚨 PurchaseService Error - ${error.message}');
-          print('🚨 PurchaseService Error - Response: ${error.response?.data}');
+          AppLogger.error('Error - ${error.message}');
+          AppLogger.error('Response: ${error.response?.data}');
           handler.next(error);
         },
       ));
@@ -72,11 +74,11 @@ class PurchaseService {
         }
 
         if (kDebugMode) {
-          print('🔐 PurchaseService - Added token to request: ${token?.substring(0, 20)}...');
-          print('🔐 PurchaseService - Domain: $domain');
-          print('🔐 PurchaseService - Request URL: ${options.baseUrl}${options.path}');
-          print('🔐 PurchaseService - Request Method: ${options.method}');
-          print('🔐 PurchaseService - All Headers: ${options.headers}');
+          AppLogger.auth('Added token to request: ${token?.substring(0, 20)}...');
+          AppLogger.auth('Domain: $domain');
+          AppLogger.auth('Request URL: ${options.baseUrl}${options.path}');
+          AppLogger.auth('Request Method: ${options.method}');
+          AppLogger.auth('All Headers: ${options.headers}');
         }
         
         handler.next(options);
@@ -92,7 +94,7 @@ class PurchaseService {
       _clearDioInstance(); // Force clear cached Dio to use new PROD URL
       
       if (kDebugMode) {
-        print('🛒 PurchaseService.createOrder - Order: ${order.toJson()}');
+        AppLogger.purchase('Order: ${order.toJson()}');
       }
 
       final dio = await _getDio();
@@ -100,16 +102,16 @@ class PurchaseService {
       final response = await dio.post('/order', data: order.toJson());
 
       if (kDebugMode) {
-        print('🛒 PurchaseService.createOrder - Response type: ${response.data.runtimeType}');
-        print('🛒 PurchaseService.createOrder - Response data: ${response.data}');
-        print('🛒 PurchaseService.createOrder - Response status: ${response.statusCode}');
+        AppLogger.api('Response type: ${response.data.runtimeType}');
+        AppLogger.api('Response data: ${response.data}');
+        AppLogger.api('Response status: ${response.statusCode}');
       }
 
       if (response.data is Map<String, dynamic>) {
         final orderResponse = OrderResponse.fromJson(response.data as Map<String, dynamic>);
         
         if (kDebugMode) {
-          print('🛒 PurchaseService.createOrder - Created order: ${orderResponse.id}');
+          AppLogger.purchase('Created order: ${orderResponse.id}');
         }
         
         return orderResponse;
@@ -118,7 +120,7 @@ class PurchaseService {
       throw Exception('Resposta da API inválida para criação de pedido');
     } catch (e) {
       if (kDebugMode) {
-        print('🛒 PurchaseService.createOrder - Error: $e');
+        AppLogger.error('Error: $e');
       }
       throw Exception('Erro ao criar pedido: $e');
     }
@@ -130,60 +132,60 @@ class PurchaseService {
       final purchaseConfigJson = await DynamicAppConfig.purchase;
       
       if (kDebugMode) {
-        print('🏙️ PurchaseService.loadCityConfig - Config loaded');
-        print('🏙️ PurchaseService.loadCityConfig - Purchase config: $purchaseConfigJson');
+        AppLogger.purchase('Config loaded');
+        AppLogger.purchase('Purchase config: $purchaseConfigJson');
       }
 
       return PurchaseConfig.fromJson(purchaseConfigJson);
     } catch (e) {
       if (kDebugMode) {
-        print('🏙️ PurchaseService.loadCityConfig - Error: $e');
+        AppLogger.error('Error: $e');
       }
       throw Exception('Erro ao carregar configuração da cidade: $e');
     }
   }
 
-  /// Load parking rules for displaying pricing information
+  /// Load parking rules for the current city
   static Future<Map<String, List<ParkingRule>>> loadParkingRules() async {
     try {
-      final parkingRulesJson = await DynamicAppConfig.parkingRules;
+      final rulesJson = await DynamicAppConfig.parkingRules;
       final parkingRules = <String, List<ParkingRule>>{};
 
-      for (final entry in parkingRulesJson.entries) {
+      for (final entry in rulesJson.entries) {
         final rulesList = (entry.value as List<dynamic>? ?? [])
             .map((rule) => ParkingRule.fromJson(rule as Map<String, dynamic>))
             .toList();
         parkingRules[entry.key] = rulesList;
       }
-
+      
       if (kDebugMode) {
-        print('🅿️ PurchaseService.loadParkingRules - Rules loaded: ${parkingRules.keys}');
+        AppLogger.purchase('Rules loaded: ${parkingRules.keys}');
       }
 
       return parkingRules;
     } catch (e) {
       if (kDebugMode) {
-        print('🅿️ PurchaseService.loadParkingRules - Error: $e');
+        AppLogger.error('Error: $e');
       }
       throw Exception('Erro ao carregar regras de estacionamento: $e');
     }
   }
 
-  /// Get available vehicle types from city config
+  /// Get available vehicle types for the current city
   static Future<List<int>> getAvailableVehicleTypes() async {
     try {
       final vehicleTypes = await DynamicAppConfig.vehicleTypes;
-
+      
       if (kDebugMode) {
-        print('🚗 PurchaseService.getAvailableVehicleTypes - Types: $vehicleTypes');
+        AppLogger.purchase('Types: $vehicleTypes');
       }
 
       return vehicleTypes;
     } catch (e) {
       if (kDebugMode) {
-        print('🚗 PurchaseService.getAvailableVehicleTypes - Error: $e');
+        AppLogger.error('Error: $e');
       }
-      throw Exception('Erro ao carregar tipos de veículos: $e');
+      throw Exception('Erro ao carregar tipos de veículo: $e');
     }
   }
 }

@@ -6,6 +6,7 @@ import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 import '../config/dynamic_app_config.dart';
 import '../config/environment.dart';
 import '../models/auth_models.dart';
+import '../utils/logger.dart';
 
 class AuthService {
   static const _storage = FlutterSecureStorage();
@@ -339,29 +340,37 @@ class AuthService {
           if (token != null && token.isNotEmpty) {
             options.headers['Authorization'] = 'Jwt $token';
             
-                             if (kDebugMode) {
-                   print('🔐 AuthService - Added token to request: ${token.substring(0, 20)}...');
-                   print('🔐 AuthService - Domain: $domain');
-                   print('🔐 AuthService - Full token: $token');
-                   print('🔐 AuthService - Request URL: ${options.baseUrl}${options.path}');
-                   print('🔐 AuthService - Request Method: ${options.method}');
-                   print('🔐 AuthService - All Headers: ${options.headers}');
-
-                   // Log current user info
-                   final user = await getStoredUser();
-                   if (user != null) {
-                     print('🔐 AuthService - Current user: ${user.name} (CPF: ${user.cpf})');
-                   }
-                 }
+            if (kDebugMode) {
+              AppLogger.auth('Added token to request: ${token.substring(0, 20)}...');
+              AppLogger.auth('Domain: $domain');
+              AppLogger.auth('Full token: $token');
+              AppLogger.auth('Request URL: ${options.baseUrl}${options.path}');
+              AppLogger.auth('Request Method: ${options.method}');
+              AppLogger.auth('All Headers: ${options.headers}');
+            }
+            
+            // Add user info to headers if available
+            final user = await getCurrentUser();
+            if (user != null) {
+              options.headers['User-Id'] = user.id;
+              options.headers['User-CPF'] = user.cpf;
+              
+              if (kDebugMode) {
+                AppLogger.auth('Current user: ${user.name} (CPF: ${user.cpf})');
+              }
+            }
           } else {
             if (kDebugMode) {
-              print('🔐 AuthService - No token available for request');
+              AppLogger.auth('No token available for request');
             }
           }
         } catch (e) {
           if (kDebugMode) {
-            print('🔐 AuthService - Error adding auth headers: $e');
+            AppLogger.error('Error adding auth headers: $e');
           }
+          
+          // Continue without auth headers
+          handler.next(options);
         }
         
         handler.next(options);

@@ -1,7 +1,9 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../models/purchase_models.dart';
 import '../services/purchase_service.dart';
+import '../utils/logger.dart';
 
 // Purchase provider
 class PurchaseNotifier extends StateNotifier<PurchaseState> {
@@ -13,13 +15,13 @@ class PurchaseNotifier extends StateNotifier<PurchaseState> {
       final config = await PurchaseService.loadCityConfig();
       
       if (kDebugMode) {
-        print('🛒 PurchaseProvider.loadCityConfig - Loaded config');
+        AppLogger.purchase('Loaded config');
       }
 
       return config;
     } catch (e) {
       if (kDebugMode) {
-        print('🛒 PurchaseProvider.loadCityConfig - Error: $e');
+        AppLogger.purchase('Error: $e');
       }
       
       state = state.copyWith(
@@ -35,13 +37,13 @@ class PurchaseNotifier extends StateNotifier<PurchaseState> {
       final rules = await PurchaseService.loadParkingRules();
       
       if (kDebugMode) {
-        print('🛒 PurchaseProvider.loadParkingRules - Loaded ${rules.length} rule sets');
+        AppLogger.purchase('Loaded ${rules.length} rule sets');
       }
 
       return rules;
     } catch (e) {
       if (kDebugMode) {
-        print('🛒 PurchaseProvider.loadParkingRules - Error: $e');
+        AppLogger.purchase('Error: $e');
       }
       
       state = state.copyWith(
@@ -57,13 +59,13 @@ class PurchaseNotifier extends StateNotifier<PurchaseState> {
       final types = await PurchaseService.getAvailableVehicleTypes();
       
       if (kDebugMode) {
-        print('🛒 PurchaseProvider.getAvailableVehicleTypes - Loaded ${types.length} types');
+        AppLogger.purchase('Loaded ${types.length} types');
       }
 
       return types;
     } catch (e) {
       if (kDebugMode) {
-        print('🛒 PurchaseProvider.getAvailableVehicleTypes - Error: $e');
+        AppLogger.purchase('Error: $e');
       }
       
       state = state.copyWith(
@@ -82,7 +84,7 @@ class PurchaseNotifier extends StateNotifier<PurchaseState> {
     );
 
     if (kDebugMode) {
-      print('🛒 PurchaseProvider.selectVehicleType - Selected: $vehicleType');
+      AppLogger.purchase('Selected: $vehicleType');
     }
   }
 
@@ -94,7 +96,7 @@ class PurchaseNotifier extends StateNotifier<PurchaseState> {
     );
 
     if (kDebugMode) {
-      print('🛒 PurchaseProvider.selectProduct - Selected: ${product.credits} credits for R\$ ${product.price}');
+      AppLogger.purchase('Selected: ${product.credits} credits for R\$ ${product.price}');
     }
   }
 
@@ -106,14 +108,14 @@ class PurchaseNotifier extends StateNotifier<PurchaseState> {
     );
 
     if (kDebugMode) {
-      print('🛒 PurchaseProvider.selectPaymentMethod - Selected: ${method.value}');
+      AppLogger.purchase('Selected: ${method.value}');
     }
   }
 
   /// Create order
   Future<OrderResponse> createOrder(PurchaseOrder order) async {
     if (kDebugMode) {
-      print('🛒 PurchaseProvider.createOrder - Creating order');
+      AppLogger.purchase('Creating order');
     }
 
     state = state.copyWith(isLoading: true, clearError: true);
@@ -122,7 +124,7 @@ class PurchaseNotifier extends StateNotifier<PurchaseState> {
       final response = await PurchaseService.createOrder(order);
       
       if (kDebugMode) {
-        print('🛒 PurchaseProvider.createOrder - Order created: ${response.id}');
+        AppLogger.purchase('Order created: ${response.id}');
       }
 
       state = state.copyWith(
@@ -133,7 +135,7 @@ class PurchaseNotifier extends StateNotifier<PurchaseState> {
       return response;
     } catch (e) {
       if (kDebugMode) {
-        print('🛒 PurchaseProvider.createOrder - Error: $e');
+        AppLogger.purchase('Error: $e');
       }
       
       state = state.copyWith(
@@ -149,7 +151,7 @@ class PurchaseNotifier extends StateNotifier<PurchaseState> {
     state = PurchaseState();
     
     if (kDebugMode) {
-      print('🛒 PurchaseProvider.reset - State reset');
+      AppLogger.purchase('State reset');
     }
   }
 

@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:uuid/uuid.dart';
 import '../../models/vehicle_models.dart';
-import '../../models/parking_models.dart';
 import '../../providers/parking_provider.dart';
 import '../../providers/vehicle_provider.dart';
 import '../../providers/balance_provider.dart';
@@ -195,20 +193,10 @@ class _ParkingScreenState extends ConsumerState<ParkingScreen> {
 
       if (confirmed != true) return;
 
-      // Create parking data
-      const uuid = Uuid();
-      final parkingData = ParkingData(
-        latitude: _currentPosition!.latitude.toString(),
-        longitude: _currentPosition!.longitude.toString(),
-        device: uuid.v4(),
-        parkingTime: selectedTime,
-      );
-
       // Activate parking
       final parkingResponse = await ref.read(parkingProvider.notifier).activateParking(
         licensePlate: widget.vehicle.licensePlate,
         ticketIds: possibleParking.tickets[0].tickets,
-        parkingData: parkingData,
       );
 
       // Reload vehicles and balance

@@ -3,6 +3,27 @@
 import 'dart:io';
 import 'dart:convert';
 
+// Simple logging for scripts
+void logInfo(String message) {
+  stdout.writeln('✅ $message');
+}
+
+void logError(String message) {
+  stderr.writeln('❌ $message');
+}
+
+void logBuild(String message) {
+  stdout.writeln('🏗️  $message');
+}
+
+void logInstructions(String message) {
+  stdout.writeln('📱 $message');
+}
+
+void logSuccess(String message) {
+  stdout.writeln('🎉 $message');
+}
+
 /// City configuration class to match the JSON schema
 class CityConfig {
   final String city;
@@ -113,7 +134,7 @@ class CityBuildScript {
     final configJson = jsonDecode(configContent) as Map<String, dynamic>;
     config = CityConfig.fromJson(configJson);
 
-    print('✅ Loaded configuration for ${config.city}');
+    logInfo('Loaded configuration for ${config.city}');
   }
 
   /// Generate flavor-specific Dart configuration file
@@ -202,29 +223,29 @@ class AppConfig {
     final configFile = File('lib/config/generated/app_config.dart');
     await configFile.writeAsString(configContent);
 
-    print('✅ Generated app configuration at ${configFile.path}');
+    logInfo('Generated app configuration at ${configFile.path}');
   }
 
   /// Run the build process
   Future<void> run() async {
     try {
-      print('🏗️  Building Flutter app for city: $cityKey ($displayName)');
+      logBuild('Building Flutter app for city: $cityKey ($displayName)');
       
       await loadCityConfig();
       await generateConfigFile();
       
-      print('✅ Build configuration completed successfully!');
-      print('');
-      print('📱 To build for Android:');
-      print('   flutter build apk --flavor ${cityKey.toLowerCase()} --release');
-      print('   flutter build appbundle --flavor ${cityKey.toLowerCase()} --release');
-      print('');
-      print('🍎 To build for iOS:');
-      print('   flutter build ios --release');
-      print('   (Configure the scheme in Xcode to use the correct GoogleService-Info.plist)');
+      logSuccess('Build configuration completed successfully!');
+      logInstructions('');
+      logInstructions('📱 To build for Android:');
+      logInstructions('   flutter build apk --flavor ${cityKey.toLowerCase()} --release');
+      logInstructions('   flutter build appbundle --flavor ${cityKey.toLowerCase()} --release');
+      logInstructions('');
+      logInstructions('🍎 To build for iOS:');
+      logInstructions('   flutter build ios --release');
+      logInstructions('   (Configure the scheme in Xcode to use the correct GoogleService-Info.plist)');
       
     } catch (e) {
-      print('❌ Error: $e');
+      logError('Error: $e');
       exit(1);
     }
   }
@@ -233,18 +254,18 @@ class AppConfig {
 /// Main function
 void main(List<String> args) async {
   if (args.isEmpty) {
-    print('📱 Rotativo Digital - City Build Script');
-    print('');
-    print('Usage: dart scripts/build_city.dart <city> [display_name]');
-    print('');
-    print('Available cities:');
+    logInstructions('📱 Rotativo Digital - City Build Script');
+    logInstructions('');
+    logInstructions('Usage: dart scripts/build_city.dart <city> [display_name]');
+    logInstructions('');
+    logInstructions('Available cities:');
     cityMappings.forEach((key, value) {
-      print('  $key -> $value');
+      logInstructions('  $key -> $value');
     });
-    print('');
-    print('Examples:');
-    print('  dart scripts/build_city.dart patos "Rotativo Patos"');
-    print('  dart scripts/build_city.dart main "Rotativo"');
+    logInstructions('');
+    logInstructions('Examples:');
+    logInstructions('  dart scripts/build_city.dart patos "Rotativo Patos"');
+    logInstructions('  dart scripts/build_city.dart main "Rotativo"');
     exit(1);
   }
 

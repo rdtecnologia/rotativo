@@ -4,6 +4,7 @@ import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 import '../models/parking_models.dart';
 import '../config/dynamic_app_config.dart';
 import '../config/environment.dart';
+import '../utils/logger.dart';
 import 'auth_service.dart';
 
 class ParkingService {
@@ -39,21 +40,21 @@ class ParkingService {
         compact: true,
       ));
 
-      print('🚗 ParkingService - Using TRANSACIONA API: $baseUrl');
+      AppLogger.api('Using TRANSACIONA API: $baseUrl');
 
       // Add response interceptor for detailed debugging
       _dio!.interceptors.add(InterceptorsWrapper(
         onResponse: (response, handler) {
-          print('🌐 ParkingService Response - Status: ${response.statusCode}');
-          print('🌐 ParkingService Response - URL: ${response.requestOptions.uri}');
-          print('🌐 ParkingService Response - Headers: ${response.headers}');
-          print('🌐 ParkingService Response - Data Type: ${response.data.runtimeType}');
-          print('🌐 ParkingService Response - Raw Data: ${response.data}');
+          AppLogger.api('Response - Status: ${response.statusCode}');
+          AppLogger.api('Response - URL: ${response.requestOptions.uri}');
+          AppLogger.api('Response - Headers: ${response.headers}');
+          AppLogger.api('Response - Data Type: ${response.data.runtimeType}');
+          AppLogger.api('Response - Raw Data: ${response.data}');
           handler.next(response);
         },
         onError: (error, handler) {
-          print('🚨 ParkingService Error - ${error.message}');
-          print('🚨 ParkingService Error - Response: ${error.response?.data}');
+          AppLogger.error('Error - ${error.message}');
+          AppLogger.error('Response: ${error.response?.data}');
           handler.next(error);
         },
       ));
@@ -72,11 +73,11 @@ class ParkingService {
         }
 
         if (kDebugMode) {
-          print('🔐 ParkingService - Added token to request: ${token?.substring(0, 20)}...');
-          print('🔐 ParkingService - Domain: $domain');
-          print('🔐 ParkingService - Request URL: ${options.baseUrl}${options.path}');
-          print('🔐 ParkingService - Request Method: ${options.method}');
-          print('🔐 ParkingService - All Headers: ${options.headers}');
+          AppLogger.auth('Added token to request: ${token?.substring(0, 20)}...');
+          AppLogger.auth('Domain: $domain');
+          AppLogger.auth('Request URL: ${options.baseUrl}${options.path}');
+          AppLogger.auth('Request Method: ${options.method}');
+          AppLogger.auth('All Headers: ${options.headers}');
         }
         
         handler.next(options);
@@ -95,7 +96,7 @@ class ParkingService {
       _clearDioInstance(); // Force clear cached Dio to use new PROD URL
       
       if (kDebugMode) {
-        print('🚗 ParkingService.getPossibleParking - License: $licensePlate, Quantity: $quantity');
+        AppLogger.parking('License: $licensePlate, Quantity: $quantity');
       }
 
       final dio = await _getDio();
@@ -106,16 +107,16 @@ class ParkingService {
       );
 
       if (kDebugMode) {
-        print('🚗 ParkingService.getPossibleParking - Response type: ${response.data.runtimeType}');
-        print('🚗 ParkingService.getPossibleParking - Response data: ${response.data}');
-        print('🚗 ParkingService.getPossibleParking - Response status: ${response.statusCode}');
+        AppLogger.api('Response type: ${response.data.runtimeType}');
+        AppLogger.api('Response data: ${response.data}');
+        AppLogger.api('Response status: ${response.statusCode}');
       }
 
       if (response.data is Map<String, dynamic>) {
         final parkingResponse = PossibleParkingResponse.fromJson(response.data as Map<String, dynamic>);
         
         if (kDebugMode) {
-          print('🚗 ParkingService.getPossibleParking - Parsed ${parkingResponse.tickets.length} tickets');
+          AppLogger.parking('Parsed ${parkingResponse.tickets.length} tickets');
         }
         
         return parkingResponse;
@@ -124,7 +125,7 @@ class ParkingService {
       throw Exception('Resposta da API inválida para tickets disponíveis');
     } catch (e) {
       if (kDebugMode) {
-        print('🚗 ParkingService.getPossibleParking - Error: $e');
+        AppLogger.error('Error: $e');
       }
       
       // Extract error message from DioException if available
@@ -154,44 +155,52 @@ class ParkingService {
   static Future<ParkingResponse> activateParking({
     required String licensePlate,
     required List<int> ticketIds,
-    required ParkingData parkingData,
+    required int parkingTime, // Adicionar o tempo selecionado
   }) async {
     try {
-      _clearDioInstance(); // Force clear cached Dio to use new PROD URL
-      
       if (kDebugMode) {
-        print('🚗 ParkingService.activateParking - License: $licensePlate');
-        print('🚗 ParkingService.activateParking - Tickets: $ticketIds');
-        print('🚗 ParkingService.activateParking - Data: ${parkingData.toJson()}');
+        AppLogger.parking('License: $licensePlate');
+        AppLogger.parking('Tickets: $ticketIds');
+        AppLogger.parking('ParkingTime: $parkingTime minutos');
       }
 
       final dio = await _getDio();
       
-      // Create request body with tickets and parking data
-      final requestBody = {
+      // Create ticket params string like React Native
+      final ticketParams = ticketIds.join(',');
+      final url = '/ticket/activate/$licensePlate/[$ticketParams]';
+      
+      if (kDebugMode) {
+        AppLogger.parking('Request URL: $url');
+      }
+      
+      // Send data including parkingTime like React Native
+      final requestData = {
+        'licensePlate': licensePlate,
         'tickets': ticketIds,
-        ...parkingData.toJson(),
+        'parkingTime': parkingTime, // Incluir o tempo selecionado
       };
       
-      final url = '/ticket/activate/$licensePlate';
+      if (kDebugMode) {
+        AppLogger.parking('Request data: $requestData');
+      }
       
-      final response = await dio.post(url, data: requestBody);
+      final response = await dio.post(
+        url,
+        data: requestData,
+      );
 
       if (kDebugMode) {
-        print('🚗 ParkingService.activateParking - Response type: ${response.data.runtimeType}');
-        print('🚗 ParkingService.activateParking - Response data: ${response.data}');
-        print('🚗 ParkingService.activateParking - Response status: ${response.statusCode}');
+        AppLogger.api('Response type: ${response.data.runtimeType}');
+        AppLogger.api('Response data: ${response.data}');
+        AppLogger.api('Response status: ${response.statusCode}');
       }
 
       if (response.data is Map<String, dynamic>) {
-        // Add parkingTime from request data to response
-        final responseData = response.data as Map<String, dynamic>;
-        responseData['parkingTime'] = parkingData.parkingTime;
-        
-        final parkingResponse = ParkingResponse.fromJson(responseData);
+        final parkingResponse = ParkingResponse.fromJson(response.data as Map<String, dynamic>);
         
         if (kDebugMode) {
-          print('🚗 ParkingService.activateParking - Activated parking: ${parkingResponse.id}');
+          AppLogger.parking('Activated parking: ${parkingResponse.id}');
         }
         
         return parkingResponse;
@@ -200,7 +209,7 @@ class ParkingService {
       throw Exception('Resposta da API inválida para ativação de estacionamento');
     } catch (e) {
       if (kDebugMode) {
-        print('🚗 ParkingService.activateParking - Error: $e');
+        AppLogger.error('Error: $e');
       }
       
       // Extract error message from DioException if available
@@ -232,7 +241,7 @@ class ParkingService {
       _clearDioInstance(); // Force clear cached Dio to use new PROD URL
       
       if (kDebugMode) {
-        print('🚗 ParkingService.getActivationDetail - ID: $activationId');
+        AppLogger.parking('ID: $activationId');
       }
 
       final dio = await _getDio();
@@ -240,16 +249,16 @@ class ParkingService {
       final response = await dio.get('/activation/$activationId');
 
       if (kDebugMode) {
-        print('🚗 ParkingService.getActivationDetail - Response type: ${response.data.runtimeType}');
-        print('🚗 ParkingService.getActivationDetail - Response data: ${response.data}');
-        print('🚗 ParkingService.getActivationDetail - Response status: ${response.statusCode}');
+        AppLogger.api('Response type: ${response.data.runtimeType}');
+        AppLogger.api('Response data: ${response.data}');
+        AppLogger.api('Response status: ${response.statusCode}');
       }
 
       if (response.data is Map<String, dynamic>) {
         final activationDetail = ActivationDetail.fromJson(response.data as Map<String, dynamic>);
         
         if (kDebugMode) {
-          print('🚗 ParkingService.getActivationDetail - Loaded activation: ${activationDetail.id}');
+          AppLogger.parking('Loaded activation: ${activationDetail.id}');
         }
         
         return activationDetail;
@@ -258,7 +267,7 @@ class ParkingService {
       throw Exception('Resposta da API inválida para detalhes de ativação');
     } catch (e) {
       if (kDebugMode) {
-        print('🚗 ParkingService.getActivationDetail - Error: $e');
+        AppLogger.error('Error: $e');
       }
       
       // Extract error message from DioException if available

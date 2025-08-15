@@ -1,8 +1,10 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:pretty_dio_logger/pretty_dio_logger.dart';
-import '../models/history_models.dart';
+
 import '../config/environment.dart';
+import '../models/history_models.dart';
+import '../utils/logger.dart';
 import 'auth_service.dart';
 
 class HistoryService {
@@ -18,6 +20,8 @@ class HistoryService {
 
     final baseUrl = _getTransacionaUrl();
     
+    AppLogger.history('Using TRANSACIONA API: $baseUrl');
+    
     _dio = Dio(BaseOptions(
       baseUrl: baseUrl,
       connectTimeout: const Duration(seconds: 30),
@@ -28,7 +32,7 @@ class HistoryService {
       },
     ));
 
-    // Add logging interceptor (only in debug mode)
+    // Add logging in debug mode
     if (kDebugMode) {
       _dio!.interceptors.add(PrettyDioLogger(
         requestHeader: true,
@@ -36,35 +40,23 @@ class HistoryService {
         responseBody: true,
         responseHeader: false,
         error: true,
-        compact: false,
-        maxWidth: 90,
+        compact: true,
       ));
-      
-      print('🌐 HistoryService - Using TRANSACIONA API: $baseUrl');
+
+      // Add response interceptor for detailed debugging
+      _dio!.interceptors.add(InterceptorsWrapper(
+        onResponse: (response, handler) {
+          AppLogger.api('Response - Status: ${response.statusCode}');
+          AppLogger.api('Response - URL: ${response.requestOptions.uri}');
+          AppLogger.api('Response - Headers: ${response.headers}');
+          AppLogger.api('Response - Data Type: ${response.data.runtimeType}');
+          handler.next(response);
+        },
+      ));
     }
 
     // Add auth interceptor
     _dio!.interceptors.add(await AuthService.createAuthInterceptor());
-
-    // Add response interceptor to debug API responses
-    if (kDebugMode) {
-      _dio!.interceptors.add(InterceptorsWrapper(
-        onResponse: (response, handler) {
-          print('🌐 HistoryService Response - Status: ${response.statusCode}');
-          print('🌐 HistoryService Response - URL: ${response.requestOptions.uri}');
-          print('🌐 HistoryService Response - Headers: ${response.headers}');
-          print('🌐 HistoryService Response - Data Type: ${response.data.runtimeType}');
-          print('🌐 HistoryService Response - Data Length: ${response.data is List ? (response.data as List).length : 'N/A'}');
-          print('🌐 HistoryService Response - Raw Data: ${response.data}');
-          handler.next(response);
-        },
-        onError: (error, handler) {
-          print('🚨 HistoryService Error - ${error.message}');
-          print('🚨 HistoryService Error - Response: ${error.response?.data}');
-          handler.next(error);
-        },
-      ));
-    }
 
     return _dio!;
   }

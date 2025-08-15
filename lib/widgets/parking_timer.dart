@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/vehicle_models.dart';
 import '../providers/active_activations_provider.dart';
 import '../utils/formatters.dart';
+import 'package:flutter/foundation.dart'; // Added for kDebugMode
 
 class ParkingTimer extends ConsumerWidget {
   final Vehicle vehicle;
@@ -19,21 +20,39 @@ class ParkingTimer extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final activeActivation = ref.watch(vehicleActiveActivationProvider(vehicle));
-    final activeActivationsState = ref.watch(activeActivationsProvider);
+    //final activeActivationsState = ref.watch(activeActivationsProvider);
     
-    debugPrint('🅿️ ParkingTimer - Veículo: ${vehicle.licensePlate}, Ativação: ${activeActivation?.id ?? 'null'}');
-    debugPrint('🅿️ ParkingTimer - Estado completo das ativações: ${activeActivationsState.keys.join(', ')}');
+    //debugPrint('🅿️ ParkingTimer - Estado completo das ativações: ${activeActivationsState.keys.join(', ')}');
     
     if (activeActivation == null) {
-      debugPrint('🅿️ ParkingTimer - Nenhuma ativação ativa para ${vehicle.licensePlate}');
+      //debugPrint('🅿️ ParkingTimer - Nenhuma ativação ativa para ${vehicle.licensePlate}');
       return const SizedBox.shrink(); // Não mostra nada se não há ativação
     }
 
     // SEMPRE mostra a ativação se ela existir, independentemente do status
     final isActive = activeActivation.isActive;
-    final isRecent = DateTime.now().difference(activeActivation.activatedAt).inHours < 24;
+    //final isRecent = DateTime.now().difference(activeActivation.activatedAt).inHours < 24;
     
-    debugPrint('🅿️ ParkingTimer - Mostrando timer para ${vehicle.licensePlate}: ${activeActivation.remainingMinutes}min restantes, isActive=$isActive, isRecent=$isRecent');
+    // DEBUG DETALHADO para entender o problema
+    if (kDebugMode) {
+      final now = DateTime.now();
+      final expirationTime = activeActivation.expiresAt ?? 
+          activeActivation.activatedAt.add(Duration(minutes: activeActivation.parkingTime));
+      
+      debugPrint('🅿️ ParkingTimer DEBUG para ${vehicle.licensePlate}:');
+      debugPrint('  - ID: ${activeActivation.id}');
+      debugPrint('  - Status: ${activeActivation.status}');
+      debugPrint('  - ParkingTime: ${activeActivation.parkingTime} minutos');
+      debugPrint('  - ActivatedAt: ${activeActivation.activatedAt}');
+      debugPrint('  - ExpiresAt: ${activeActivation.expiresAt}');
+      debugPrint('  - Calculated Expiration: $expirationTime');
+      debugPrint('  - Now: $now');
+      debugPrint('  - IsActive: $isActive');
+      debugPrint('  - RemainingMinutes: ${activeActivation.remainingMinutes}');
+      debugPrint('  - Time difference: ${expirationTime.difference(now).inMinutes} minutos');
+    }
+    
+    //debugPrint('🅿️ ParkingTimer - Mostrando timer para ${vehicle.licensePlate}: ${activeActivation.remainingMinutes}min restantes, isActive=$isActive, isRecent=$isRecent');
 
     final remainingMinutes = activeActivation.remainingMinutes;
     final totalMinutes = activeActivation.parkingTime;
