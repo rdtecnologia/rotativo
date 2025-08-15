@@ -13,23 +13,6 @@ class ChooseValueScreen extends ConsumerWidget {
     required this.vehicleType,
   }) : super(key: key);
 
-  String _getVehicleTypeName(int vehicleType) {
-    switch (vehicleType) {
-      case 1:
-        return 'Carro';
-      case 2:
-        return 'Moto';
-      case 3:
-        return 'Caminhão';
-      case 4:
-        return 'Motocicleta';
-      case 5:
-        return 'Caminhão Grande';
-      default:
-        return 'Veículo';
-    }
-  }
-
   void _selectProduct(BuildContext context, WidgetRef ref, ProductOption product) {
     ref.read(purchaseProvider.notifier).selectProduct(product);
     

@@ -131,33 +131,6 @@ class VehicleCard extends StatelessWidget {
     }
   }
 
-  String _getVehicleTypeName(int vehicleType) {
-    switch (vehicleType) {
-      case 1:
-        return 'Carro';
-      case 2:
-        return 'Moto';
-      case 3:
-        return 'Caminhão';
-      case 4:
-        return 'Motocicleta';
-      case 5:
-        return 'Caminhão Grande';
-      case 6:
-        return 'Ônibus';
-      case 7:
-        return 'Microônibus';
-      case 8:
-        return 'Van';
-      case 9:
-        return 'Triciclo';
-      case 10:
-        return 'Quadriciclo';
-      default:
-        return 'Veículo';
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return GestureDetector(

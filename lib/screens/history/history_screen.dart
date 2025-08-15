@@ -111,34 +111,6 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen>
     }
   }
 
-  IconData _getPaymentMethodIcon(String method) {
-    switch (method.toLowerCase()) {
-      case 'pix':
-        return Icons.pix;
-      case 'billet':
-        return Icons.receipt_long;
-      case 'credit_card':
-      case 'creditcard':
-        return Icons.credit_card;
-      default:
-        return Icons.money;
-    }
-  }
-
-  Color _getPaymentMethodColor(String method) {
-    switch (method.toLowerCase()) {
-      case 'pix':
-        return Colors.green;
-      case 'billet':
-        return Colors.orange;
-      case 'credit_card':
-      case 'creditcard':
-        return Colors.blue;
-      default:
-        return Colors.grey;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(

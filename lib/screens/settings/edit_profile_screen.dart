@@ -245,7 +245,6 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     });
 
     try {
-      final formData = _formKey.currentState!.value;
       
       // TODO: Implement user update API call
       // await ref.read(authProvider.notifier).updateUser({

@@ -362,7 +362,7 @@ class OrderResponse {
 
   // Helper methods to get boleto data
   String? get boletoLineCode {
-    if (payments == null || payments!.isEmpty) return null;
+    if (payments?.isEmpty ?? true) return null;
     final boletoPayment = payments!.firstWhere(
       (p) => p.method == 'Boleto Bancário',
       orElse: () => PaymentDetail.empty(),
@@ -371,7 +371,7 @@ class OrderResponse {
   }
 
   String? get boletoUrl {
-    if (payments == null || payments!.isEmpty) return null;
+    if (payments?.isEmpty ?? true) return null;
     final boletoPayment = payments!.firstWhere(
       (p) => p.method == 'Boleto Bancário',
       orElse: () => PaymentDetail.empty(),
@@ -381,7 +381,7 @@ class OrderResponse {
 
   // Helper methods to get PIX data
   String? get pixCodeFromPayments {
-    if (payments == null || payments!.isEmpty) return null;
+    if (payments?.isEmpty ?? true) return null;
     final pixPayment = payments!.firstWhere(
       (p) => p.method == 'Pix',
       orElse: () => PaymentDetail.empty(),
@@ -390,7 +390,7 @@ class OrderResponse {
   }
 
   String? get pixUrl {
-    if (payments == null || payments!.isEmpty) return null;
+    if (payments?.isEmpty ?? true) return null;
     final pixPayment = payments!.firstWhere(
       (p) => p.method == 'Pix',
       orElse: () => PaymentDetail.empty(),

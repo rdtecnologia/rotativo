@@ -1,5 +1,6 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
-import 'dart:math' as math;
 
 class ParkingBackgroundPainter extends CustomPainter {
   final Color primaryColor;
@@ -13,7 +14,7 @@ class ParkingBackgroundPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = primaryColor.withValues(alpha: opacity)
+      ..color = Colors.white.withValues(alpha: 0.1)
       ..style = PaintingStyle.fill;
 
     final strokePaint = Paint()
@@ -73,7 +74,6 @@ class ParkingBackgroundPainter extends CustomPainter {
   }
 
   void _drawCars(Canvas canvas, Size size, Paint paint, Paint strokePaint) {
-    final random = math.Random(42); // Fixed seed for consistent layout
     
     // Car 1 (top right)
     _drawCar(canvas, Offset(size.width * 0.8, size.height * 0.1), 0.8, paint, strokePaint);

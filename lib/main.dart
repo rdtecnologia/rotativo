@@ -1,22 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter/services.dart';
-import 'package:geolocator/geolocator.dart';
-import 'package:url_launcher/url_launcher.dart';
-import 'package:fluttertoast/fluttertoast.dart';
-import 'package:uuid/uuid.dart';
-import 'package:intl/intl.dart';
-import 'package:pretty_dio_logger/pretty_dio_logger.dart';
-import 'package:dio/dio.dart';
-import 'debug_page.dart'; // 
+
 // Config
 import 'config/dynamic_app_config.dart';
 import 'config/environment.dart';
 
 // Models
-import 'models/auth_models.dart';
 import 'models/vehicle_models.dart';
-import 'models/history_models.dart';
 
 // Providers
 import 'providers/auth_provider.dart';
@@ -26,10 +16,8 @@ import 'providers/active_activations_provider.dart';
 
 // Screens
 import 'screens/auth/login_screen.dart';
-import 'screens/vehicles/register_vehicle_screen.dart';
 import 'screens/purchase/choose_value_screen.dart';
 import 'screens/history/history_screen.dart';
-import 'screens/settings/settings_screen.dart';
 import 'screens/parking/parking_screen.dart';
 
 // Widgets
@@ -298,10 +286,11 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
                       // Debug button
                       IconButton(
                         onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const DebugPage(),
+                          // Debug functionality removed
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Debug mode'),
+                              duration: Duration(seconds: 1),
                             ),
                           );
                         },

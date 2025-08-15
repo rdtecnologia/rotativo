@@ -55,21 +55,16 @@ class ParkingTimer extends ConsumerWidget {
 
     // Define a cor baseada no status da ativação
     Color timerColor;
-    String statusText;
     
     if (!isActive) {
       // Ativação expirada mas recente (últimas 24h)
       timerColor = Colors.grey;
-      statusText = 'Expirado';
     } else if (remainingMinutes <= 5) {
       timerColor = Colors.red;
-      statusText = 'Expirando';
     } else if (remainingMinutes <= 15) {
       timerColor = Colors.orange;
-      statusText = 'Expira em breve';
     } else {
       timerColor = Colors.green;
-      statusText = 'Ativo';
     }
 
     return Container(

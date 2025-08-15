@@ -150,11 +150,6 @@ class ParkingService {
     }
   }
 
-  /// Create parking params string for API call
-  static String _createParkingParams(List<int> ticketIds) {
-    return ticketIds.join(',');
-  }
-
   /// Activate parking for a vehicle
   static Future<ParkingResponse> activateParking({
     required String licensePlate,
