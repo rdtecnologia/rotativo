@@ -80,18 +80,39 @@ class VehicleService {
 
   /// Create a new vehicle
   static Future<Vehicle> createVehicle(VehicleCreateRequest request) async {
-    try {
-      final dio = await _getDio();
-      final response = await dio.post('/driver/vehicle', data: request.toJson());
-      
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        return Vehicle.fromJson(response.data);
-      } else {
-        throw Exception('Erro ao cadastrar veículo: ${response.statusMessage}');
+    int retryCount = 0;
+    const maxRetries = 3;
+    
+    while (retryCount < maxRetries) {
+      try {
+        final dio = await _getDio();
+        final response = await dio.post('/driver/vehicle', data: request.toJson());
+        
+        if (response.statusCode == 200 || response.statusCode == 201) {
+          return Vehicle.fromJson(response.data);
+        } else {
+          throw Exception('Erro ao cadastrar veículo: ${response.statusMessage}');
+        }
+      } catch (e) {
+        retryCount++;
+        
+        // Se for erro 503 (Service Unavailable) e ainda há tentativas, tenta novamente
+        if (e.toString().contains('503') && retryCount < maxRetries) {
+          debugPrint('🔄 Tentativa $retryCount falhou com erro 503. Tentando novamente em 2 segundos...');
+          await Future.delayed(const Duration(seconds: 2));
+          continue;
+        }
+        
+        // Se não for erro 503 ou acabaram as tentativas, lança a exceção
+        if (e.toString().contains('503')) {
+          throw Exception('Servidor temporariamente indisponível. Tente novamente em alguns minutos.');
+        } else {
+          throw Exception('Erro ao cadastrar veículo: $e');
+        }
       }
-    } catch (e) {
-      throw Exception('Erro ao cadastrar veículo: $e');
     }
+    
+    throw Exception('Falha ao cadastrar veículo após $maxRetries tentativas');
   }
 
   /// Update a vehicle
@@ -127,26 +148,20 @@ class VehicleService {
 
 class VehicleCreateRequest {
   final String licensePlate;
-  final String? model;
-  final String? brand;
-  final String? color;
-  final int? year;
+  final String model;
+  final int type;
 
   const VehicleCreateRequest({
     required this.licensePlate,
-    this.model,
-    this.brand,
-    this.color,
-    this.year,
+    required this.model,
+    required this.type,
   });
 
   Map<String, dynamic> toJson() {
     return {
       'licensePlate': licensePlate,
       'model': model,
-      'brand': brand,
-      'color': color,
-      'year': year,
+      'type': type,
     };
   }
 }

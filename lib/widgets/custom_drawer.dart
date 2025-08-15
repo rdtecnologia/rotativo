@@ -111,7 +111,12 @@ class CustomDrawer extends ConsumerWidget {
                   title: 'Veículos',
                   onTap: () {
                     Navigator.pop(context);
-                    _showVehicleOptions(context);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const RegisterVehicleScreen(),
+                      ),
+                    );
                   },
                 ),
                 _buildMenuItem(
@@ -186,96 +191,6 @@ class CustomDrawer extends ConsumerWidget {
         ),
       ),
       onTap: onTap,
-    );
-  }
-
-  void _showVehicleOptions(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (context) => Container(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: Colors.grey.shade300,
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-            const SizedBox(height: 20),
-            
-            const Text(
-              'Veículos',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            
-            const SizedBox(height: 20),
-            
-            ListTile(
-              leading: const Icon(
-                Icons.add_circle,
-                color: Colors.green,
-                size: 28,
-              ),
-              title: const Text(
-                'Cadastrar Novo Veículo',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              subtitle: const Text('Adicione um novo veículo à sua conta'),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const RegisterVehicleScreen(),
-                  ),
-                );
-              },
-            ),
-            
-            const Divider(),
-            
-            ListTile(
-              leading: const Icon(
-                Icons.list,
-                color: Colors.blue,
-                size: 28,
-              ),
-              title: const Text(
-                'Meus Veículos',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              subtitle: const Text('Ver e gerenciar veículos cadastrados'),
-              onTap: () {
-                Navigator.pop(context);
-                // This will show in main screen - the vehicle carousel
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Seus veículos estão na tela principal'),
-                  ),
-                );
-              },
-            ),
-            
-            const SizedBox(height: 20),
-          ],
-        ),
-      ),
     );
   }
 }

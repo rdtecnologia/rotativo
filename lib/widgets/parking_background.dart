@@ -20,10 +20,15 @@ class ParkingBackground extends StatelessWidget {
       children: [
         // Background image
         Container(
-          decoration: const BoxDecoration(
+          decoration:  BoxDecoration(
             image: DecorationImage(
               image: AssetImage('assets/images/parking_background.png'),
               fit: BoxFit.cover,
+                    colorFilter: ColorFilter.mode(
+        Colors.white, 
+        BlendMode.darken, 
+      ),
+              
             ),
           ),
         ),

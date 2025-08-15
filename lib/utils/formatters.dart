@@ -45,12 +45,11 @@ class AppFormatters {
     type: MaskAutoCompletionType.lazy,
   );
 
-  // Universal plate formatter that handles both formats
-  static final universalPlateFormatter = MaskTextInputFormatter(
-    mask: 'AAA-####',
-    filter: {"A": RegExp(r'[A-Z]'), "#": RegExp(r'[0-9]')},
-    type: MaskAutoCompletionType.lazy,
-  );
+  // Formatter universal para placas (antiga e Mercosul)
+  static final universalPlateFormatter = FilteringTextInputFormatter.allow(RegExp(r'[A-Za-z0-9-]'));
+
+  // Formatter personalizado para placas com máscara AAA-9S99 (como no React Native)
+  static final customPlateFormatter = FilteringTextInputFormatter.allow(RegExp(r'[A-Za-z0-9-]'));
 
   // Detect plate format and return appropriate formatter
   static MaskTextInputFormatter getPlateFormatter(String plate) {
@@ -72,19 +71,41 @@ class AppFormatters {
     return plateFormatter;
   }
 
-  // Validate plate format
+  // Valida formato de placa
   static bool isValidPlateFormat(String plate) {
     final cleanPlate = plate.replaceAll(RegExp(r'[^A-Z0-9]'), '');
     
+    // Formato antigo: ABC-1234 (7 caracteres)
     if (cleanPlate.length == 7) {
-      // Old Brazilian format: ABC1234
-      return RegExp(r'^[A-Z]{3}[0-9]{4}$').hasMatch(cleanPlate);
-    } else if (cleanPlate.length == 8) {
-      // Mercosul format: ABC1D23 (allowing letter or number in second position of second segment)
-      return RegExp(r'^[A-Z]{3}[0-9][A-Z0-9][0-9]{2}$').hasMatch(cleanPlate);
+      final pattern = RegExp(r'^[A-Z]{3}[0-9]{4}$');
+      return pattern.hasMatch(cleanPlate);
+    }
+    
+    // Formato Mercosul: ABC-1D23 (8 caracteres)
+    if (cleanPlate.length == 8) {
+      final pattern = RegExp(r'^[A-Z]{3}[0-9][A-Z][0-9]{2}$');
+      return pattern.hasMatch(cleanPlate);
     }
     
     return false;
+  }
+
+  // Aplica máscara personalizada AAA-9S99
+  static String applyCustomPlateMask(String text) {
+    final cleanText = text.replaceAll(RegExp(r'[^A-Za-z0-9]'), '').toUpperCase();
+    
+    if (cleanText.isEmpty) return '';
+    if (cleanText.length <= 3) return cleanText;
+    if (cleanText.length <= 4) return '${cleanText.substring(0, 3)}-${cleanText.substring(3)}';
+    if (cleanText.length <= 5) return '${cleanText.substring(0, 3)}-${cleanText.substring(3, 4)}${cleanText.substring(4)}';
+    if (cleanText.length <= 7) return '${cleanText.substring(0, 3)}-${cleanText.substring(3, 4)}${cleanText.substring(4, 5)}${cleanText.substring(5)}';
+    
+    return '${cleanText.substring(0, 3)}-${cleanText.substring(3, 4)}${cleanText.substring(4, 5)}${cleanText.substring(5, 7)}';
+  }
+
+  // Remove máscara da placa
+  static String removePlateMask(String plate) {
+    return plate.replaceAll(RegExp(r'[^A-Za-z0-9]'), '');
   }
 
   // Format plate for display

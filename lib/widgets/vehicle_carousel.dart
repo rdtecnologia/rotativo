@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/vehicle_models.dart';
-import '../widgets/parking_timer.dart';
+import '../screens/vehicles/register_vehicle_screen.dart';
+import 'parking_timer.dart';
 
 class VehicleCarousel extends StatefulWidget {
   final List<Vehicle> vehicles;
@@ -350,7 +351,12 @@ class NoVehiclesWidget extends StatelessWidget {
           const SizedBox(height: 24),
           ElevatedButton.icon(
             onPressed: () {
-              // TODO: Navigate to add vehicle screen
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const RegisterVehicleScreen(),
+                ),
+              );
             },
             icon: const Icon(Icons.add),
             label: const Text('Cadastrar Veículo'),

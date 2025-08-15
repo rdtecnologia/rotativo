@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../models/history_models.dart';
 import '../models/vehicle_models.dart';
 import '../providers/active_activations_provider.dart';
 import '../utils/formatters.dart';
@@ -82,7 +81,7 @@ class ParkingTimer extends ConsumerWidget {
       ),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6), // Reduzido vertical de 8 para 6
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.15),
+        color: Colors.white.withValues(alpha: 0.30),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: timerColor.withValues(alpha: 0.6),
@@ -151,8 +150,8 @@ class ParkingTimer extends ConsumerWidget {
             Text(
               'Expirado',
               style: TextStyle(
-                color: Colors.red[300],
-                fontSize: 9,
+                color: const Color.fromARGB(255, 227, 65, 65),
+                fontSize: 14,
                 fontWeight: FontWeight.w500,
               ),
               textAlign: TextAlign.center,

@@ -1,21 +1,42 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/services.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:uuid/uuid.dart';
+import 'package:intl/intl.dart';
+import 'package:pretty_dio_logger/pretty_dio_logger.dart';
+import 'package:dio/dio.dart';
+import 'debug_page.dart'; // 
+// Config
 import 'config/dynamic_app_config.dart';
 import 'config/environment.dart';
-import 'debug_page.dart';
-import 'providers/auth_provider.dart';
-import 'screens/auth/login_screen.dart';
-import 'screens/history/history_screen.dart';
 
-import 'screens/purchase/choose_value_screen.dart';
-import 'screens/parking/parking_screen.dart';
-import 'widgets/custom_drawer.dart';
-import 'widgets/vehicle_carousel.dart';
-import 'widgets/balance_card.dart';
+// Models
+import 'models/auth_models.dart';
 import 'models/vehicle_models.dart';
+import 'models/history_models.dart';
+
+// Providers
+import 'providers/auth_provider.dart';
 import 'providers/vehicle_provider.dart';
 import 'providers/balance_provider.dart';
 import 'providers/active_activations_provider.dart';
+
+// Screens
+import 'screens/auth/login_screen.dart';
+import 'screens/vehicles/register_vehicle_screen.dart';
+import 'screens/purchase/choose_value_screen.dart';
+import 'screens/history/history_screen.dart';
+import 'screens/settings/settings_screen.dart';
+import 'screens/parking/parking_screen.dart';
+
+// Widgets
+import 'widgets/vehicle_carousel.dart';
+import 'widgets/balance_card.dart';
+import 'widgets/custom_drawer.dart';
+import 'widgets/parking_background.dart';
 
 void main() {
   // Initialize app environment configuration
@@ -47,7 +68,19 @@ class RotativoApp extends ConsumerWidget {
         return MaterialApp(
           title: title,
           theme: ThemeData(
-            colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+            //colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+            colorScheme: ColorScheme(
+              brightness: Brightness.light,
+              error: Colors.red,
+              onError: Colors.white,
+              primary: const Color.fromARGB(255, 90, 123, 151),
+              secondary: Colors.orange,
+              surface: Colors.white,
+              onPrimary: Colors.white,
+              onSecondary: Colors.white,
+              onSurface: Colors.black87,
+            ),
+            
             useMaterial3: true,
           ),
           home: const AuthWrapper(),
@@ -158,13 +191,12 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
   /// Carrega as ativações ativas para todos os veículos
   Future<void> _loadActiveActivations() async {
     final vehicleState = ref.read(vehicleProvider);
-    debugPrint('🅿️ Main - _loadActiveActivations: ${vehicleState.vehicles.length} veículos carregados');
+   // debugPrint('🅿️ Main - _loadActiveActivations: ${vehicleState.vehicles.length} veículos carregados');
     if (vehicleState.vehicles.isNotEmpty) {
-      debugPrint('🅿️ Main - _loadActiveActivations: Iniciando carregamento para veículos: ${vehicleState.vehicles.map((v) => v.licensePlate).join(', ')}');
+      //debugPrint('🅿️ Main - _loadActiveActivations: Iniciando carregamento para veículos: ${vehicleState.vehicles.map((v) => v.licensePlate).join(', ')}');
       await ref.read(activeActivationsProvider.notifier).loadActiveActivationsForVehicles(vehicleState.vehicles);
-      debugPrint('🅿️ Main - _loadActiveActivations: Carregamento finalizado');
     } else {
-      debugPrint('🅿️ Main - _loadActiveActivations: Nenhum veículo disponível ainda');
+      //debugPrint('🅿️ Main - _loadActiveActivations: Nenhum veículo disponível ainda');
     }
   }
 
@@ -224,158 +256,150 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
             await _updateBalanceOnly();
           }
         },
-        child: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Theme.of(context).primaryColor,
-              Theme.of(context).primaryColor.withValues(alpha: 0.7),
-            ],
-          ),
-        ),
-        child: SafeArea(
+        child: ParkingBackground(
+          primaryColor: Theme.of(context).primaryColor,
+          opacity: 0.15, // Opacidade menor para a tela principal
           child: Column(
             children: [
               // Top bar
               Padding(
                 padding: const EdgeInsets.all(16.0),
-                child: Row(
-                  children: [
-                    // Menu button
-                    IconButton(
-                      onPressed: () {
-                        _scaffoldKey.currentState?.openDrawer();
-                      },
-                      icon: const Icon(
-                        Icons.menu,
-                        color: Colors.white,
-                        size: 28,
+                  child: Row(
+                    children: [
+                      // Menu button
+                      IconButton(
+                        onPressed: () {
+                          _scaffoldKey.currentState?.openDrawer();
+                        },
+                        icon: const Icon(
+                          Icons.menu,
+                          color: Colors.white,
+                          size: 28,
+                        ),
                       ),
-                    ),
-                    
-                    // City name
-                    Expanded(
-                      child: GestureDetector(
-                        onTap: _refreshData,
-                        child: Center(
-                          child: Text(
-                            cityName ?? 'Carregando...',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
+                      
+                      // City name
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: _refreshData,
+                          child: Center(
+                            child: Text(
+                              cityName ?? 'Carregando...',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
                         ),
                       ),
-                    ),
-                    
-                    // Debug button
-                    IconButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const DebugPage(),
-                          ),
-                        );
-                      },
-                      icon: const Icon(
-                        Icons.bug_report,
-                        color: Colors.white,
-                        size: 24,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              // Vehicle carousel with refresh
-              Expanded(
-                flex: 3,
-                child: RefreshIndicator(
-                  onRefresh: _refreshData,
-                  color: Theme.of(context).primaryColor,
-                  backgroundColor: Colors.white,
-                  child: Center(
-                    child: Consumer(
-                      builder: (context, ref, child) {
-                        final vehicles = ref.watch(vehicleListProvider);
-                        final isLoading = ref.watch(vehicleLoadingProvider);
-                        
-                        if (isLoading) {
-                          return const CircularProgressIndicator(
-                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      
+                      // Debug button
+                      IconButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const DebugPage(),
+                            ),
                           );
-                        }
-                        
-                        return VehicleCarousel(
-                          vehicles: vehicles,
-                          onVehicleTap: _onVehicleTap,
-                        );
-                      },
-                    ),
+                        },
+                        icon: const Icon(
+                          Icons.bug_report,
+                          color: Colors.white,
+                          size: 24,
+                        ),
+                      ),
+
+                      
+                    ],
                   ),
                 ),
-              ),
 
-              // Bottom action cards
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0), // Reduzido padding
-                child: Row(
-                  children: [
-                    // Purchase card
-                    Expanded(
-                      child: ActionCard(
-                        icon: Icons.shopping_cart,
-                        label: 'COMPRAR',
-                        onTap: _onPurchaseTap,
-                        backgroundColor: Theme.of(context).primaryColor.withValues(alpha: 0.8),
-                      ),
-                    ),
-                    
-                    const SizedBox(width: 8), // Reduzido de 12 para 8
-                    
-                    // Balance card
-                    Expanded(
+                // Vehicle carousel with refresh
+                Expanded(
+                  flex: 3,
+                  child: RefreshIndicator(
+                    onRefresh: _refreshData,
+                    color: Theme.of(context).primaryColor,
+                    backgroundColor: Colors.white,
+                    child: Center(
                       child: Consumer(
                         builder: (context, ref, child) {
-                          final balance = ref.watch(currentBalanceProvider);
-                          final isLoading = ref.watch(balanceLoadingProvider);
+                          final vehicles = ref.watch(vehicleListProvider);
+                          final isLoading = ref.watch(vehicleLoadingProvider);
                           
-                          return BalanceCard(
-                            balance: balance,
-                            isLoading: isLoading,
-                            onTap: _onBalanceTap,
-                            displayType: 'credits',
+                          if (isLoading) {
+                            return const CircularProgressIndicator(
+                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                            );
+                          }
+                          
+                          return VehicleCarousel(
+                            vehicles: vehicles,
+                            onVehicleTap: _onVehicleTap,
                           );
                         },
                       ),
                     ),
-                    
-                    const SizedBox(width: 8), // Reduzido de 12 para 8
-                    
-                    // History card
-                    Expanded(
-                      child: ActionCard(
-                        icon: Icons.history,
-                        label: 'HISTÓRICO',
-                        onTap: _onHistoryTap,
-                        backgroundColor: Theme.of(context).primaryColor.withValues(alpha: 0.8),
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
-              ),
-              
-              const SizedBox(height: 12), // Reduzido de 16 para 12
-            ],
+
+                // Bottom action cards
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0), // Reduzido padding
+                  child: Row(
+                    children: [
+                      // Purchase card
+                      Expanded(
+                        child: ActionCard(
+                          icon: Icons.shopping_cart,
+                          label: 'COMPRAR',
+                          onTap: _onPurchaseTap,
+                          backgroundColor: Theme.of(context).primaryColor.withValues(alpha: 0.8),
+                        ),
+                      ),
+                      
+                      const SizedBox(width: 8), // Reduzido de 12 para 8
+                      
+                      // Balance card
+                      Expanded(
+                        child: Consumer(
+                          builder: (context, ref, child) {
+                            final balance = ref.watch(currentBalanceProvider);
+                            final isLoading = ref.watch(balanceLoadingProvider);
+                            
+                            return BalanceCard(
+                              balance: balance,
+                              isLoading: isLoading,
+                              onTap: _onBalanceTap,
+                              displayType: 'credits',
+                            );
+                          },
+                        ),
+                      ),
+                      
+                      const SizedBox(width: 8), // Reduzido de 12 para 8
+                      
+                      // History card
+                      Expanded(
+                        child: ActionCard(
+                          icon: Icons.history,
+                          label: 'HISTÓRICO',
+                          onTap: _onHistoryTap,
+                          backgroundColor: Theme.of(context).primaryColor.withValues(alpha: 0.8),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                
+                const SizedBox(height: 12), // Reduzido de 16 para 12
+              ],
+            ),
           ),
         ),
-        ),
-      ),
     );
   }
 }
