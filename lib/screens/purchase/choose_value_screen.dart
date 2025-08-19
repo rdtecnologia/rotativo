@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../models/purchase_models.dart';
 import '../../providers/purchase_provider.dart';
 import '../../utils/formatters.dart';
+import '../../config/dynamic_app_config.dart';
 import 'payment_method_screen.dart';
 
 class ChooseValueScreen extends ConsumerStatefulWidget {
@@ -75,27 +77,84 @@ class _ChooseValueScreenState extends ConsumerState<ChooseValueScreen> {
     );
   }
 
-  void _purchaseCustomValue(BuildContext context, WidgetRef ref) {
+  void _purchaseCustomValue(BuildContext context, WidgetRef ref) async {
     if (!_isCustomValueValid || _customValue == null) return;
 
-    // Criar um ProductOption customizado
-    // Assumindo que 1 crédito = R$ 1,00 (valor padrão)
-    final customProduct = ProductOption(
-      credits: _customValue!.round(), // 1 crédito por real
-      price: _customValue!,
-    );
+    try {
+      // Carregar a configuração de compra da cidade para obter a relação preço/crédito
+      final purchaseConfig = await DynamicAppConfig.purchase;
+      
+      if (purchaseConfig.isEmpty) {
+        throw Exception('Configuração de compra não encontrada');
+      }
+      
+      final products = purchaseConfig['products'] as Map<String, dynamic>?;
+      if (products == null) {
+        throw Exception('Produtos não encontrados na configuração');
+      }
+      
+      final vehicleProducts = products[widget.vehicleType.toString()] as List<dynamic>?;
+      if (vehicleProducts == null || vehicleProducts.isEmpty) {
+        throw Exception('Produtos para este tipo de veículo não encontrados');
+      }
+      
+      // Usar o valor fixo por crédito conforme a configuração da cidade
+      const double pricePerCredit = 0.50; // R$ 0,50 por crédito
+      
+      // Calcular quantos créditos o usuário deve receber pelo valor digitado
+      final calculatedCredits = (_customValue! / pricePerCredit).round();
+      
 
-    ref.read(purchaseProvider.notifier).selectProduct(customProduct);
-    
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => PaymentMethodScreen(
-          vehicleType: widget.vehicleType,
-          product: customProduct,
+      
+      if (kDebugMode) {
+        print('🔍 DEBUG - Cálculo de créditos customizados:');
+        print('🔍 Valor digitado: R\$ $_customValue');
+        print('🔍 Preço por crédito: R\$ ${pricePerCredit.toStringAsFixed(2)}');
+        print('🔍 Créditos calculados: $calculatedCredits');
+        print('🔍 Tipo de veículo: ${widget.vehicleType}');
+      }
+      
+      // Criar um ProductOption customizado com os créditos calculados
+      final customProduct = ProductOption(
+        credits: calculatedCredits,
+        price: _customValue!,
+      );
+
+      ref.read(purchaseProvider.notifier).selectProduct(customProduct);
+      
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => PaymentMethodScreen(
+            vehicleType: widget.vehicleType,
+            product: customProduct,
+          ),
         ),
-      ),
-    );
+      );
+      
+    } catch (e) {
+      if (kDebugMode) {
+        print('🔍 ERRO ao calcular créditos customizados: $e');
+      }
+      
+      // Fallback: usar 1 crédito por real (assumindo valor padrão)
+      final customProduct = ProductOption(
+        credits: _customValue!.round(),
+        price: _customValue!,
+      );
+
+      ref.read(purchaseProvider.notifier).selectProduct(customProduct);
+      
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => PaymentMethodScreen(
+            vehicleType: widget.vehicleType,
+            product: customProduct,
+          ),
+        ),
+      );
+    }
   }
 
   Widget _buildCustomValueSection() {
@@ -231,7 +290,7 @@ class _ChooseValueScreenState extends ConsumerState<ChooseValueScreen> {
             ),
           ],
           
-          // Informação sobre créditos
+                    // Informação sobre créditos
           if (_isCustomValueValid && _customValue != null) ...[
             const SizedBox(height: 12),
             Container(
@@ -241,7 +300,10 @@ class _ChooseValueScreenState extends ConsumerState<ChooseValueScreen> {
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(color: Colors.green.shade300),
               ),
-                                child: Row(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
                     children: [
                       Icon(
                         Icons.info_outline,
@@ -251,16 +313,88 @@ class _ChooseValueScreenState extends ConsumerState<ChooseValueScreen> {
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          'Você receberá ${_customValue!.round()} créditos por R\$ ${AppFormatters.formatCurrency(_customValue!)}',
+                          'Informações da Compra',
                           style: TextStyle(
                             fontSize: 14,
                             color: Colors.green.shade700,
-                            fontWeight: FontWeight.w500,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
                       ),
                     ],
                   ),
+                  const SizedBox(height: 8),
+                  FutureBuilder<Map<String, dynamic>>(
+                    future: DynamicAppConfig.purchase,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Text(
+                          'Calculando créditos...',
+                          style: TextStyle(fontSize: 12, color: Colors.grey),
+                        );
+                      }
+                      
+                      if (snapshot.hasError || !snapshot.hasData) {
+                        return Text(
+                          'Você receberá aproximadamente ${_customValue!.round()} créditos por R\$ ${AppFormatters.formatCurrency(_customValue!)}',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.green.shade700,
+                          ),
+                        );
+                      }
+                      
+                      try {
+                        final purchaseConfig = snapshot.data!;
+                        final products = purchaseConfig['products'] as Map<String, dynamic>?;
+                        
+                        if (products != null) {
+                          final vehicleProducts = products[widget.vehicleType.toString()] as List<dynamic>?;
+                          
+                          if (vehicleProducts != null && vehicleProducts.isNotEmpty) {
+                            double totalPrice = 0;
+                            int totalCredits = 0;
+                            
+                            for (final product in vehicleProducts) {
+                              final price = (product['price'] as num).toDouble();
+                              final credits = product['credits'] as int;
+                              totalPrice += price;
+                              totalCredits += credits;
+                            }
+                            
+                            final pricePerCredit = totalPrice / totalCredits;
+                            final calculatedCredits = (_customValue! / pricePerCredit).round();
+                            
+                            return Text(
+                              'Você receberá $calculatedCredits créditos por R\$ ${AppFormatters.formatCurrency(_customValue!)} (R\$ ${pricePerCredit.toStringAsFixed(2)} por crédito)',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.green.shade700,
+                              ),
+                            );
+                          }
+                        }
+                        
+                        return Text(
+                          'Você receberá aproximadamente ${_customValue!.round()} créditos por R\$ ${AppFormatters.formatCurrency(_customValue!)}',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.green.shade700,
+                          ),
+                        );
+                      } catch (e) {
+                        return Text(
+                          'Você receberá aproximadamente ${_customValue!.round()} créditos por R\$ ${AppFormatters.formatCurrency(_customValue!)}',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.green.shade700,
+                          ),
+                        );
+                      }
+                    },
+                  ),
+                ],
+              ),
             ),
           ],
         ],

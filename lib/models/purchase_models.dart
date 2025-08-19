@@ -132,11 +132,13 @@ class PurchaseOrder {
   final List<PurchaseProduct> products;
   final Payment payment;
   final String origin;
+  final double totalValue; // Adicionando campo para valor total
 
   PurchaseOrder({
     required this.products,
     required this.payment,
     this.origin = 'APP',
+    required this.totalValue,
   });
 
   Map<String, dynamic> toJson() {
@@ -144,6 +146,7 @@ class PurchaseOrder {
       'products': products.map((p) => p.toJson()).toList(),
       'payment': payment.toJson(),
       'origin': origin,
+      'totalValue': totalValue, // Incluindo valor total no JSON
     };
   }
 }

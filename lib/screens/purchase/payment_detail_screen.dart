@@ -122,13 +122,14 @@ class _PaymentDetailScreenState extends ConsumerState<PaymentDetailScreen> {
 
       final purchaseProduct = PurchaseProduct(
         productId: 13, // From city config
-        quantity: widget.product.credits,
+        quantity: widget.product.credits, // Quantidade de créditos (correto)
         vehicleType: widget.vehicleType,
       );
 
       final order = PurchaseOrder(
         products: [purchaseProduct],
         payment: payment,
+        totalValue: widget.product.price, // Incluindo o valor total do produto
       );
 
       final response = await ref.read(purchaseProvider.notifier).createOrder(order);
@@ -140,6 +141,8 @@ class _PaymentDetailScreenState extends ConsumerState<PaymentDetailScreen> {
         print('🔍 Product credits: ${widget.product.credits}');
         print('🔍 Order response value: ${response.value}');
         print('🔍 PurchaseProduct quantity: ${purchaseProduct.quantity}');
+        print('🔍 Order totalValue: ${order.totalValue}');
+        print('🔍 Order totalValue: ${order.totalValue}');
       }
       
       setState(() {
@@ -585,7 +588,7 @@ class _PaymentDetailScreenState extends ConsumerState<PaymentDetailScreen> {
                     color: Colors.orange[800],
                   ),
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
                 const Text(
                   'Seu boleto foi gerado. Pague até o vencimento em qualquer banco, lotérica ou internet banking.',
                 ),

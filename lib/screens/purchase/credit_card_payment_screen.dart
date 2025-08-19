@@ -105,6 +105,7 @@ class _CreditCardPaymentScreenState extends ConsumerState<CreditCardPaymentScree
       final order = PurchaseOrder(
         products: [purchaseProduct],
         payment: payment,
+        totalValue: widget.product.price, // Incluindo o valor total do produto
       );
 
       final response = await ref.read(purchaseProvider.notifier).createOrder(order);
@@ -193,6 +194,7 @@ class _CreditCardPaymentScreenState extends ConsumerState<CreditCardPaymentScree
       final order = PurchaseOrder(
         products: [purchaseProduct],
         payment: payment,
+        totalValue: widget.product.price, // Incluindo o valor total do produto
       );
 
       final response = await ref.read(purchaseProvider.notifier).createOrder(order);
