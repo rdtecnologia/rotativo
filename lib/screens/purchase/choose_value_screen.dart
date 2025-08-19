@@ -63,9 +63,10 @@ class _ChooseValueScreenState extends ConsumerState<ChooseValueScreen> {
     }
   }
 
-  void _selectProduct(BuildContext context, WidgetRef ref, ProductOption product) {
+  void _selectProduct(
+      BuildContext context, WidgetRef ref, ProductOption product) {
     ref.read(purchaseProvider.notifier).selectProduct(product);
-    
+
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -83,29 +84,28 @@ class _ChooseValueScreenState extends ConsumerState<ChooseValueScreen> {
     try {
       // Carregar a configuração de compra da cidade para obter a relação preço/crédito
       final purchaseConfig = await DynamicAppConfig.purchase;
-      
+
       if (purchaseConfig.isEmpty) {
         throw Exception('Configuração de compra não encontrada');
       }
-      
+
       final products = purchaseConfig['products'] as Map<String, dynamic>?;
       if (products == null) {
         throw Exception('Produtos não encontrados na configuração');
       }
-      
-      final vehicleProducts = products[widget.vehicleType.toString()] as List<dynamic>?;
+
+      final vehicleProducts =
+          products[widget.vehicleType.toString()] as List<dynamic>?;
       if (vehicleProducts == null || vehicleProducts.isEmpty) {
         throw Exception('Produtos para este tipo de veículo não encontrados');
       }
-      
+
       // Usar o valor fixo por crédito conforme a configuração da cidade
       const double pricePerCredit = 0.50; // R$ 0,50 por crédito
-      
+
       // Calcular quantos créditos o usuário deve receber pelo valor digitado
       final calculatedCredits = (_customValue! / pricePerCredit).round();
-      
 
-      
       if (kDebugMode) {
         print('🔍 DEBUG - Cálculo de créditos customizados:');
         print('🔍 Valor digitado: R\$ $_customValue');
@@ -113,7 +113,7 @@ class _ChooseValueScreenState extends ConsumerState<ChooseValueScreen> {
         print('🔍 Créditos calculados: $calculatedCredits');
         print('🔍 Tipo de veículo: ${widget.vehicleType}');
       }
-      
+
       // Criar um ProductOption customizado com os créditos calculados
       final customProduct = ProductOption(
         credits: calculatedCredits,
@@ -121,7 +121,7 @@ class _ChooseValueScreenState extends ConsumerState<ChooseValueScreen> {
       );
 
       ref.read(purchaseProvider.notifier).selectProduct(customProduct);
-      
+
       Navigator.push(
         context,
         MaterialPageRoute(
@@ -131,12 +131,11 @@ class _ChooseValueScreenState extends ConsumerState<ChooseValueScreen> {
           ),
         ),
       );
-      
     } catch (e) {
       if (kDebugMode) {
         print('🔍 ERRO ao calcular créditos customizados: $e');
       }
-      
+
       // Fallback: usar 1 crédito por real (assumindo valor padrão)
       final customProduct = ProductOption(
         credits: _customValue!.round(),
@@ -144,7 +143,7 @@ class _ChooseValueScreenState extends ConsumerState<ChooseValueScreen> {
       );
 
       ref.read(purchaseProvider.notifier).selectProduct(customProduct);
-      
+
       Navigator.push(
         context,
         MaterialPageRoute(
@@ -169,25 +168,25 @@ class _ChooseValueScreenState extends ConsumerState<ChooseValueScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Icon(
-                Icons.edit,
-                color: Colors.green.shade700,
-                size: 24,
-              ),
-              const SizedBox(width: 8),
-              Text(
-                'Valor Personalizado',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.green.shade800,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
+          // Row(
+          //   children: [
+          //     Icon(
+          //       Icons.edit,
+          //       color: Colors.green.shade700,
+          //       size: 24,
+          //     ),
+          //     const SizedBox(width: 8),
+          //     Text(
+          //       'Digite um valor ',
+          //       style: TextStyle(
+          //         fontSize: 18,
+          //         fontWeight: FontWeight.bold,
+          //         color: Colors.green.shade800,
+          //       ),
+          //     ),
+          //   ],
+          // ),
+          //const SizedBox(height: 12),
           Text(
             'Digite um valor personalizado para compra (máximo R\$ 100,00)',
             style: TextStyle(
@@ -196,7 +195,7 @@ class _ChooseValueScreenState extends ConsumerState<ChooseValueScreen> {
             ),
           ),
           const SizedBox(height: 16),
-          
+
           // Campo de valor e botão de compra
           Row(
             children: [
@@ -204,9 +203,11 @@ class _ChooseValueScreenState extends ConsumerState<ChooseValueScreen> {
                 child: TextFormField(
                   controller: _customValueController,
                   focusNode: _customValueFocusNode,
-                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  keyboardType:
+                      const TextInputType.numberWithOptions(decimal: true),
                   inputFormatters: [
-                    FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}')),
+                    FilteringTextInputFormatter.allow(
+                        RegExp(r'^\d*\.?\d{0,2}')),
                   ],
                   decoration: InputDecoration(
                     hintText: '0,00',
@@ -214,13 +215,17 @@ class _ChooseValueScreenState extends ConsumerState<ChooseValueScreen> {
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
                       borderSide: BorderSide(
-                        color: _isCustomValueValid ? Colors.green : Colors.grey.shade400,
+                        color: _isCustomValueValid
+                            ? Colors.green
+                            : Colors.grey.shade400,
                       ),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
                       borderSide: BorderSide(
-                        color: _isCustomValueValid ? Colors.green : Theme.of(context).primaryColor,
+                        color: _isCustomValueValid
+                            ? Colors.green
+                            : Theme.of(context).primaryColor,
                         width: 2,
                       ),
                     ),
@@ -234,7 +239,8 @@ class _ChooseValueScreenState extends ConsumerState<ChooseValueScreen> {
                     ),
                     filled: true,
                     fillColor: Colors.white,
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                    contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 16),
                   ),
                   onChanged: (value) {
                     _validateCustomValue();
@@ -243,11 +249,14 @@ class _ChooseValueScreenState extends ConsumerState<ChooseValueScreen> {
               ),
               const SizedBox(width: 12),
               ElevatedButton(
-                onPressed: _isCustomValueValid ? () => _purchaseCustomValue(context, ref) : null,
+                onPressed: _isCustomValueValid
+                    ? () => _purchaseCustomValue(context, ref)
+                    : null,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green,
                   foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
@@ -263,7 +272,7 @@ class _ChooseValueScreenState extends ConsumerState<ChooseValueScreen> {
               ),
             ],
           ),
-          
+
           // Mensagem de validação
           if (_customValueController.text.isNotEmpty) ...[
             const SizedBox(height: 8),
@@ -277,9 +286,9 @@ class _ChooseValueScreenState extends ConsumerState<ChooseValueScreen> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    _isCustomValueValid 
-                      ? 'Valor válido! Clique em COMPRAR para continuar.'
-                      : 'Valor deve ser maior que R\$ 0,00 e menor ou igual a R\$ 100,00',
+                    _isCustomValueValid
+                        ? 'Valor válido! Clique em COMPRAR para continuar.'
+                        : 'Valor deve ser maior que R\$ 0,00 e menor ou igual a R\$ 100,00',
                     style: TextStyle(
                       fontSize: 12,
                       color: _isCustomValueValid ? Colors.green : Colors.red,
@@ -287,114 +296,6 @@ class _ChooseValueScreenState extends ConsumerState<ChooseValueScreen> {
                   ),
                 ),
               ],
-            ),
-          ],
-          
-                    // Informação sobre créditos
-          if (_isCustomValueValid && _customValue != null) ...[
-            const SizedBox(height: 12),
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.green.shade300),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.info_outline,
-                        color: Colors.green.shade700,
-                        size: 20,
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          'Informações da Compra',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.green.shade700,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  FutureBuilder<Map<String, dynamic>>(
-                    future: DynamicAppConfig.purchase,
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const Text(
-                          'Calculando créditos...',
-                          style: TextStyle(fontSize: 12, color: Colors.grey),
-                        );
-                      }
-                      
-                      if (snapshot.hasError || !snapshot.hasData) {
-                        return Text(
-                          'Você receberá aproximadamente ${_customValue!.round()} créditos por R\$ ${AppFormatters.formatCurrency(_customValue!)}',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.green.shade700,
-                          ),
-                        );
-                      }
-                      
-                      try {
-                        final purchaseConfig = snapshot.data!;
-                        final products = purchaseConfig['products'] as Map<String, dynamic>?;
-                        
-                        if (products != null) {
-                          final vehicleProducts = products[widget.vehicleType.toString()] as List<dynamic>?;
-                          
-                          if (vehicleProducts != null && vehicleProducts.isNotEmpty) {
-                            double totalPrice = 0;
-                            int totalCredits = 0;
-                            
-                            for (final product in vehicleProducts) {
-                              final price = (product['price'] as num).toDouble();
-                              final credits = product['credits'] as int;
-                              totalPrice += price;
-                              totalCredits += credits;
-                            }
-                            
-                            final pricePerCredit = totalPrice / totalCredits;
-                            final calculatedCredits = (_customValue! / pricePerCredit).round();
-                            
-                            return Text(
-                              'Você receberá $calculatedCredits créditos por R\$ ${AppFormatters.formatCurrency(_customValue!)} (R\$ ${pricePerCredit.toStringAsFixed(2)} por crédito)',
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Colors.green.shade700,
-                              ),
-                            );
-                          }
-                        }
-                        
-                        return Text(
-                          'Você receberá aproximadamente ${_customValue!.round()} créditos por R\$ ${AppFormatters.formatCurrency(_customValue!)}',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.green.shade700,
-                          ),
-                        );
-                      } catch (e) {
-                        return Text(
-                          'Você receberá aproximadamente ${_customValue!.round()} créditos por R\$ ${AppFormatters.formatCurrency(_customValue!)}',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.green.shade700,
-                          ),
-                        );
-                      }
-                    },
-                  ),
-                ],
-              ),
             ),
           ],
         ],
@@ -443,11 +344,11 @@ class _ChooseValueScreenState extends ConsumerState<ChooseValueScreen> {
   Widget _buildParkingRulesInfo(Map<String, List<ParkingRule>>? parkingRules) {
     final carRules = parkingRules?['1'] ?? []; // Carro
     final motorcycleRules = parkingRules?['2'] ?? []; // Moto
-    
+
     //print('🔍 ChooseValueScreen - Building parking rules info');
     //print('🔍 ChooseValueScreen - Car rules: ${carRules.length}');
     //print('🔍 ChooseValueScreen - Motorcycle rules: ${motorcycleRules.length}');
-    
+
     if (carRules.isEmpty && motorcycleRules.isEmpty) {
       //print('🔍 ChooseValueScreen - No parking rules found, returning SizedBox.shrink');
       return const SizedBox.shrink();
@@ -480,21 +381,21 @@ class _ChooseValueScreenState extends ConsumerState<ChooseValueScreen> {
                 ),
                 const SizedBox(height: 8),
                 ...carRules.map((rule) => Padding(
-                  padding: const EdgeInsets.only(bottom: 4),
-                  child: Text(
-                    '${rule.formattedTime} = R\$ ${AppFormatters.formatCurrency(rule.price)} (${rule.credits} créditos)',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.blue.shade700,
-                    ),
-                  ),
-                )),
+                      padding: const EdgeInsets.only(bottom: 4),
+                      child: Text(
+                        '${rule.formattedTime} = R\$ ${AppFormatters.formatCurrency(rule.price)} (${rule.credits} créditos)',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.blue.shade700,
+                        ),
+                      ),
+                    )),
               ],
             ),
           ),
-          
+
           const SizedBox(width: 16),
-          
+
           // Segunda column - Valores para Moto
           Expanded(
             child: Column(
@@ -510,15 +411,15 @@ class _ChooseValueScreenState extends ConsumerState<ChooseValueScreen> {
                 ),
                 const SizedBox(height: 8),
                 ...motorcycleRules.map((rule) => Padding(
-                  padding: const EdgeInsets.only(bottom: 4),
-                  child: Text(
-                    '${rule.formattedTime} = R\$ ${AppFormatters.formatCurrency(rule.price)} (${rule.credits} créditos)',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.blue.shade700,
-                    ),
-                  ),
-                )),
+                      padding: const EdgeInsets.only(bottom: 4),
+                      child: Text(
+                        '${rule.formattedTime} = R\$ ${AppFormatters.formatCurrency(rule.price)} (${rule.credits} créditos)',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.blue.shade700,
+                        ),
+                      ),
+                    )),
               ],
             ),
           ),
@@ -558,32 +459,49 @@ class _ChooseValueScreenState extends ConsumerState<ChooseValueScreen> {
                 ),
               ),
               const SizedBox(height: 16),
-              
+
               // Parking rules info for both car and motorcycle
               parkingRulesAsync.when(
                 loading: () => const SizedBox.shrink(),
                 error: (_, __) => const SizedBox.shrink(),
                 data: (parkingRules) => _buildParkingRulesInfo(parkingRules),
               ),
-              
-              const SizedBox(height: 24),
-              
+
+              const SizedBox(height: 8),
+
+              Row(
+                children: [
+                  Icon(
+                    Icons.edit,
+                    size: 24,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Digite um valor ',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 8),
+
               // Seção de valor customizado
               _buildCustomValueSection(),
-              
-              const SizedBox(height: 24),
-              
+
               const Text(
-                'Selecione o valor a adquirir',
+                'ou selecione o valor a adquirir',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                   color: Colors.black87,
                 ),
               ),
-              
+
               const SizedBox(height: 16),
-              
+
               // Grid de produtos
               cityConfigAsync.when(
                 loading: () => const Center(
@@ -625,11 +543,14 @@ class _ChooseValueScreenState extends ConsumerState<ChooseValueScreen> {
                   ),
                 ),
                 data: (config) {
-                  final products = config.getProductsForVehicleType(widget.vehicleType);
-                  
-                  print('🔍 ChooseValueScreen - Products found: ${products.length}');
-                  print('🔍 ChooseValueScreen - Vehicle type: ${widget.vehicleType}');
-                  
+                  final products =
+                      config.getProductsForVehicleType(widget.vehicleType);
+
+                  print(
+                      '🔍 ChooseValueScreen - Products found: ${products.length}');
+                  print(
+                      '🔍 ChooseValueScreen - Vehicle type: ${widget.vehicleType}');
+
                   if (products.isEmpty) {
                     return const Center(
                       child: Column(
@@ -658,7 +579,8 @@ class _ChooseValueScreenState extends ConsumerState<ChooseValueScreen> {
                     spacing: 12,
                     runSpacing: 12,
                     children: products.map((product) {
-                      print('🔍 ChooseValueScreen - Building card for product: ${product.credits} créditos, R\$ ${product.price}');
+                      print(
+                          '🔍 ChooseValueScreen - Building card for product: ${product.credits} créditos, R\$ ${product.price}');
                       return SizedBox(
                         width: (MediaQuery.of(context).size.width - 48) / 2,
                         child: _buildProductCard(context, ref, product, null),
