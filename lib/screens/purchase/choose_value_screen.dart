@@ -49,11 +49,11 @@ class _ChooseValueScreenState extends ConsumerState<ChooseValueScreen> {
       return;
     }
 
-    final value = double.tryParse(text);
-    if (value != null && value > 0 && value <= 100.0) {
+    final value = int.tryParse(text);
+    if (value != null && value >= 1 && value <= 100) {
       setState(() {
         _isCustomValueValid = true;
-        _customValue = value;
+        _customValue = value.toDouble();
       });
     } else {
       setState(() {
@@ -188,7 +188,7 @@ class _ChooseValueScreenState extends ConsumerState<ChooseValueScreen> {
           // ),
           //const SizedBox(height: 12),
           Text(
-            'Digite um valor personalizado para compra (máximo R\$ 100,00)',
+            'Digite um valor personalizado para compra (apenas valores inteiros, máximo R\$ 100,00)',
             style: TextStyle(
               fontSize: 14,
               color: Colors.green.shade700,
@@ -203,14 +203,12 @@ class _ChooseValueScreenState extends ConsumerState<ChooseValueScreen> {
                 child: TextFormField(
                   controller: _customValueController,
                   focusNode: _customValueFocusNode,
-                  keyboardType:
-                      const TextInputType.numberWithOptions(decimal: true),
+                  keyboardType: TextInputType.number,
                   inputFormatters: [
-                    FilteringTextInputFormatter.allow(
-                        RegExp(r'^\d*\.?\d{0,2}')),
+                    FilteringTextInputFormatter.allow(RegExp(r'^\d+$')),
                   ],
                   decoration: InputDecoration(
-                    hintText: '0,00',
+                    hintText: '0',
                     prefixText: 'R\$ ',
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
@@ -288,7 +286,7 @@ class _ChooseValueScreenState extends ConsumerState<ChooseValueScreen> {
                   child: Text(
                     _isCustomValueValid
                         ? 'Valor válido! Clique em COMPRAR para continuar.'
-                        : 'Valor deve ser maior que R\$ 0,00 e menor ou igual a R\$ 100,00',
+                        : 'Valor deve ser um número inteiro entre R\$ 1,00 e R\$ 100,00',
                     style: TextStyle(
                       fontSize: 12,
                       color: _isCustomValueValid ? Colors.green : Colors.red,
