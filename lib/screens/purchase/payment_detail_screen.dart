@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -131,6 +132,15 @@ class _PaymentDetailScreenState extends ConsumerState<PaymentDetailScreen> {
       );
 
       final response = await ref.read(purchaseProvider.notifier).createOrder(order);
+      
+      // Debug: Log dos valores para investigar a discrepância
+      if (kDebugMode) {
+        print('🔍 DEBUG - Valores do pedido:');
+        print('🔍 Product price: ${widget.product.price}');
+        print('🔍 Product credits: ${widget.product.credits}');
+        print('🔍 Order response value: ${response.value}');
+        print('🔍 PurchaseProduct quantity: ${purchaseProduct.quantity}');
+      }
       
       setState(() {
         _orderResponse = response;
@@ -488,25 +498,75 @@ class _PaymentDetailScreenState extends ConsumerState<PaymentDetailScreen> {
                 ],
               ),
               
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
               
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text('Valor:'),
+                  const Text('Valor Total:'),
                   Text(
-                    'R\$ ${AppFormatters.formatCurrency(order.value)}',
+                    'R\$ ${AppFormatters.formatCurrency(widget.product.price)}',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      color: Theme.of(context).primaryColor,
+                    ),
+                  ),
+                ],
+              ),
+              
+              SizedBox(height: 8),
+              
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text('Créditos:'),
+                  Text(
+                    '${widget.product.credits} créditos',
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ],
               ),
+              
+              // Nota explicativa sobre a discrepância de valores
+              if (order.value != widget.product.price) ...[
+                SizedBox(height: 12),
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.orange.shade50,
+                    borderRadius: BorderRadius.circular(6),
+                    border: Border.all(color: Colors.orange.shade200),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.info_outline,
+                        color: Colors.orange.shade700,
+                        size: 16,
+                      ),
+                      SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'Valor da API: R\$ ${AppFormatters.formatCurrency(order.value)}',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.orange.shade700,
+                            fontStyle: FontStyle.italic,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ],
           ),
         ),
         
         // Payment-specific instructions
         if (widget.paymentMethod == PaymentMethodType.boleto) ...[
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
@@ -756,7 +816,7 @@ class _PaymentDetailScreenState extends ConsumerState<PaymentDetailScreen> {
                                           fontWeight: FontWeight.bold,
                                         ),
                                       ),
-                                      const SizedBox(height: 16),
+                                      SizedBox(height: 16),
                                       const Text(
                                         'Funcionalidade em desenvolvimento.\nPor favor, use PIX ou Boleto.',
                                         textAlign: TextAlign.center,
