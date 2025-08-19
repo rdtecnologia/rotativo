@@ -268,12 +268,6 @@ class AuthService {
     }
   }
 
-  // Logout
-  static Future<void> logout() async {
-    await _storage.delete(key: _userKey);
-    await _storage.delete(key: _tokenKey);
-  }
-
   // Storage methods
   static Future<void> _storeUserData(User user) async {
     await _storage.write(key: _userKey, value: jsonEncode(user.toJson()));
@@ -298,6 +292,28 @@ class AuthService {
   static Future<bool> isLoggedIn() async {
     final token = await getStoredToken();
     return token != null && token.isNotEmpty;
+  }
+
+  //Logout - clear stored data
+  static Future<void> logout() async {
+    try {
+      // Clear stored user data
+      await _storage.delete(key: _userKey);
+      // Clear stored token
+      await _storage.delete(key: _tokenKey);
+      
+      if (kDebugMode) {
+        AppLogger.auth('User logged out successfully - cleared stored data');
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        AppLogger.error('Error during logout: $e');
+      }
+      // Even if there's an error, we want to clear the data
+      // so the user can't access the app
+      await _storage.delete(key: _userKey);
+      await _storage.delete(key: _tokenKey);
+    }
   }
 
   // Error handling

@@ -162,8 +162,30 @@ class CustomDrawer extends ConsumerWidget {
             icon: Icons.logout,
             title: 'Sair',
             onTap: () async {
-              Navigator.pop(context);
-              await ref.read(authProvider.notifier).logout();
+              try {
+                // Fecha o drawer
+                Navigator.pop(context);
+                
+                // Executa o logout
+                await ref.read(authProvider.notifier).logout();
+                
+                // Redireciona para login (o AuthWrapper deve fazer isso automaticamente)
+                if (context.mounted) {
+                  Navigator.of(context).pushNamedAndRemoveUntil(
+                    '/login',
+                    (route) => false,
+                  );
+                }
+              } catch (e) {
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Erro ao sair: $e'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                }
+              }
             },
           ),
           const SizedBox(height: 16),

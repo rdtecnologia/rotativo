@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/foundation.dart';
 import '../models/auth_models.dart';
 import '../services/auth_service.dart';
 import '../config/environment.dart';
@@ -118,10 +119,31 @@ class AuthNotifier extends StateNotifier<AuthState> {
   // Logout
   Future<void> logout() async {
     try {
+      if (kDebugMode) {
+        print('🔄 AuthProvider: Starting logout process...');
+      }
+      
+      // Clear stored data
       await AuthService.logout();
+      
+      // Clear state completely
       state = const AuthState();
+      
+      if (kDebugMode) {
+        print('🔄 AuthProvider: Logout completed successfully');
+        print('🔄 AuthProvider: Current state - user: ${state.user}, isAuthenticated: ${state.isAuthenticated}');
+      }
     } catch (e) {
-      state = state.copyWith(error: e.toString());
+      if (kDebugMode) {
+        print('❌ AuthProvider: Error during logout: $e');
+      }
+      
+      // Even if there's an error, clear the state
+      state = const AuthState();
+      
+      if (kDebugMode) {
+        print('🔄 AuthProvider: State cleared after error');
+      }
     }
   }
 
