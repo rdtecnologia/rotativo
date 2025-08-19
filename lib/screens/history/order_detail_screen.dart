@@ -278,11 +278,14 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
         chargeback!.action!.value.toString(),
       );
 
-      Navigator.of(context).pop(); // Remove loading
+      if (mounted) {
+        Navigator.of(context).pop(); // Remove loading
+      }
 
       if (success) {
         // Sucesso
-        ScaffoldMessenger.of(context).showSnackBar(
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Row(
               children: [
@@ -307,12 +310,16 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
         
         // Recarrega os detalhes da compra para atualizar o status
         ref.read(orderDetailProvider.notifier).loadOrderDetail(widget.orderId);
+        }
       }
     } catch (e) {
-      Navigator.of(context).pop(); // Remove loading
+      if (mounted) {
+        Navigator.of(context).pop(); // Remove loading
+      }
       
       // Erro
-      ScaffoldMessenger.of(context).showSnackBar(
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Row(
             children: [
@@ -334,6 +341,7 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
           ),
         ),
       );
+      }
     }
   }
 

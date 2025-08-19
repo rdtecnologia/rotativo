@@ -88,4 +88,11 @@ class AppLogger {
       debugPrint('$_tag VEHICLE: $message');
     }
   }
+  
+  /// Log card-related operations
+  static void cards(String message) {
+    if (kDebugMode) {
+      print('🔄 Rotativo CARDS: $message');
+    }
+  }
 }

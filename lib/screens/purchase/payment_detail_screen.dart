@@ -8,6 +8,7 @@ import '../../models/purchase_models.dart';
 import '../../providers/purchase_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../utils/formatters.dart';
+import 'credit_card_payment_screen.dart'; // Added import for CreditCardPaymentScreen
 
 class PaymentDetailScreen extends ConsumerStatefulWidget {
   final int vehicleType;
@@ -15,11 +16,11 @@ class PaymentDetailScreen extends ConsumerStatefulWidget {
   final PaymentMethodType paymentMethod;
 
   const PaymentDetailScreen({
-    Key? key,
+    super.key,
     required this.vehicleType,
     required this.product,
     required this.paymentMethod,
-  }) : super(key: key);
+  });
 
   @override
   ConsumerState<PaymentDetailScreen> createState() => _PaymentDetailScreenState();
@@ -38,6 +39,19 @@ class _PaymentDetailScreenState extends ConsumerState<PaymentDetailScreen> {
         widget.paymentMethod == PaymentMethodType.boleto) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _processOrder();
+      });
+    } else if (widget.paymentMethod == PaymentMethodType.creditCard) {
+      // Redirect to credit card payment screen
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => CreditCardPaymentScreen(
+              vehicleType: widget.vehicleType,
+              product: widget.product,
+            ),
+          ),
+        );
       });
     }
   }
@@ -77,9 +91,8 @@ class _PaymentDetailScreenState extends ConsumerState<PaymentDetailScreen> {
         // In a real app, this would come from a credit card form
         final holder = HolderCard(
           name: user.name ?? '',
-          document: user.cpf ?? '',
-          email: user.email ?? '',
-          mobile: user.phone ?? '',
+          cpf: user.cpf ?? '',
+          birthDate: '1990-01-01', // Default birth date for test data
         );
         
         final creditCard = CreditCardOrder(

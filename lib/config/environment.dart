@@ -16,7 +16,7 @@ class ApiConfig {
 /// Environment configuration class that manages all API endpoints and app configuration
 class Environment {
   /// Current environment - change this to switch between dev/prod for entire app
-  static String _currentEnvironment = 'prod';
+  static String _currentEnvironment = 'dev';
 
   /// API endpoints configuration for different environments
   static const Map<String, ApiConfig> _apiConfigs = {

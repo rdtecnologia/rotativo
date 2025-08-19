@@ -32,23 +32,20 @@ class PurchaseProduct {
 
 class HolderCard {
   final String name;
-  final String document;
-  final String email;
-  final String mobile;
+  final String cpf;
+  final String birthDate;
 
   HolderCard({
     required this.name,
-    required this.document,
-    required this.email,
-    required this.mobile,
+    required this.cpf,
+    required this.birthDate,
   });
 
   Map<String, dynamic> toJson() {
     return {
       'name': name,
-      'document': document,
-      'email': email,
-      'mobile': mobile,
+      'cpf': cpf,
+      'birthDate': birthDate,
     };
   }
 }

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 
-class AppTextField extends StatelessWidget {
+class AppTextField extends StatefulWidget {
   final String name;
   final String label;
   final String? hint;
@@ -37,15 +37,44 @@ class AppTextField extends StatelessWidget {
   });
 
   @override
+  State<AppTextField> createState() => _AppTextFieldState();
+}
+
+class _AppTextFieldState extends State<AppTextField> {
+  bool _obscureText = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _obscureText = widget.obscureText;
+  }
+
+  @override
   Widget build(BuildContext context) {
+    // Check if this is a password field
+    final isPasswordField = widget.name.toLowerCase().contains('password') || 
+                           widget.name.toLowerCase().contains('senha');
+
     return FormBuilderTextField(
-      name: name,
-      initialValue: initialValue,
+      name: widget.name,
+      initialValue: widget.initialValue,
       decoration: InputDecoration(
-        labelText: label,
-        hintText: hint,
-        prefixIcon: prefixIcon,
-        suffixIcon: suffixIcon,
+        labelText: widget.label,
+        hintText: widget.hint,
+        prefixIcon: widget.prefixIcon,
+        suffixIcon: isPasswordField 
+            ? IconButton(
+                icon: Icon(
+                  _obscureText ? Icons.visibility : Icons.visibility_off,
+                  color: Colors.grey.shade600,
+                ),
+                onPressed: () {
+                  setState(() {
+                    _obscureText = !_obscureText;
+                  });
+                },
+              )
+            : widget.suffixIcon,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
         ),
@@ -78,19 +107,19 @@ class AppTextField extends StatelessWidget {
           ),
         ),
         filled: true,
-        fillColor: fillColor ?? (enabled ? Colors.white : Colors.grey.shade100), // Usa cor personalizada ou padrão
+        fillColor: widget.fillColor ?? (widget.enabled ? Colors.white : Colors.grey.shade100), // Usa cor personalizada ou padrão
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 16,
           vertical: 16,
         ),
       ),
-      keyboardType: keyboardType,
-      inputFormatters: inputFormatters,
-      validator: validator,
-      obscureText: obscureText,
-      enabled: enabled,
-      maxLines: obscureText ? 1 : maxLines,
-      textCapitalization: textCapitalization,
+      keyboardType: widget.keyboardType,
+      inputFormatters: widget.inputFormatters,
+      validator: widget.validator,
+      obscureText: _obscureText,
+      enabled: widget.enabled,
+      maxLines: _obscureText ? 1 : widget.maxLines,
+      textCapitalization: widget.textCapitalization,
     );
   }
 }
