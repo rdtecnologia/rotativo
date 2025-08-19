@@ -506,10 +506,10 @@ class _PaymentDetailScreenState extends ConsumerState<PaymentDetailScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text('Valor Total:'),
+                  Text('Valor Total:'),
                   Text(
                     'R\$ ${AppFormatters.formatCurrency(widget.product.price)}',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
                       color: Theme.of(context).primaryColor,
