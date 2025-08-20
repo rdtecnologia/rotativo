@@ -14,12 +14,12 @@ import 'screens/auth/login_screen.dart';
 import 'screens/home/home_screen.dart';
 import 'screens/cards/cards_screen.dart';
 import 'screens/cards/new_card_screen.dart';
-
+import 'screens/settings/biometric_settings_screen.dart';
 
 void main() {
   // Initialize app environment configuration
   _initializeApp();
-  
+
   runApp(const ProviderScope(child: RotativoApp()));
 }
 
@@ -28,8 +28,8 @@ void main() {
 void _initializeApp() {
   // 🔧 CONFIGURE ENVIRONMENT HERE:
   // Environment.setEnvironment('dev');   // Use development APIs
-  Environment.setEnvironment('prod');     // Use production APIs (default)
-  
+  Environment.setEnvironment('prod'); // Use production APIs (default)
+
   // Print current configuration for debugging
   Environment.printCurrentConfig();
 }
@@ -58,7 +58,7 @@ class RotativoApp extends ConsumerWidget {
               onSecondary: Colors.white,
               onSurface: Colors.black87,
             ),
-            
+
             useMaterial3: true,
           ),
           home: const AuthWrapper(),
@@ -67,6 +67,7 @@ class RotativoApp extends ConsumerWidget {
             '/login': (context) => const LoginScreen(),
             '/cards': (context) => const CardsScreen(),
             '/new-card': (context) => const NewCardScreen(),
+            '/biometric-settings': (context) => const BiometricSettingsScreen(),
           },
         );
       },
@@ -80,11 +81,11 @@ class AuthWrapper extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final authState = ref.watch(authProvider);
-    
+
     if (authState.isLoading) {
       LoaderWiget();
     }
-    
+
     if (authState.isAuthenticated) {
       return const HomePage();
     } else {
@@ -92,4 +93,3 @@ class AuthWrapper extends ConsumerWidget {
     }
   }
 }
-

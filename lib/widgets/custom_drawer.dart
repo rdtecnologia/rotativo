@@ -3,10 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../providers/auth_provider.dart';
 import '../screens/settings/settings_screen.dart';
+import '../screens/settings/biometric_settings_screen.dart';
 import '../screens/history/history_screen.dart';
 import '../screens/vehicles/register_vehicle_screen.dart';
 
 import '../screens/purchase/choose_value_screen.dart';
+import '../services/biometric_service.dart';
 
 class CustomDrawer extends ConsumerWidget {
   const CustomDrawer({super.key});
@@ -14,7 +16,7 @@ class CustomDrawer extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(currentUserProvider);
-    
+
     return Drawer(
       child: Column(
         children: [
@@ -31,9 +33,9 @@ class CustomDrawer extends ConsumerWidget {
               ),
             ),
             accountName: Text(
-              user?.name != null 
-                ? 'Olá, ${user!.name!.split(' ').first}'
-                : 'Usuário',
+              user?.name != null
+                  ? 'Olá, ${user!.name!.split(' ').first}'
+                  : 'Usuário',
               style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -71,7 +73,7 @@ class CustomDrawer extends ConsumerWidget {
               ),
             ],
           ),
-          
+
           // Main menu items
           Expanded(
             child: ListView(
@@ -86,7 +88,8 @@ class CustomDrawer extends ConsumerWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const ChooseValueScreen(vehicleType: 1), // 1 = carro
+                        builder: (context) => const ChooseValueScreen(
+                            vehicleType: 1), // 1 = carro
                       ),
                     );
                   },
@@ -128,6 +131,31 @@ class CustomDrawer extends ConsumerWidget {
                     // TODO: Navigate to credit cards screen
                   },
                 ),
+                // Biometric settings - only show if biometrics are available
+                FutureBuilder<bool>(
+                  future: BiometricService.isBiometricAvailable(),
+                  builder: (context, snapshot) {
+                    if (snapshot.data == true) {
+                      return _buildMenuItem(
+                        context,
+                        icon: Icons.fingerprint,
+                        title: 'Configurações Biométricas',
+                        onTap: () {
+                          Navigator.pop(context);
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  const BiometricSettingsScreen(),
+                            ),
+                          );
+                        },
+                      );
+                    }
+                    return const SizedBox
+                        .shrink(); // Hide if biometrics not available
+                  },
+                ),
                 const Divider(),
                 _buildMenuItem(
                   context,
@@ -136,7 +164,8 @@ class CustomDrawer extends ConsumerWidget {
                   onTap: () async {
                     Navigator.pop(context);
                     // TODO: Get download link from config
-                    const url = 'https://play.google.com/store/apps/details?id=com.example.rotativo';
+                    const url =
+                        'https://play.google.com/store/apps/details?id=com.example.rotativo';
                     if (await canLaunchUrl(Uri.parse(url))) {
                       await launchUrl(Uri.parse(url));
                     }
@@ -154,7 +183,7 @@ class CustomDrawer extends ConsumerWidget {
               ],
             ),
           ),
-          
+
           // Bottom menu - Logout
           const Divider(),
           _buildMenuItem(
@@ -165,10 +194,10 @@ class CustomDrawer extends ConsumerWidget {
               try {
                 // Fecha o drawer
                 Navigator.pop(context);
-                
+
                 // Executa o logout
                 await ref.read(authProvider.notifier).logout();
-                
+
                 // Redireciona para login (o AuthWrapper deve fazer isso automaticamente)
                 if (context.mounted) {
                   Navigator.of(context).pushNamedAndRemoveUntil(

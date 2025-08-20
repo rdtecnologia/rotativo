@@ -12,7 +12,9 @@ class AuthService {
   static const _storage = FlutterSecureStorage();
   static const String _userKey = 'user_data';
   static const String _tokenKey = 'auth_token';
-  
+  static const String _biometricEnabledKey = 'biometric_enabled';
+  static const String _storedCredentialsKey = 'stored_credentials';
+
   // Environment configuration - default to production
   // Removed: Now using centralized Environment configuration
 
@@ -23,7 +25,7 @@ class AuthService {
   static Dio _createLoginRegisterDio(String apiType) {
     final config = _currentApiConfig;
     String baseUrl;
-    
+
     switch (apiType) {
       case 'LOGIN':
         baseUrl = config.autentica;
@@ -47,7 +49,8 @@ class AuthService {
       receiveTimeout: const Duration(seconds: 30),
       headers: {
         'Accept-Version': '1.0.0',
-        'Authorization': 'Jwt eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiYjJiIiwid2hvIjoiYXBwLWNvbmR1dG9yLXBhdG9zIiwiaWF0IjoxNTQ3MTUxMDYwLCJleHAiOjQ3MDA3NTEwNjB9.W9eJgLTZD_YBgz9fSX8DbACsfrUbw1gniEU1Rzkc3BI',
+        'Authorization':
+            'Jwt eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiYjJiIiwid2hvIjoiYXBwLWNvbmR1dG9yLXBhdG9zIiwiaWF0IjoxNTQ3MTUxMDYwLCJleHAiOjQ3MDA3NTEwNjB9.W9eJgLTZD_YBgz9fSX8DbACsfrUbw1gniEU1Rzkc3BI',
       },
     ));
 
@@ -84,7 +87,7 @@ class AuthService {
   static Dio _createAuthenticatedDio(String apiType) {
     final config = _currentApiConfig;
     String baseUrl;
-    
+
     switch (apiType) {
       case 'REGISTER':
         baseUrl = config.register;
@@ -127,7 +130,7 @@ class AuthService {
         try {
           final token = await getStoredToken();
           final domain = await DynamicAppConfig.domain;
-          
+
           if (token != null) {
             options.headers['Authorization'] = 'Jwt $token';
           }
@@ -147,9 +150,9 @@ class AuthService {
     try {
       final dio = _createLoginRegisterDio('REGISTER');
       final cleanCpf = cpf.replaceAll(RegExp(r'[^\d]'), '');
-      
+
       final response = await dio.get('/driver/check/$cleanCpf');
-      
+
       return CheckCPFResponse.fromJson(response.data);
     } on DioException catch (e) {
       throw _handleDioError(e);
@@ -163,7 +166,7 @@ class AuthService {
     try {
       final dio = _createLoginRegisterDio('LOGIN');
       final cleanUsername = username.replaceAll(RegExp(r'[^\d]'), '');
-      
+
       final response = await dio.post(
         '/driver/login',
         queryParameters: {
@@ -173,13 +176,16 @@ class AuthService {
       );
 
       final user = User.fromJson(response.data);
-      
+
       // Store user data and token
       if (user.token != null) {
         await _storeUserData(user);
         await _storeToken(user.token!);
+
+        // Store credentials for biometric authentication
+        await _storeCredentialsForBiometrics(cleanUsername, password);
       }
-      
+
       return user;
     } on DioException catch (e) {
       throw _handleDioError(e);
@@ -192,20 +198,20 @@ class AuthService {
   static Future<User> register(RegisterRequest request) async {
     try {
       final dio = _createLoginRegisterDio('REGISTER');
-      
+
       final response = await dio.post(
         '/driver',
         queryParameters: request.toJson(),
       );
 
       final user = User.fromJson(response.data);
-      
+
       // Store user data and token
       if (user.token != null) {
         await _storeUserData(user);
         await _storeToken(user.token!);
       }
-      
+
       return user;
     } on DioException catch (e) {
       throw _handleDioError(e);
@@ -219,9 +225,9 @@ class AuthService {
     try {
       final dio = _createLoginRegisterDio('LOGIN');
       final cleanCpf = cpf.replaceAll(RegExp(r'[^\d]'), '');
-      
+
       final response = await dio.post('/driver/forgotPassword/$cleanCpf');
-      
+
       return ForgotPasswordResponse.fromJson(response.data);
     } on DioException catch (e) {
       throw _handleDioError(e);
@@ -234,9 +240,9 @@ class AuthService {
   static Future<User?> getCurrentUser() async {
     try {
       final dio = _createAuthenticatedDio('REGISTER');
-      
+
       final response = await dio.get('/driver');
-      
+
       return User.fromJson(response.data);
     } on DioException catch (e) {
       if (e.response?.statusCode == 401) {
@@ -251,10 +257,11 @@ class AuthService {
   }
 
   // Change password
-  static Future<void> changePassword(String oldPassword, String newPassword) async {
+  static Future<void> changePassword(
+      String oldPassword, String newPassword) async {
     try {
       final dio = _createAuthenticatedDio('REGISTER');
-      
+
       await dio.post('/driver/changePassword', data: {
         'password': {
           'old': oldPassword,
@@ -275,6 +282,28 @@ class AuthService {
 
   static Future<void> _storeToken(String token) async {
     await _storage.write(key: _tokenKey, value: token);
+  }
+
+  /// Armazena credenciais para autenticação biométrica
+  static Future<void> _storeCredentialsForBiometrics(
+      String username, String password) async {
+    try {
+      final credentials = {
+        'cpf': username,
+        'password': password,
+        'timestamp': DateTime.now().toIso8601String(),
+      };
+
+      await _storage.write(
+        key: _storedCredentialsKey,
+        value: jsonEncode(credentials),
+      );
+
+      print('🔍 AuthService: Credenciais armazenadas para biometria');
+    } catch (e) {
+      print('❌ AuthService: Erro ao armazenar credenciais para biometria: $e');
+      // Não falha o login se não conseguir armazenar credenciais
+    }
   }
 
   static Future<User?> getStoredUser() async {
@@ -301,7 +330,7 @@ class AuthService {
       await _storage.delete(key: _userKey);
       // Clear stored token
       await _storage.delete(key: _tokenKey);
-      
+
       if (kDebugMode) {
         AppLogger.auth('User logged out successfully - cleared stored data');
       }
@@ -316,12 +345,105 @@ class AuthService {
     }
   }
 
+  /// Habilita autenticação biométrica para o usuário
+  static Future<bool> enableBiometricAuth() async {
+    try {
+      // Verifica se já existem credenciais armazenadas
+      final credentials = await getStoredCredentials();
+      if (credentials == null) {
+        print(
+            '❌ AuthService: Nenhuma credencial armazenada para habilitar biometria');
+        return false;
+      }
+
+      // Habilita a biometria
+      await _storage.write(
+        key: _biometricEnabledKey,
+        value: 'true',
+      );
+
+      print('🔍 AuthService: Biometria habilitada com sucesso');
+      return true;
+    } catch (e) {
+      print('❌ AuthService: Erro ao habilitar biometria: $e');
+      return false;
+    }
+  }
+
+  /// Desabilita autenticação biométrica
+  static Future<bool> disableBiometricAuth() async {
+    try {
+      await _storage.delete(key: _storedCredentialsKey);
+      await _storage.delete(key: _biometricEnabledKey);
+      return true;
+    } catch (e) {
+      debugPrint('Erro ao desabilitar biometria: $e');
+      return false;
+    }
+  }
+
+  /// Verifica se a biometria está habilitada
+  static Future<bool> isBiometricEnabled() async {
+    print('🔍 AuthService: Verificando se biometria está habilitada...');
+    try {
+      final enabled = await _storage.read(key: _biometricEnabledKey);
+      print('🔍 AuthService: Valor da chave biometric_enabled: $enabled');
+      final result = enabled == 'true';
+      print('🔍 AuthService: Biometria habilitada: $result');
+      return result;
+    } catch (e) {
+      print('❌ AuthService: Erro ao verificar biometria habilitada: $e');
+      return false;
+    }
+  }
+
+  /// Obtém credenciais armazenadas para login biométrico
+  static Future<Map<String, dynamic>?> getStoredCredentials() async {
+    print('🔍 AuthService: Verificando credenciais armazenadas...');
+    try {
+      final credentialsData = await _storage.read(key: _storedCredentialsKey);
+      print('🔍 AuthService: Dados brutos das credenciais: $credentialsData');
+
+      if (credentialsData != null) {
+        final credentials = jsonDecode(credentialsData);
+        print('🔍 AuthService: Credenciais decodificadas: $credentials');
+        return credentials;
+      }
+
+      print('🔍 AuthService: Nenhuma credencial armazenada encontrada');
+      return null;
+    } catch (e) {
+      print('❌ AuthService: Erro ao obter credenciais armazenadas: $e');
+      debugPrint('Erro ao obter credenciais armazenadas: $e');
+      return null;
+    }
+  }
+
+  /// Login usando biometria (usa credenciais armazenadas)
+  static Future<Map<String, dynamic>?> loginWithBiometrics() async {
+    print('🔍 AuthService: Iniciando login biométrico...');
+    try {
+      print('🔍 AuthService: Obtendo credenciais armazenadas...');
+      final credentials = await getStoredCredentials();
+      if (credentials == null) {
+        print('❌ AuthService: Credenciais biométricas não encontradas');
+        throw Exception('Credenciais biométricas não encontradas');
+      }
+
+      print('🔍 AuthService: Credenciais obtidas com sucesso');
+      return credentials;
+    } catch (e) {
+      print('❌ AuthService: Erro no login biométrico: $e');
+      rethrow;
+    }
+  }
+
   // Error handling
   static String _handleDioError(DioException e) {
     if (e.response?.data != null && e.response!.data['message'] != null) {
       return e.response!.data['message'];
     }
-    
+
     switch (e.type) {
       case DioExceptionType.connectionTimeout:
       case DioExceptionType.receiveTimeout:
@@ -350,27 +472,28 @@ class AuthService {
           // Add domain header
           final domain = await DynamicAppConfig.domain;
           options.headers['Domain'] = domain;
-          
+
           // Add auth token if available
           final token = await getStoredToken();
           if (token != null && token.isNotEmpty) {
             options.headers['Authorization'] = 'Jwt $token';
-            
+
             if (kDebugMode) {
-              AppLogger.auth('Added token to request: ${token.substring(0, 20)}...');
+              AppLogger.auth(
+                  'Added token to request: ${token.substring(0, 20)}...');
               AppLogger.auth('Domain: $domain');
               AppLogger.auth('Full token: $token');
               AppLogger.auth('Request URL: ${options.baseUrl}${options.path}');
               AppLogger.auth('Request Method: ${options.method}');
               AppLogger.auth('All Headers: ${options.headers}');
             }
-            
+
             // Add user info to headers if available
             final user = await getCurrentUser();
             if (user != null) {
               options.headers['User-Id'] = user.id;
               options.headers['User-CPF'] = user.cpf;
-              
+
               if (kDebugMode) {
                 AppLogger.auth('Current user: ${user.name} (CPF: ${user.cpf})');
               }
@@ -384,11 +507,11 @@ class AuthService {
           if (kDebugMode) {
             AppLogger.error('Error adding auth headers: $e');
           }
-          
+
           // Continue without auth headers
           handler.next(options);
         }
-        
+
         handler.next(options);
       },
     );

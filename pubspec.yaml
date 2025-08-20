@@ -21,6 +21,9 @@ dependencies:
   # Secure storage
   flutter_secure_storage: ^9.0.0
   
+  # Biometric authentication
+  local_auth: ^2.1.8
+  
   # Forms and validation
   flutter_form_builder: ^10.0.0
   form_builder_validators: ^11.1.0

@@ -30,8 +30,12 @@ class User {
       cpf: json['cpf']?.toString(),
       phone: json['mobile']?.toString(),
       token: json['token']?.toString(),
-      createdAt: json['createdAt'] != null ? AppDateUtils.DateUtils.parseUtcDate(json['createdAt']) : null,
-      updatedAt: json['updatedAt'] != null ? AppDateUtils.DateUtils.parseUtcDate(json['updatedAt']) : null,
+      createdAt: json['createdAt'] != null
+          ? AppDateUtils.DateUtils.parseUtcDate(json['createdAt'])
+          : null,
+      updatedAt: json['updatedAt'] != null
+          ? AppDateUtils.DateUtils.parseUtcDate(json['updatedAt'])
+          : null,
     );
   }
 
@@ -160,12 +164,16 @@ class AuthState {
   final bool isLoading;
   final String? error;
   final CheckCPFResponse? checkCPF;
+  final bool biometricEnabled;
+  final bool biometricAvailable;
 
   const AuthState({
     this.user,
     this.isLoading = false,
     this.error,
     this.checkCPF,
+    this.biometricEnabled = false,
+    this.biometricAvailable = false,
   });
 
   AuthState copyWith({
@@ -173,6 +181,8 @@ class AuthState {
     bool? isLoading,
     String? error,
     CheckCPFResponse? checkCPF,
+    bool? biometricEnabled,
+    bool? biometricAvailable,
     bool clearUser = false,
     bool clearError = false,
     bool clearCheckCPF = false,
@@ -182,9 +192,10 @@ class AuthState {
       isLoading: isLoading ?? this.isLoading,
       error: clearError ? null : (error ?? this.error),
       checkCPF: clearCheckCPF ? null : (checkCPF ?? this.checkCPF),
+      biometricEnabled: biometricEnabled ?? this.biometricEnabled,
+      biometricAvailable: biometricAvailable ?? this.biometricAvailable,
     );
   }
 
   bool get isAuthenticated => user?.isAuthenticated ?? false;
 }
-
