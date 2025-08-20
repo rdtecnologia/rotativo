@@ -3,21 +3,21 @@
 <plist version="1.0">
 <dict>
 	<key>CLIENT_ID</key>
-	<string>173840734758-fcv6srb9gd1hoirp3ocpnc4bg32knhuq.apps.googleusercontent.com</string>
+	<string>429184212196-aubjru6gueh60jsq5eulhg7rad8tv747.apps.googleusercontent.com</string>
 	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.173840734758-fcv6srb9gd1hoirp3ocpnc4bg32knhuq</string>
+	<string>com.googleusercontent.apps.429184212196-aubjru6gueh60jsq5eulhg7rad8tv747</string>
 	<key>API_KEY</key>
-	<string>AIzaSyDNBIXMS02eaNLwgBlF4dA4QWOSTqTYyqk</string>
+	<string>AIzaSyANCjLxUQTfihrt5wVvqKBdjgsYKhmXH8c</string>
 	<key>GCM_SENDER_ID</key>
-	<string>173840734758</string>
+	<string>429184212196</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.rotativodigitalneves</string>
+	<string>com.rotativodigitalouropreto</string>
 	<key>PROJECT_ID</key>
-	<string>rotativo-digital-neves</string>
+	<string>rotativo-digital-ouro-preto</string>
 	<key>STORAGE_BUCKET</key>
-	<string>rotativo-digital-neves.appspot.com</string>
+	<string>rotativo-digital-ouro-preto.appspot.com</string>
 	<key>IS_ADS_ENABLED</key>
 	<false></false>
 	<key>IS_ANALYTICS_ENABLED</key>
@@ -29,6 +29,8 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:173840734758:ios:9b07b8c7a23313dc29e4e7</string>
+	<string>1:429184212196:ios:ed1dd30e61f4d6b13ae0f1</string>
+	<key>DATABASE_URL</key>
+	<string>https://rotativo-digital-ouro-preto.firebaseio.com</string>
 </dict>
 </plist>

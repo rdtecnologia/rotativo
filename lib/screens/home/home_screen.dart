@@ -1,6 +1,3 @@
-
-
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rotativo/config/dynamic_app_config.dart';
@@ -24,7 +21,8 @@ class HomePage extends ConsumerStatefulWidget {
   ConsumerState<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver {
+class _HomePageState extends ConsumerState<HomePage>
+    with WidgetsBindingObserver {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   String? cityName;
   late FocusNode _focusNode;
@@ -36,7 +34,7 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
     _focusNode = FocusNode();
     _loadData();
     debugPrint('🅿️ Main - initState: _loadData chamado');
-    
+
     // Adiciona listener para detectar quando a tela recebe foco
     _focusNode.addListener(() {
       if (_focusNode.hasFocus) {
@@ -55,7 +53,7 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
-    
+
     // Quando o app volta ao estado ativo (resumed), atualiza o saldo
     if (state == AppLifecycleState.resumed) {
       _updateBalanceOnly();
@@ -70,7 +68,7 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
     // Load vehicles and balance from API
     await ref.read(vehicleProvider.notifier).loadVehicles();
     ref.read(balanceProvider.notifier).loadBalance();
-    
+
     // Carrega as ativações ativas para todos os veículos após os veículos serem carregados
     await _loadActiveActivations();
   }
@@ -91,10 +89,12 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
   /// Carrega as ativações ativas para todos os veículos
   Future<void> _loadActiveActivations() async {
     final vehicleState = ref.read(vehicleProvider);
-   // debugPrint('🅿️ Main - _loadActiveActivations: ${vehicleState.vehicles.length} veículos carregados');
+    // debugPrint('🅿️ Main - _loadActiveActivations: ${vehicleState.vehicles.length} veículos carregados');
     if (vehicleState.vehicles.isNotEmpty) {
       //debugPrint('🅿️ Main - _loadActiveActivations: Iniciando carregamento para veículos: ${vehicleState.vehicles.map((v) => v.licensePlate).join(', ')}');
-      await ref.read(activeActivationsProvider.notifier).loadActiveActivationsForVehicles(vehicleState.vehicles);
+      await ref
+          .read(activeActivationsProvider.notifier)
+          .loadActiveActivationsForVehicles(vehicleState.vehicles);
     } else {
       //debugPrint('🅿️ Main - _loadActiveActivations: Nenhum veículo disponível ainda');
     }
@@ -116,7 +116,8 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
     await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => const ChooseValueScreen(vehicleType: 1), // 1 = carro
+        builder: (context) =>
+            const ChooseValueScreen(vehicleType: 1), // 1 = carro
       ),
     );
     // Quando retorna da tela de compra, atualiza o saldo e ativações
@@ -158,149 +159,153 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
         },
         child: ParkingBackground(
           primaryColor: Theme.of(context).primaryColor,
-          opacity: 0.15, // Opacidade menor para a tela principal
+          opacity: 0.15,
           child: Column(
             children: [
               // Top bar
               Padding(
                 padding: const EdgeInsets.all(16.0),
-                  child: Row(
-                    children: [
-                      // Menu button
-                      IconButton(
-                        onPressed: () {
-                          _scaffoldKey.currentState?.openDrawer();
-                        },
-                        icon: const Icon(
-                          Icons.menu,
-                          color: Colors.white,
-                          size: 28,
-                        ),
+                child: Row(
+                  children: [
+                    // Menu button
+                    IconButton(
+                      onPressed: () {
+                        _scaffoldKey.currentState?.openDrawer();
+                      },
+                      icon: const Icon(
+                        Icons.menu,
+                        color: Colors.white,
+                        size: 28,
                       ),
-                      
-                      // City name
-                      Expanded(
-                        child: GestureDetector(
-                          onTap: _refreshData,
-                          child: Center(
-                            child: Text(
-                              cityName ?? 'Carregando...',
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
+                    ),
+
+                    // City name
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: _refreshData,
+                        child: Center(
+                          child: Text(
+                            cityName ?? 'Carregando...',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
                         ),
                       ),
-                      
-                      // Debug button
-                      IconButton(
-                        onPressed: () {
-                          // Debug functionality removed
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Debug mode'),
-                              duration: Duration(seconds: 1),
-                            ),
-                          );
-                        },
-                        icon: const Icon(
-                          Icons.bug_report,
-                          color: Colors.white,
-                          size: 24,
-                        ),
-                      ),
+                    ),
 
-                      
-                    ],
+                    // Debug button
+                    IconButton(
+                      onPressed: () {
+                        // Debug functionality removed
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Debug mode'),
+                            duration: Duration(seconds: 1),
+                          ),
+                        );
+                      },
+                      icon: const Icon(
+                        Icons.bug_report,
+                        color: Colors.white,
+                        size: 24,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              // Vehicle carousel with refresh
+              Expanded(
+                flex: 3,
+                child: RefreshIndicator(
+                  onRefresh: _refreshData,
+                  color: Theme.of(context).primaryColor,
+                  backgroundColor: Colors.white,
+                  child: Center(
+                    child: Consumer(
+                      builder: (context, ref, child) {
+                        final vehicles = ref.watch(vehicleListProvider);
+                        final isLoading = ref.watch(vehicleLoadingProvider);
+
+                        if (isLoading) {
+                          return const CircularProgressIndicator(
+                            valueColor:
+                                AlwaysStoppedAnimation<Color>(Colors.white),
+                          );
+                        }
+
+                        return VehicleCarousel(
+                          vehicles: vehicles,
+                          onVehicleTap: _onVehicleTap,
+                        );
+                      },
+                    ),
                   ),
                 ),
+              ),
 
-                // Vehicle carousel with refresh
-                Expanded(
-                  flex: 3,
-                  child: RefreshIndicator(
-                    onRefresh: _refreshData,
-                    color: Theme.of(context).primaryColor,
-                    backgroundColor: Colors.white,
-                    child: Center(
+              // Bottom action cards
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 12.0, vertical: 8.0), // Reduzido padding
+                child: Row(
+                  children: [
+                    // Purchase card
+                    Expanded(
+                      child: ActionCard(
+                        icon: Icons.shopping_cart,
+                        label: 'COMPRAR',
+                        onTap: _onPurchaseTap,
+                        backgroundColor: Theme.of(context)
+                            .primaryColor
+                            .withValues(alpha: 0.8),
+                      ),
+                    ),
+
+                    const SizedBox(width: 8), // Reduzido de 12 para 8
+
+                    // Balance card
+                    Expanded(
                       child: Consumer(
                         builder: (context, ref, child) {
-                          final vehicles = ref.watch(vehicleListProvider);
-                          final isLoading = ref.watch(vehicleLoadingProvider);
-                          
-                          if (isLoading) {
-                            return const CircularProgressIndicator(
-                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                            );
-                          }
-                          
-                          return VehicleCarousel(
-                            vehicles: vehicles,
-                            onVehicleTap: _onVehicleTap,
+                          final balance = ref.watch(currentBalanceProvider);
+                          final isLoading = ref.watch(balanceLoadingProvider);
+
+                          return BalanceCard(
+                            balance: balance,
+                            isLoading: isLoading,
+                            onTap: _onBalanceTap,
+                            displayType: 'credits',
                           );
                         },
                       ),
                     ),
-                  ),
-                ),
 
-                // Bottom action cards
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0), // Reduzido padding
-                  child: Row(
-                    children: [
-                      // Purchase card
-                      Expanded(
-                        child: ActionCard(
-                          icon: Icons.shopping_cart,
-                          label: 'COMPRAR',
-                          onTap: _onPurchaseTap,
-                          backgroundColor: Theme.of(context).primaryColor.withValues(alpha: 0.8),
-                        ),
+                    const SizedBox(width: 8), // Reduzido de 12 para 8
+
+                    // History card
+                    Expanded(
+                      child: ActionCard(
+                        icon: Icons.history,
+                        label: 'HISTÓRICO',
+                        onTap: _onHistoryTap,
+                        backgroundColor: Theme.of(context)
+                            .primaryColor
+                            .withValues(alpha: 0.8),
                       ),
-                      
-                      const SizedBox(width: 8), // Reduzido de 12 para 8
-                      
-                      // Balance card
-                      Expanded(
-                        child: Consumer(
-                          builder: (context, ref, child) {
-                            final balance = ref.watch(currentBalanceProvider);
-                            final isLoading = ref.watch(balanceLoadingProvider);
-                            
-                            return BalanceCard(
-                              balance: balance,
-                              isLoading: isLoading,
-                              onTap: _onBalanceTap,
-                              displayType: 'credits',
-                            );
-                          },
-                        ),
-                      ),
-                      
-                      const SizedBox(width: 8), // Reduzido de 12 para 8
-                      
-                      // History card
-                      Expanded(
-                        child: ActionCard(
-                          icon: Icons.history,
-                          label: 'HISTÓRICO',
-                          onTap: _onHistoryTap,
-                          backgroundColor: Theme.of(context).primaryColor.withValues(alpha: 0.8),
-                        ),
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-                
-                const SizedBox(height: 12), // Reduzido de 16 para 12
-              ],
-            ),
+              ),
+
+              const SizedBox(height: 12), // Reduzido de 16 para 12
+            ],
           ),
         ),
+      ),
     );
   }
 }
