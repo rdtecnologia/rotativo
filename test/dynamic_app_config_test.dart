@@ -8,7 +8,7 @@ void main() {
     setUpAll(() {
       // Initialize binding
       TestWidgetsFlutterBinding.ensureInitialized();
-      
+
       // Mock the asset loading
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
           .setMockMethodCallHandler(
@@ -16,7 +16,7 @@ void main() {
         (MethodCall methodCall) async {
           if (methodCall.method == 'loadString') {
             final String assetPath = methodCall.arguments;
-            
+
             // Mock different city configs based on path
             if (assetPath.contains('PatosDeMinas')) {
               return '''
@@ -40,7 +40,7 @@ void main() {
               }
               ''';
             }
-            
+
             // Default mock for other cities
             return '''
             {
@@ -73,13 +73,8 @@ void main() {
     });
 
     test('should load city name from environment when configured', () async {
-      print('Environment City Name: ${Environment.cityName}');
-      print('Environment Flavor: ${Environment.flavor}');
-      print('Environment Is Configured: ${Environment.isConfigured}');
-      
       final cityName = await DynamicAppConfig.cityName;
-      print('DynamicAppConfig City Name: $cityName');
-      
+
       // Should use environment variable if configured
       if (Environment.isConfigured) {
         expect(cityName, Environment.cityName);
@@ -98,7 +93,7 @@ void main() {
       final latitude = await DynamicAppConfig.latitude;
       final longitude = await DynamicAppConfig.longitude;
       final products = await DynamicAppConfig.products;
-      
+
       expect(domain, isNotEmpty);
       expect(latitude, isA<double>());
       expect(longitude, isA<double>());
@@ -108,7 +103,7 @@ void main() {
 
     test('should provide debug info', () async {
       final debugInfo = await DynamicAppConfig.getDebugInfo();
-      
+
       expect(debugInfo['flavor'], Environment.flavor);
       expect(debugInfo['cityName'], Environment.cityName);
       expect(debugInfo['isConfigured'], Environment.isConfigured);

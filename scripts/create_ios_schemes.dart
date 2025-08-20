@@ -32,7 +32,8 @@ class IOSSchemeGenerator {
     'ouroPreto': 'Rotativo Ouro Preto',
   };
 
-  static String generateSchemeXML(String flavorName, String displayName, String cityName) {
+  static String generateSchemeXML(
+      String flavorName, String displayName, String cityName) {
     return '''<?xml version="1.0" encoding="UTF-8"?>
 <Scheme
    LastUpgradeVersion = "1510"
@@ -168,37 +169,22 @@ class IOSSchemeGenerator {
 
   static Future<void> createSchemes() async {
     final schemesDir = Directory('ios/Runner.xcodeproj/xcshareddata/xcschemes');
-    
+
     if (!await schemesDir.exists()) {
       await schemesDir.create(recursive: true);
     }
-
-    print('🏗️  Creating iOS schemes for city flavors...');
-    print('');
 
     for (final entry in cityMappings.entries) {
       final flavorName = entry.key;
       final cityName = entry.value;
       final displayName = displayNames[flavorName] ?? 'Rotativo $cityName';
-      
-      final schemeContent = generateSchemeXML(flavorName, displayName, cityName);
-      final schemeFile = File('${schemesDir.path}/$flavorName.xcscheme');
-      
-      await schemeFile.writeAsString(schemeContent);
-      print('✅ Created scheme: $flavorName.xcscheme ($displayName)');
-    }
 
-    print('');
-    print('🎉 Successfully created ${cityMappings.length} iOS schemes!');
-    print('');
-    print('📱 Now you can use:');
-    for (final entry in cityMappings.entries) {
-      final flavorName = entry.key;
-      final displayName = displayNames[flavorName];
-      print('   flutter run --flavor $flavorName  # $displayName');
+      final schemeContent =
+          generateSchemeXML(flavorName, displayName, cityName);
+      final schemeFile = File('${schemesDir.path}/$flavorName.xcscheme');
+
+      await schemeFile.writeAsString(schemeContent);
     }
-    print('');
-    print('💡 Note: Open the project in Xcode to see all schemes available');
   }
 }
 

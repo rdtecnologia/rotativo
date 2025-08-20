@@ -5,12 +5,6 @@ import '../lib/config/dynamic_app_config.dart';
 void main() {
   group('Integration Tests - Environment & Dynamic Config', () {
     test('Environment variables should be loaded correctly', () {
-      print('🌍 Testing Environment Variables:');
-      print('City Name: ${Environment.cityName}');
-      print('Flavor: ${Environment.flavor}');
-      print('Is Configured: ${Environment.isConfigured}');
-      print('Display Info: ${Environment.displayInfo}');
-      
       // Basic checks
       expect(Environment.cityName, isNotEmpty);
       expect(Environment.flavor, isNotEmpty);
@@ -19,27 +13,21 @@ void main() {
 
     test('Flavor to city mapping should be correct', () {
       final mapping = DynamicAppConfig.flavorToCityMapping;
-      
+
       // Check that our current flavor has a mapping
       final currentFlavor = Environment.flavor;
-      expect(mapping.containsKey(currentFlavor), isTrue, 
-        reason: 'Flavor $currentFlavor should have a city mapping');
-      
+      expect(mapping.containsKey(currentFlavor), isTrue,
+          reason: 'Flavor $currentFlavor should have a city mapping');
+
       final cityDirectory = mapping[currentFlavor];
-      print('🏙️ Flavor "$currentFlavor" maps to city directory: "$cityDirectory"');
-      
+
       expect(cityDirectory, isNotNull);
       expect(cityDirectory, isNotEmpty);
     });
 
     test('Debug info should contain correct data', () async {
       final debugInfo = await DynamicAppConfig.getDebugInfo();
-      
-      print('🔍 Debug Info:');
-      debugInfo.forEach((key, value) {
-        print('  $key: $value');
-      });
-      
+
       expect(debugInfo['flavor'], Environment.flavor);
       expect(debugInfo['cityName'], Environment.cityName);
       expect(debugInfo['isConfigured'], Environment.isConfigured);

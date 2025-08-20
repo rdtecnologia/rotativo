@@ -19,40 +19,39 @@ class IOSFlavorFixer {
   };
 
   static Future<void> fixIOSFlavors() async {
-    print('🛠️  Corrigindo configurações de iOS flavors...');
-    
     final pbxprojFile = File('ios/Runner.xcodeproj/project.pbxproj');
-    
+
     if (!await pbxprojFile.exists()) {
-      print('❌ Arquivo project.pbxproj não encontrado');
       return;
     }
 
     // Fazer backup
-    final backupFile = File('ios/Runner.xcodeproj/project.pbxproj.backup.${DateTime.now().millisecondsSinceEpoch}');
+    final backupFile = File(
+        'ios/Runner.xcodeproj/project.pbxproj.backup.${DateTime.now().millisecondsSinceEpoch}');
     await pbxprojFile.copy(backupFile.path);
-    print('✅ Backup criado: ${backupFile.path}');
 
     String content = await pbxprojFile.readAsString();
 
     // Procurar por uma configuração Debug existente para usar como template
-    final debugConfigMatch = RegExp(r'(\w+) \/\* Debug \*\/ = \{[^}]+buildSettings = \{[^}]+\};').firstMatch(content);
-    final releaseConfigMatch = RegExp(r'(\w+) \/\* Release \*\/ = \{[^}]+buildSettings = \{[^}]+\};').firstMatch(content);
-    final profileConfigMatch = RegExp(r'(\w+) \/\* Profile \*\/ = \{[^}]+buildSettings = \{[^}]+\};').firstMatch(content);
+    final debugConfigMatch =
+        RegExp(r'(\w+) \/\* Debug \*\/ = \{[^}]+buildSettings = \{[^}]+\};')
+            .firstMatch(content);
+    final releaseConfigMatch =
+        RegExp(r'(\w+) \/\* Release \*\/ = \{[^}]+buildSettings = \{[^}]+\};')
+            .firstMatch(content);
+    final profileConfigMatch =
+        RegExp(r'(\w+) \/\* Profile \*\/ = \{[^}]+buildSettings = \{[^}]+\};')
+            .firstMatch(content);
 
-    if (debugConfigMatch == null || releaseConfigMatch == null || profileConfigMatch == null) {
-      print('❌ Não foi possível encontrar as configurações base');
+    if (debugConfigMatch == null ||
+        releaseConfigMatch == null ||
+        profileConfigMatch == null) {
       return;
     }
 
     final debugConfigId = debugConfigMatch.group(1)!;
     final releaseConfigId = releaseConfigMatch.group(1)!;
     final profileConfigId = profileConfigMatch.group(1)!;
-
-    print('📋 Encontradas configurações base:');
-    print('   Debug: $debugConfigId');
-    print('   Release: $releaseConfigId');
-    print('   Profile: $profileConfigId');
 
     // Gerar novos IDs únicos para cada flavor
     final newConfigs = <String>[];
@@ -80,11 +79,12 @@ class IOSFlavorFixer {
     }
 
     // Encontrar onde inserir as novas configurações
-    final buildConfigsSectionStart = content.indexOf('/* Begin XCBuildConfiguration section */');
-    final buildConfigsSectionEnd = content.indexOf('/* End XCBuildConfiguration section */');
+    final buildConfigsSectionStart =
+        content.indexOf('/* Begin XCBuildConfiguration section */');
+    final buildConfigsSectionEnd =
+        content.indexOf('/* End XCBuildConfiguration section */');
 
     if (buildConfigsSectionStart == -1 || buildConfigsSectionEnd == -1) {
-      print('❌ Não foi possível encontrar a seção XCBuildConfiguration');
       return;
     }
 
@@ -95,24 +95,15 @@ class IOSFlavorFixer {
     content = beforeConfigs + newConfigs.join('\n') + '\n' + afterConfigs;
 
     // Encontrar e atualizar as listas de configuração
-    final configListRegex = RegExp(r'(\w+) \/\* Debug \*\/ = \{[^}]+\};\s*(\w+) \/\* Profile \*\/ = \{[^}]+\};\s*(\w+) \/\* Release \*\/ = \{[^}]+\};');
-    
+    final configListRegex = RegExp(
+        r'(\w+) \/\* Debug \*\/ = \{[^}]+\};\s*(\w+) \/\* Profile \*\/ = \{[^}]+\};\s*(\w+) \/\* Release \*\/ = \{[^}]+\};');
+
     content = content.replaceAllMapped(configListRegex, (match) {
       return match.group(0)! + '\n' + configListEntries.join('\n');
     });
 
     // Salvar o arquivo modificado
     await pbxprojFile.writeAsString(content);
-
-    print('✅ Configurações iOS adicionadas com sucesso!');
-    print('');
-    print('🎉 Agora você pode usar:');
-    for (final flavor in flavors.keys) {
-      print('   flutter run --flavor $flavor -d "iPhone Simulator"');
-    }
-    print('');
-    print('📱 Exemplo:');
-    print('   flutter run --flavor patosDeMinas -d "iPhone 16 Pro"');
   }
 
   static String _generateId() {
@@ -123,7 +114,7 @@ class IOSFlavorFixer {
 
   static String _createBuildConfig(String id, String name, String mode) {
     // Extract complex conditional values to avoid string interpolation issues
-    final gccPreprocessorDefinitions = mode == 'debug' 
+    final gccPreprocessorDefinitions = mode == 'debug'
         ? '''(
 \t\t\t\t\t"DEBUG=1",
 \t\t\t\t\t"\$(inherited)",
@@ -131,7 +122,7 @@ class IOSFlavorFixer {
         : '''(
 \t\t\t\t\t"\$(inherited)",
 \t\t\t\t)''';
-    
+
     return '''
 \t\t$id /* $name */ = {
 \t\t\tisa = XCBuildConfiguration;

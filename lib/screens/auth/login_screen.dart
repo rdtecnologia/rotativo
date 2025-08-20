@@ -13,7 +13,6 @@ import 'register_screen.dart';
 import 'forgot_password_screen.dart';
 import '../../services/biometric_service.dart';
 import '../../services/auth_service.dart';
-import 'dart:io' show Platform;
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -40,31 +39,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   }
 
   Future<void> _checkBiometricStatus() async {
-    print('🔍 LoginScreen: Verificando status biométrico...');
-    print(
-        '🔍 LoginScreen: Dispositivo: ${Platform.operatingSystem} ${Platform.operatingSystemVersion}');
-
     try {
       final available = await BiometricService.isBiometricAvailable();
       final enabled = await AuthService.isBiometricEnabled();
       final credentials = await AuthService.getStoredCredentials();
 
-      print('🔍 LoginScreen: Biometria disponível: $available');
-      print('🔍 LoginScreen: Biometria habilitada: $enabled');
-      print('🔍 LoginScreen: Credenciais armazenadas: ${credentials != null}');
-
-      // Verificação adicional
-      final hasFingerprint = await BiometricService.hasFingerprint();
-      final availableBiometrics =
-          await BiometricService.getAvailableBiometrics();
-
-      print('🔍 LoginScreen: Tem impressão digital: $hasFingerprint');
-      print('🔍 LoginScreen: Biometrias disponíveis: $availableBiometrics');
-
       // Só habilita biometria se tiver credenciais armazenadas E biometria estiver habilitada
       final finalEnabled = available && enabled && credentials != null;
-      print(
-          '🔍 LoginScreen: Biometria final habilitada: $finalEnabled (disponível: $available, habilitada: $enabled, credenciais: ${credentials != null})');
 
       if (mounted) {
         setState(() {
@@ -73,11 +54,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           // Se biometria estiver ativa, oculta o card de login por padrão
           _showLoginCard = !finalEnabled;
         });
-        print(
-            '🔍 LoginScreen: Estado atualizado - disponível: $_biometricAvailable, habilitada: $_biometricEnabled');
       }
     } catch (e) {
-      print('❌ LoginScreen: Erro ao verificar biometria: $e');
       if (mounted) {
         setState(() {
           _biometricAvailable = false;
@@ -94,12 +72,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   }
 
   Future<void> _handleBiometricLogin() async {
-    print('🔍 LoginScreen: Iniciando login biométrico...');
-
     // Primeiro verifica se há credenciais armazenadas
     final credentials = await AuthService.getStoredCredentials();
     if (credentials == null) {
-      print('❌ LoginScreen: Credenciais não encontradas para biometria');
       Fluttertoast.showToast(
         msg:
             'Primeiro faça login tradicional e configure a biometria nas configurações',
@@ -115,7 +90,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           await ref.read(authProvider.notifier).loginWithBiometrics();
 
       if (success) {
-        print('🔍 LoginScreen: Login biométrico realizado com sucesso');
         Fluttertoast.showToast(
           msg: 'Login realizado com sucesso!',
           toastLength: Toast.LENGTH_SHORT,
@@ -127,7 +101,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           Navigator.of(context).pushReplacementNamed('/home');
         }
       } else {
-        print('❌ LoginScreen: Login biométrico falhou');
         final error = ref.read(authProvider).error;
         if (error != null) {
           Fluttertoast.showToast(
@@ -139,7 +112,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         }
       }
     } catch (e) {
-      print('❌ LoginScreen: Erro no login biométrico: $e');
       Fluttertoast.showToast(
         msg: 'Erro ao fazer login biométrico: $e',
         toastLength: Toast.LENGTH_LONG,
@@ -277,8 +249,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                 const SizedBox(height: 16),
                                 LoadingButton(
                                   onPressed: () {
-                                    print(
-                                        '🔍 LoginScreen: Botão biométrico pressionado');
                                     _handleBiometricLogin();
                                   },
                                   isLoading: false,

@@ -299,9 +299,9 @@ class AuthService {
         value: jsonEncode(credentials),
       );
 
-      print('🔍 AuthService: Credenciais armazenadas para biometria');
+      // Credenciais armazenadas para biometria
     } catch (e) {
-      print('❌ AuthService: Erro ao armazenar credenciais para biometria: $e');
+      // Erro ao armazenar credenciais para biometria: $e
       // Não falha o login se não conseguir armazenar credenciais
     }
   }
@@ -351,8 +351,7 @@ class AuthService {
       // Verifica se já existem credenciais armazenadas
       final credentials = await getStoredCredentials();
       if (credentials == null) {
-        print(
-            '❌ AuthService: Nenhuma credencial armazenada para habilitar biometria');
+        // Nenhuma credencial armazenada para habilitar biometria
         return false;
       }
 
@@ -362,10 +361,10 @@ class AuthService {
         value: 'true',
       );
 
-      print('🔍 AuthService: Biometria habilitada com sucesso');
+      // Biometria habilitada com sucesso
       return true;
     } catch (e) {
-      print('❌ AuthService: Erro ao habilitar biometria: $e');
+      // Erro ao habilitar biometria: $e
       return false;
     }
   }
@@ -384,36 +383,36 @@ class AuthService {
 
   /// Verifica se a biometria está habilitada
   static Future<bool> isBiometricEnabled() async {
-    print('🔍 AuthService: Verificando se biometria está habilitada...');
+    // Verificando se biometria está habilitada...
     try {
       final enabled = await _storage.read(key: _biometricEnabledKey);
-      print('🔍 AuthService: Valor da chave biometric_enabled: $enabled');
+      // Valor da chave biometric_enabled: $enabled
       final result = enabled == 'true';
-      print('🔍 AuthService: Biometria habilitada: $result');
+      // Biometria habilitada: $result
       return result;
     } catch (e) {
-      print('❌ AuthService: Erro ao verificar biometria habilitada: $e');
+      // Erro ao verificar biometria habilitada: $e
       return false;
     }
   }
 
   /// Obtém credenciais armazenadas para login biométrico
   static Future<Map<String, dynamic>?> getStoredCredentials() async {
-    print('🔍 AuthService: Verificando credenciais armazenadas...');
+    // Verificando credenciais armazenadas...
     try {
       final credentialsData = await _storage.read(key: _storedCredentialsKey);
-      print('🔍 AuthService: Dados brutos das credenciais: $credentialsData');
+      // Dados brutos das credenciais: $credentialsData
 
       if (credentialsData != null) {
         final credentials = jsonDecode(credentialsData);
-        print('🔍 AuthService: Credenciais decodificadas: $credentials');
+        // Credenciais decodificadas: $credentials
         return credentials;
       }
 
-      print('🔍 AuthService: Nenhuma credencial armazenada encontrada');
+      // Nenhuma credencial armazenada encontrada
       return null;
     } catch (e) {
-      print('❌ AuthService: Erro ao obter credenciais armazenadas: $e');
+      // Erro ao obter credenciais armazenadas: $e
       debugPrint('Erro ao obter credenciais armazenadas: $e');
       return null;
     }
@@ -421,19 +420,19 @@ class AuthService {
 
   /// Login usando biometria (usa credenciais armazenadas)
   static Future<Map<String, dynamic>?> loginWithBiometrics() async {
-    print('🔍 AuthService: Iniciando login biométrico...');
+    // Iniciando login biométrico...
     try {
-      print('🔍 AuthService: Obtendo credenciais armazenadas...');
+      // Obtendo credenciais armazenadas...
       final credentials = await getStoredCredentials();
       if (credentials == null) {
-        print('❌ AuthService: Credenciais biométricas não encontradas');
+        // Credenciais biométricas não encontradas
         throw Exception('Credenciais biométricas não encontradas');
       }
 
-      print('🔍 AuthService: Credenciais obtidas com sucesso');
+      // Credenciais obtidas com sucesso
       return credentials;
     } catch (e) {
-      print('❌ AuthService: Erro no login biométrico: $e');
+      // Erro no login biométrico: $e
       rethrow;
     }
   }

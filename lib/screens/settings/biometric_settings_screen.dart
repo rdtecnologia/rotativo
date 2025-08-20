@@ -26,15 +26,10 @@ class _BiometricSettingsScreenState
   }
 
   Future<void> _checkBiometricStatus() async {
-    print('🔍 BiometricSettingsScreen: Verificando status biométrico...');
     try {
       final available = await BiometricService.isBiometricAvailable();
       final enabled = await AuthService.isBiometricEnabled();
       final biometrics = await BiometricService.getAvailableBiometrics();
-
-      print('🔍 BiometricSettingsScreen: Biometria disponível: $available');
-      print('🔍 BiometricSettingsScreen: Biometria habilitada: $enabled');
-      print('🔍 BiometricSettingsScreen: Biometrias disponíveis: $biometrics');
 
       if (mounted) {
         setState(() {
@@ -43,7 +38,6 @@ class _BiometricSettingsScreenState
         });
       }
     } catch (e) {
-      print('❌ BiometricSettingsScreen: Erro ao verificar status: $e');
       if (mounted) {
         setState(() {
           // _isLoading = false; // Removed as per edit hint
@@ -53,11 +47,10 @@ class _BiometricSettingsScreenState
   }
 
   Future<void> _syncBiometricStatus() async {
-    print('🔍 BiometricSettingsScreen: Sincronizando estado biométrico...');
     try {
       await ref.read(authProvider.notifier).syncBiometricStatus();
     } catch (e) {
-      print('❌ BiometricSettingsScreen: Erro ao sincronizar estado: $e');
+      // Error handling without print statements
     }
   }
 

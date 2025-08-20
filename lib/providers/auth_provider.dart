@@ -130,7 +130,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
   Future<void> logout() async {
     try {
       if (kDebugMode) {
-        print('🔄 AuthProvider: Starting logout process...');
+        // Log removed
       }
 
       // Clear stored data
@@ -140,20 +140,18 @@ class AuthNotifier extends StateNotifier<AuthState> {
       state = const AuthState();
 
       if (kDebugMode) {
-        print('🔄 AuthProvider: Logout completed successfully');
-        print(
-            '🔄 AuthProvider: Current state - user: ${state.user}, isAuthenticated: ${state.isAuthenticated}');
+        // Logs removed
       }
     } catch (e) {
       if (kDebugMode) {
-        print('❌ AuthProvider: Error during logout: $e');
+        // Log removed
       }
 
       // Even if there's an error, clear the state
       state = const AuthState();
 
       if (kDebugMode) {
-        print('🔄 AuthProvider: State cleared after error');
+        // Log removed
       }
     }
   }
@@ -185,7 +183,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
           biometricEnabled: true,
           isLoading: false,
         );
-        print('🔍 AuthProvider: Estado biométrico atualizado para: true');
+        // Log removed
       } else {
         state = state.copyWith(
           error:
@@ -216,7 +214,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
           biometricEnabled: false,
           isLoading: false,
         );
-        print('🔍 AuthProvider: Estado biométrico atualizado para: false');
+        // Log removed
       } else {
         state = state.copyWith(
           error: 'Não foi possível desabilitar a autenticação biométrica',
@@ -239,24 +237,23 @@ class AuthNotifier extends StateNotifier<AuthState> {
     try {
       final biometricEnabled = await AuthService.isBiometricEnabled();
       state = state.copyWith(biometricEnabled: biometricEnabled);
-      print(
-          '🔍 AuthProvider: Estado biométrico sincronizado: $biometricEnabled');
+      // Log removed
     } catch (e) {
-      print('❌ AuthProvider: Erro ao sincronizar estado biométrico: $e');
+      // Log removed
     }
   }
 
   /// Login usando biometria
   Future<bool> loginWithBiometrics() async {
-    print('🔍 AuthProvider: Iniciando login biométrico...');
+    // Log removed
     try {
       state = state.copyWith(isLoading: true, error: null);
 
-      print('🔍 AuthProvider: Chamando BiometricService.authenticate()...');
+      // Log removed
       final biometricSuccess = await BiometricService.authenticate();
 
       if (!biometricSuccess) {
-        print('❌ AuthProvider: Autenticação biométrica falhou');
+        // Log removed
         state = state.copyWith(
           error: 'Autenticação biométrica falhou',
           isLoading: false,
@@ -264,11 +261,11 @@ class AuthNotifier extends StateNotifier<AuthState> {
         return false;
       }
 
-      print('🔍 AuthProvider: Biometria autenticada, obtendo credenciais...');
+      // Log removed
       final credentials = await AuthService.loginWithBiometrics();
 
       if (credentials == null) {
-        print('❌ AuthProvider: Credenciais não encontradas');
+        // Log removed
         state = state.copyWith(
           error: 'Credenciais biométricas não encontradas',
           isLoading: false,
@@ -276,14 +273,14 @@ class AuthNotifier extends StateNotifier<AuthState> {
         return false;
       }
 
-      print('🔍 AuthProvider: Credenciais obtidas, fazendo login...');
+      // Log removed
       final cpf = credentials['cpf'] as String;
       final password = credentials['password'] as String;
 
       // Usa o método de login existente
       final user = await AuthService.login(cpf, password);
 
-      print('🔍 AuthProvider: Login realizado com sucesso: ${user.name}');
+      // Log removed
 
       state = state.copyWith(
         user: user,
@@ -291,10 +288,10 @@ class AuthNotifier extends StateNotifier<AuthState> {
         error: null,
       );
 
-      print('🔍 AuthProvider: Estado atualizado com sucesso');
+      // Log removed
       return true;
     } catch (e) {
-      print('❌ AuthProvider: Erro no login biométrico: $e');
+      // Log removed
       state = state.copyWith(
         error: e.toString(),
         isLoading: false,

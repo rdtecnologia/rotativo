@@ -24,7 +24,9 @@ class _VehicleCarouselState extends State<VehicleCarousel> {
   @override
   void initState() {
     super.initState();
-    _pageController = PageController(viewportFraction: 0.85); // Aumentado de 0.8 para 0.85 para melhor uso do espaço
+    _pageController = PageController(
+        viewportFraction:
+            0.85); // Aumentado de 0.8 para 0.85 para melhor uso do espaço
   }
 
   @override
@@ -59,7 +61,7 @@ class _VehicleCarouselState extends State<VehicleCarousel> {
             },
           ),
         ),
-        
+
         // Page indicators
         if (widget.vehicles.length > 1) ...[
           const SizedBox(height: 16),
@@ -142,18 +144,18 @@ class VehicleCard extends StatelessWidget {
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              Theme.of(context).primaryColor,
-              Theme.of(context).primaryColor.withValues(alpha: 0.8),
+              Theme.of(context).primaryColor.withValues(alpha: 0.7),
+              Colors.grey.withValues(alpha: 0.1),
             ],
           ),
           borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.2),
-              blurRadius: 8,
-              offset: const Offset(0, 4),
-            ),
-          ],
+          // boxShadow: [
+          //   BoxShadow(
+          //     color: Colors.black.withValues(alpha: 0.2),
+          //     blurRadius: 8,
+          //     offset: const Offset(0, 4),
+          //   ),
+          // ],
         ),
         child: Padding(
           padding: const EdgeInsets.all(12.0),
@@ -161,7 +163,7 @@ class VehicleCard extends StatelessWidget {
             children: [
               // ESPAÇO SUPERIOR - Afasta elementos da borda superior
               const SizedBox(height: 16),
-              
+
               // PARTE SUPERIOR: Dados do carro
               Column(
                 children: [
@@ -172,7 +174,7 @@ class VehicleCard extends StatelessWidget {
                     color: Colors.white,
                   ),
                   const SizedBox(height: 8),
-                  
+
                   // License plate
                   Text(
                     vehicle.licensePlate,
@@ -186,9 +188,9 @@ class VehicleCard extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  
+
                   const SizedBox(height: 6),
-                  
+
                   // Vehicle details (modelo/marca)
                   if (vehicle.model != null || vehicle.brand != null) ...[
                     Text(
@@ -203,7 +205,7 @@ class VehicleCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                   ],
-                  
+
                   if (vehicle.color != null) ...[
                     Text(
                       vehicle.color!,
@@ -218,10 +220,10 @@ class VehicleCard extends StatelessWidget {
                   ],
                 ],
               ),
-              
+
               // Botão Estacionar logo abaixo do modelo
               const SizedBox(height: 16),
-              
+
               // Action button
               Container(
                 padding: const EdgeInsets.symmetric(
@@ -245,10 +247,10 @@ class VehicleCard extends StatelessWidget {
                   ),
                 ),
               ),
-              
+
               // ESPAÇO FLEXÍVEL NO MEIO - Se adapta à resolução
               const Expanded(child: SizedBox()),
-              
+
               // PARTE INFERIOR: Timer
               Column(
                 children: [
@@ -262,7 +264,7 @@ class VehicleCard extends StatelessWidget {
                       height: 80,
                     ),
                   ),
-                  
+
                   // ESPAÇO INFERIOR - Afasta elementos da borda inferior
                   const SizedBox(height: 16),
                 ],
