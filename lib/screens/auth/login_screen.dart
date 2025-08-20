@@ -23,7 +23,7 @@ class LoginScreen extends ConsumerStatefulWidget {
 
 class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _formKey = GlobalKey<FormBuilderState>();
-  bool _biometricAvailable = false;
+  //bool _biometricAvailable = false;
   bool _biometricEnabled = false;
   bool _showLoginCard = true;
 
@@ -49,7 +49,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
       if (mounted) {
         setState(() {
-          _biometricAvailable = available;
+          //_biometricAvailable = available;
           _biometricEnabled = finalEnabled;
           // Se biometria estiver ativa, oculta o card de login por padrão
           _showLoginCard = !finalEnabled;
@@ -58,7 +58,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     } catch (e) {
       if (mounted) {
         setState(() {
-          _biometricAvailable = false;
+          //_biometricAvailable = false;
           _biometricEnabled = false;
         });
       }

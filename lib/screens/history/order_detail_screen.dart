@@ -46,7 +46,7 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
     setState(() {
       _copyMessage = successMessage;
     });
-    
+
     // Clear message after 3 seconds
     Future.delayed(const Duration(seconds: 3), () {
       if (mounted) {
@@ -192,11 +192,11 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      '• Valor a ser reembolsado: R\$ ${AppFormatters.formatCurrency(chargeback!.action!.value)}',
+                      '• Valor a ser reembolsado: R\$ ${AppFormatters.formatCurrency(chargeback!.action.value)}',
                       style: const TextStyle(fontSize: 14),
                     ),
                     Text(
-                      '• Créditos a serem reembolsados: ${chargeback.action!.quantity}',
+                      '• Créditos a serem reembolsados: ${chargeback.action.quantity}',
                       style: const TextStyle(fontSize: 14),
                     ),
                     const SizedBox(height: 8),
@@ -275,7 +275,7 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
 
       final success = await HistoryService.deleteOrder(
         order.id,
-        chargeback!.action!.value.toString(),
+        chargeback!.action.value.toString(),
       );
 
       if (mounted) {
@@ -286,20 +286,56 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
         // Sucesso
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Row(
+                children: [
+                  const Icon(Icons.check_circle, color: Colors.white),
+                  const SizedBox(width: 12),
+                  const Expanded(
+                    child: Text(
+                      'Solicitação de cancelamento enviada com sucesso!',
+                      style: TextStyle(fontSize: 16),
+                    ),
+                  ),
+                ],
+              ),
+              backgroundColor: Colors.green,
+              duration: const Duration(seconds: 4),
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+          );
+
+          // Recarrega os detalhes da compra para atualizar o status
+          ref
+              .read(orderDetailProvider.notifier)
+              .loadOrderDetail(widget.orderId);
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        Navigator.of(context).pop(); // Remove loading
+      }
+
+      // Erro
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Row(
               children: [
-                const Icon(Icons.check_circle, color: Colors.white),
+                const Icon(Icons.error, color: Colors.white),
                 const SizedBox(width: 12),
-                const Expanded(
+                Expanded(
                   child: Text(
-                    'Solicitação de cancelamento enviada com sucesso!',
-                    style: TextStyle(fontSize: 16),
+                    'Erro ao solicitar cancelamento: ${e.toString()}',
+                    style: const TextStyle(fontSize: 16),
                   ),
                 ),
               ],
             ),
-            backgroundColor: Colors.green,
+            backgroundColor: Colors.red,
             duration: const Duration(seconds: 4),
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(
@@ -307,40 +343,6 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
             ),
           ),
         );
-        
-        // Recarrega os detalhes da compra para atualizar o status
-        ref.read(orderDetailProvider.notifier).loadOrderDetail(widget.orderId);
-        }
-      }
-    } catch (e) {
-      if (mounted) {
-        Navigator.of(context).pop(); // Remove loading
-      }
-      
-      // Erro
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Row(
-            children: [
-              const Icon(Icons.error, color: Colors.white),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  'Erro ao solicitar cancelamento: ${e.toString()}',
-                  style: const TextStyle(fontSize: 16),
-                ),
-              ),
-            ],
-          ),
-          backgroundColor: Colors.red,
-          duration: const Duration(seconds: 4),
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
-        ),
-      );
       }
     }
   }
@@ -409,7 +411,7 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
     if (kDebugMode) {
       print('📄 PDF Viewer - Tentando abrir URL: $pdfUrl');
     }
-    
+
     // Primeiro tenta abrir no visualizador interno
     try {
       Navigator.of(context).push(
@@ -447,7 +449,7 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
       if (kDebugMode) {
         print('📄 PDF Viewer - Erro ao abrir visualizador interno: $e');
       }
-      
+
       // Se falhar, abre no navegador
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -455,7 +457,7 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
           duration: Duration(seconds: 2),
         ),
       );
-      
+
       _launchUrl(pdfUrl);
     }
   }
@@ -471,9 +473,9 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(8),
-        border: fullBorder 
-          ? Border.all(color: Colors.red, width: 2)
-          : Border.all(color: Colors.grey.shade300),
+        border: fullBorder
+            ? Border.all(color: Colors.red, width: 2)
+            : Border.all(color: Colors.grey.shade300),
         boxShadow: [
           BoxShadow(
             color: Colors.black12,
@@ -502,7 +504,8 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
     );
   }
 
-  Widget _buildDetailItem(String label, String value, {VoidCallback? onTap, bool isLink = false}) {
+  Widget _buildDetailItem(String label, String value,
+      {VoidCallback? onTap, bool isLink = false}) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Column(
@@ -543,15 +546,15 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
       children: [
         _buildDetailItem('Status do reembolso:', chargeback!.last!.status),
         _buildDetailItem(
-          'Data da solicitação:', 
+          'Data da solicitação:',
           AppFormatters.formatDateTime(chargeback.last!.createdAt),
         ),
         _buildDetailItem(
-          'Última atualização:', 
+          'Última atualização:',
           AppFormatters.formatDateTime(chargeback.last!.updatedAt),
         ),
         _buildDetailItem(
-          'Valor do reembolso:', 
+          'Valor do reembolso:',
           'R\$ ${AppFormatters.formatCurrency(chargeback.last!.value)}',
         ),
         const SizedBox(height: 8),
@@ -569,29 +572,31 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
 
   Widget _buildMainDetailsSection(OrderDetail order) {
     final payment = order.payments.isNotEmpty ? order.payments.first : null;
-    
+
     return _buildDetailBox(
       title: '',
       children: [
-        _buildDetailItem('Valor:', 'R\$ ${AppFormatters.formatCurrency(order.value)}'),
-        
-        if (order.products.isNotEmpty && order.products.first.vehicleType != null)
+        _buildDetailItem(
+            'Valor:', 'R\$ ${AppFormatters.formatCurrency(order.value)}'),
+
+        if (order.products.isNotEmpty &&
+            order.products.first.vehicleType != null)
           _buildDetailItem(
-            'Tipo de veículo:', 
+            'Tipo de veículo:',
             _getVehicleTypeText(order.products.first.vehicleType),
           ),
-        
+
         _buildDetailItem(
-          'Data da compra:', 
+          'Data da compra:',
           AppFormatters.formatDateTime(order.createdAt),
         ),
-        
+
         // Status da compra destacado
         Row(
           children: [
             Expanded(
               child: _buildDetailItem(
-                'Status da compra:', 
+                'Status da compra:',
                 '',
               ),
             ),
@@ -612,32 +617,39 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
             ),
           ],
         ),
-        
+
         // Botão de cancelamento para compras pagas
         if (order.status == 'Pago' && order.chargeback?.action != null) ...[
           const SizedBox(height: 16),
           SizedBox(
             width: double.infinity,
             child: ElevatedButton.icon(
-              onPressed: (order.chargeback?.last != null || (order.chargeback?.message != null && order.chargeback!.message.isNotEmpty))
-                ? null // Desabilita se já há solicitação em curso OU se passou dos 15 dias (mensagem não vazia)
-                : () => _showCancelOrderDialog(order),
+              onPressed: (order.chargeback?.last != null ||
+                      (order.chargeback?.message != null &&
+                          order.chargeback!.message.isNotEmpty))
+                  ? null // Desabilita se já há solicitação em curso OU se passou dos 15 dias (mensagem não vazia)
+                  : () => _showCancelOrderDialog(order),
               icon: Icon(
-                (order.chargeback?.last != null || (order.chargeback?.message != null && order.chargeback!.message.isNotEmpty))
-                  ? Icons.block 
-                  : Icons.cancel_outlined,
+                (order.chargeback?.last != null ||
+                        (order.chargeback?.message != null &&
+                            order.chargeback!.message.isNotEmpty))
+                    ? Icons.block
+                    : Icons.cancel_outlined,
               ),
               label: Text(
-                order.chargeback?.last != null 
-                  ? 'Solicitação em Andamento'
-                  : (order.chargeback?.message != null && order.chargeback!.message.isNotEmpty)
-                    ? 'Prazo Expirado'
-                    : 'Solicitar Cancelamento',
+                order.chargeback?.last != null
+                    ? 'Solicitação em Andamento'
+                    : (order.chargeback?.message != null &&
+                            order.chargeback!.message.isNotEmpty)
+                        ? 'Prazo Expirado'
+                        : 'Solicitar Cancelamento',
               ),
               style: ElevatedButton.styleFrom(
-                backgroundColor: (order.chargeback?.last != null || (order.chargeback?.message != null && order.chargeback!.message.isNotEmpty))
-                  ? Colors.grey 
-                  : Colors.orange,
+                backgroundColor: (order.chargeback?.last != null ||
+                        (order.chargeback?.message != null &&
+                            order.chargeback!.message.isNotEmpty))
+                    ? Colors.grey
+                    : Colors.orange,
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 shape: RoundedRectangleBorder(
@@ -647,21 +659,24 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
             ),
           ),
         ],
-        
+
         // Payment method with icon
         Row(
           children: [
             Expanded(
               child: _buildDetailItem(
-                'Meio de pagamento:', 
-                payment != null ? _getPaymentMethodText(payment.method) : 'Dinheiro',
+                'Meio de pagamento:',
+                payment != null
+                    ? _getPaymentMethodText(payment.method)
+                    : 'Dinheiro',
               ),
             ),
             if (payment != null) ...[
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: _getPaymentMethodColor(payment.method).withValues(alpha: 0.1),
+                  color: _getPaymentMethodColor(payment.method)
+                      .withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Icon(
@@ -673,11 +688,12 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
             ],
           ],
         ),
-        
+
         // PIX details - only show if payment is pending
-        if (payment?.pix != null && payment!.status == 'Aguardando Pagamento') ...[
+        if (payment?.pix != null &&
+            payment!.status == 'Aguardando Pagamento') ...[
           const SizedBox(height: 16),
-          
+
           // Container atrativo para PIX
           Container(
             width: double.infinity,
@@ -707,7 +723,7 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
                   ),
                 ),
                 const SizedBox(height: 16),
-                
+
                 // Código PIX copiável
                 Container(
                   padding: const EdgeInsets.all(12),
@@ -752,9 +768,9 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
                     ],
                   ),
                 ),
-                
+
                 const SizedBox(height: 16),
-                
+
                 // Botão para visualizar QR Code
                 SizedBox(
                   width: double.infinity,
@@ -773,11 +789,11 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
             ),
           ),
         ],
-        
+
         // Billet details
         if (payment?.billet != null) ...[
           const SizedBox(height: 16),
-          
+
           // Container atrativo para Boleto
           Container(
             width: double.infinity,
@@ -807,16 +823,16 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
                   ),
                 ),
                 const SizedBox(height: 16),
-                
+
                 // Data de vencimento
                 if (payment!.billet!.expirationDate.isNotEmpty) ...[
                   _buildDetailItem(
-                    'Data de vencimento:', 
+                    'Data de vencimento:',
                     payment.billet!.expirationDate,
                   ),
                   const SizedBox(height: 16),
                 ],
-                
+
                 // Linha digitável copiável
                 Container(
                   padding: const EdgeInsets.all(12),
@@ -861,9 +877,9 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
                     ],
                   ),
                 ),
-                
+
                 const SizedBox(height: 16),
-                
+
                 // Botão de visualizar boleto
                 if (payment.status == 'Aguardando Pagamento') ...[
                   SizedBox(
@@ -884,14 +900,15 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
             ),
           ),
         ],
-        
+
         // Credit card details
         if (payment?.creditCard != null) ...[
           _buildDetailItem('Cartão:', payment!.creditCard!.number),
           if (payment.creditCard!.holderName != null)
-            _buildDetailItem('Titular cartão:', payment.creditCard!.holderName!),
+            _buildDetailItem(
+                'Titular cartão:', payment.creditCard!.holderName!),
         ],
-        
+
         // Reference code
         if (order.referenceCode != null)
           _buildDetailItem('Autenticação:', order.referenceCode!),
@@ -915,132 +932,140 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
       body: SafeArea(
         child: Container(
           color: Colors.grey.shade100,
-          child: isLoading 
-            ? const Center(
-                child: CircularProgressIndicator(),
-              )
-            : error != null
-              ? Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(
-                        Icons.error_outline,
-                        size: 64,
-                        color: Colors.red,
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        'Erro ao carregar detalhes',
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        error,
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          fontSize: 14,
-                          color: Colors.red,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      ElevatedButton(
-                        onPressed: () {
-                          ref.read(orderDetailProvider.notifier).loadOrderDetail(widget.orderId);
-                        },
-                        child: const Text('Tentar Novamente'),
-                      ),
-                    ],
-                  ),
+          child: isLoading
+              ? const Center(
+                  child: CircularProgressIndicator(),
                 )
-              : orderDetail != null
-                ? SingleChildScrollView(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Chargeback section (if exists)
-                        _buildChargebackSection(orderDetail),
-                        
-                        // Main details section
-                        _buildMainDetailsSection(orderDetail),
-                        
-                        // Copy message
-                        if (_copyMessage.isNotEmpty) ...[
-                          Container(
-                            width: double.infinity,
-                            padding: const EdgeInsets.all(12),
-                            margin: const EdgeInsets.only(bottom: 16),
-                            decoration: BoxDecoration(
-                              color: Colors.green.shade100,
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(color: Colors.green),
+              : error != null
+                  ? Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(
+                            Icons.error_outline,
+                            size: 64,
+                            color: Colors.red,
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            'Erro ao carregar detalhes',
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
                             ),
-                            child: Text(
-                              _copyMessage,
-                              style: const TextStyle(
-                                color: Colors.green,
-                                fontWeight: FontWeight.w600,
-                              ),
-                              textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            error,
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                              fontSize: 14,
+                              color: Colors.red,
                             ),
+                          ),
+                          const SizedBox(height: 16),
+                          ElevatedButton(
+                            onPressed: () {
+                              ref
+                                  .read(orderDetailProvider.notifier)
+                                  .loadOrderDetail(widget.orderId);
+                            },
+                            child: const Text('Tentar Novamente'),
                           ),
                         ],
-                        
-                        // Chargeback message (only for paid orders with non-empty message)
-                        if (orderDetail.status == 'Pago' && orderDetail.chargeback?.message != null && orderDetail.chargeback!.message.isNotEmpty) ...[
-                          Container(
-                            width: double.infinity,
-                            padding: const EdgeInsets.all(12),
-                            margin: const EdgeInsets.only(bottom: 16),
-                            decoration: BoxDecoration(
-                              color: Colors.orange.shade100,
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(color: Colors.orange),
-                            ),
-                            child: Text(
-                              orderDetail.chargeback!.message,
-                              style: const TextStyle(
-                                color: Colors.orange,
-                                fontWeight: FontWeight.w600,
+                      ),
+                    )
+                  : orderDetail != null
+                      ? SingleChildScrollView(
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Chargeback section (if exists)
+                              _buildChargebackSection(orderDetail),
+
+                              // Main details section
+                              _buildMainDetailsSection(orderDetail),
+
+                              // Copy message
+                              if (_copyMessage.isNotEmpty) ...[
+                                Container(
+                                  width: double.infinity,
+                                  padding: const EdgeInsets.all(12),
+                                  margin: const EdgeInsets.only(bottom: 16),
+                                  decoration: BoxDecoration(
+                                    color: Colors.green.shade100,
+                                    borderRadius: BorderRadius.circular(8),
+                                    border: Border.all(color: Colors.green),
+                                  ),
+                                  child: Text(
+                                    _copyMessage,
+                                    style: const TextStyle(
+                                      color: Colors.green,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ),
+                              ],
+
+                              // Chargeback message (only for paid orders with non-empty message)
+                              if (orderDetail.status == 'Pago' &&
+                                  orderDetail.chargeback?.message != null &&
+                                  orderDetail
+                                      .chargeback!.message.isNotEmpty) ...[
+                                Container(
+                                  width: double.infinity,
+                                  padding: const EdgeInsets.all(12),
+                                  margin: const EdgeInsets.only(bottom: 16),
+                                  decoration: BoxDecoration(
+                                    color: Colors.orange.shade100,
+                                    borderRadius: BorderRadius.circular(8),
+                                    border: Border.all(color: Colors.orange),
+                                  ),
+                                  child: Text(
+                                    orderDetail.chargeback!.message,
+                                    style: const TextStyle(
+                                      color: Colors.orange,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ),
+                              ],
+
+                              // Action buttons
+                              Container(
+                                width: double.infinity,
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 16),
+                                child: ElevatedButton(
+                                  onPressed: () => Navigator.of(context).pop(),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor:
+                                        Theme.of(context).primaryColor,
+                                    foregroundColor: Colors.white,
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 16),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                  ),
+                                  child: const Text(
+                                    'Voltar',
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
                               ),
-                              textAlign: TextAlign.center,
-                            ),
+                            ],
                           ),
-                        ],
-                        
-                        // Action buttons
-                        Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          child: ElevatedButton(
-                            onPressed: () => Navigator.of(context).pop(),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Theme.of(context).primaryColor,
-                              foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(vertical: 16),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                            ),
-                            child: const Text(
-                              'Voltar',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
+                        )
+                      : const Center(
+                          child: Text('Nenhum detalhe encontrado'),
                         ),
-                      ],
-                    ),
-                  )
-                : const Center(
-                    child: Text('Nenhum detalhe encontrado'),
-                  ),
         ),
       ),
     );

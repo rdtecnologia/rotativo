@@ -251,7 +251,7 @@ class PurchaseConfig {
   factory PurchaseConfig.fromJson(Map<String, dynamic> json) {
     final productsMap = <String, List<ProductOption>>{};
     final productsJson = json['products'] as Map<String, dynamic>? ?? {};
-    
+
     for (final entry in productsJson.entries) {
       final productList = (entry.value as List<dynamic>? ?? [])
           .map((p) => ProductOption.fromJson(p as Map<String, dynamic>))
@@ -260,7 +260,8 @@ class PurchaseConfig {
     }
 
     final minCreditsMap = <String, int>{};
-    final minCreditsJson = json['minCreditsByVehicle'] as Map<String, dynamic>? ?? {};
+    final minCreditsJson =
+        json['minCreditsByVehicle'] as Map<String, dynamic>? ?? {};
     for (final entry in minCreditsJson.entries) {
       minCreditsMap[entry.key] = entry.value as int? ?? 0;
     }
@@ -314,7 +315,8 @@ class PurchaseState {
     return PurchaseState(
       selectedVehicleType: selectedVehicleType ?? this.selectedVehicleType,
       selectedProduct: selectedProduct ?? this.selectedProduct,
-      selectedPaymentMethod: selectedPaymentMethod ?? this.selectedPaymentMethod,
+      selectedPaymentMethod:
+          selectedPaymentMethod ?? this.selectedPaymentMethod,
       order: order ?? this.order,
       isLoading: isLoading ?? this.isLoading,
       error: clearError ? null : (error ?? this.error),
@@ -346,13 +348,15 @@ class OrderResponse {
 
   factory OrderResponse.fromJson(Map<String, dynamic> json) {
     final paymentsList = json['payments'] as List<dynamic>?;
-    final payments = paymentsList?.map((p) => PaymentDetail.fromJson(p)).toList();
+    final payments =
+        paymentsList?.map((p) => PaymentDetail.fromJson(p)).toList();
 
     return OrderResponse(
       id: json['id']?.toString() ?? '',
       status: json['status']?.toString() ?? '',
       value: (json['value'] ?? 0).toDouble(),
-      createdAt: AppDateUtils.DateUtils.parseUtcDate(json['createdAt']?.toString()) ?? DateTime.now(),
+      createdAt:
+          AppDateUtils.DateUtils.parseUtcDate(json['createdAt']?.toString()),
       paymentUrl: json['paymentUrl']?.toString(),
       pixCode: json['pixCode']?.toString(),
       boletoLine: json['boletoLine']?.toString(),
@@ -420,7 +424,8 @@ class PaymentDetail {
       status: json['status']?.toString() ?? '',
       gateway: json['gateway']?.toString() ?? '',
       method: json['method']?.toString() ?? '',
-      billet: json['billet'] != null ? BoletoData.fromJson(json['billet']) : null,
+      billet:
+          json['billet'] != null ? BoletoData.fromJson(json['billet']) : null,
       pix: json['pix'] != null ? PixData.fromJson(json['pix']) : null,
     );
   }
