@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
@@ -5,23 +7,23 @@ import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import '../../utils/validators.dart';
 import '../../services/auth_service.dart';
+import '../../providers/change_password_provider.dart';
 
 class ChangePasswordScreen extends ConsumerStatefulWidget {
   const ChangePasswordScreen({super.key});
 
   @override
-  ConsumerState<ChangePasswordScreen> createState() => _ChangePasswordScreenState();
+  ConsumerState<ChangePasswordScreen> createState() =>
+      _ChangePasswordScreenState();
 }
 
 class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
   final _formKey = GlobalKey<FormBuilderState>();
-  bool _isLoading = false;
-  bool _obscureCurrentPassword = true;
-  bool _obscureNewPassword = true;
-  bool _obscureConfirmPassword = true;
 
   @override
   Widget build(BuildContext context) {
+    inspect('build');
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Alterar senha'),
@@ -51,7 +53,8 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
                 Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
-                    color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
+                    color:
+                        Theme.of(context).primaryColor.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
@@ -84,157 +87,67 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
                       children: [
                         Text(
                           'Alterar senha',
-                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
+                          style:
+                              Theme.of(context).textTheme.titleLarge?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  ),
                           textAlign: TextAlign.center,
                         ),
-                        
+
                         const SizedBox(height: 8),
-                        
+
                         Text(
                           'Digite sua senha atual e a nova senha',
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: Colors.grey.shade600,
-                          ),
+                          style:
+                              Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    color: Colors.grey.shade600,
+                                  ),
                           textAlign: TextAlign.center,
                         ),
-                        
+
                         const SizedBox(height: 32),
-                        
+
                         // Current password field
-                        FormBuilderTextField(
+                        _buildPasswordField(
+                          context,
                           name: 'currentPassword',
-                          obscureText: _obscureCurrentPassword,
-                          decoration: InputDecoration(
-                            labelText: 'Senha atual',
-                            prefixIcon: const Icon(Icons.lock_outline),
-                            suffixIcon: IconButton(
-                              icon: Icon(
-                                _obscureCurrentPassword
-                                    ? Icons.visibility_off
-                                    : Icons.visibility,
-                              ),
-                              onPressed: () {
-                                setState(() {
-                                  _obscureCurrentPassword = !_obscureCurrentPassword;
-                                });
-                              },
-                            ),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
-                          validator: FormBuilderValidators.compose([
-                            FormBuilderValidators.required(
-                              errorText: 'Senha atual é obrigatória',
-                            ),
-                          ]),
+                          labelText: 'Senha atual',
+                          prefixIcon: Icons.lock_outline,
+                          isConsumer: true,
+                          fieldType: 'current',
                         ),
-                        
+
                         const SizedBox(height: 16),
-                        
+
                         // New password field
-                        FormBuilderTextField(
+                        _buildPasswordField(
+                          context,
                           name: 'newPassword',
-                          obscureText: _obscureNewPassword,
-                          decoration: InputDecoration(
-                            labelText: 'Nova senha',
-                            prefixIcon: const Icon(Icons.lock),
-                            suffixIcon: IconButton(
-                              icon: Icon(
-                                _obscureNewPassword
-                                    ? Icons.visibility_off
-                                    : Icons.visibility,
-                              ),
-                              onPressed: () {
-                                setState(() {
-                                  _obscureNewPassword = !_obscureNewPassword;
-                                });
-                              },
-                            ),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
-                          validator: AppValidators.validatePassword,
+                          labelText: 'Nova senha',
+                          prefixIcon: Icons.lock,
+                          isConsumer: true,
+                          fieldType: 'new',
                         ),
-                        
+
                         const SizedBox(height: 16),
-                        
+
                         // Confirm new password field
-                        FormBuilderTextField(
+                        _buildPasswordField(
+                          context,
                           name: 'confirmPassword',
-                          obscureText: _obscureConfirmPassword,
-                          decoration: InputDecoration(
-                            labelText: 'Confirmar nova senha',
-                            prefixIcon: const Icon(Icons.lock),
-                            suffixIcon: IconButton(
-                              icon: Icon(
-                                _obscureConfirmPassword
-                                    ? Icons.visibility_off
-                                    : Icons.visibility,
-                              ),
-                              onPressed: () {
-                                setState(() {
-                                  _obscureConfirmPassword = !_obscureConfirmPassword;
-                                });
-                              },
-                            ),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Confirmação de senha é obrigatória';
-                            }
-                            
-                            final newPassword = _formKey.currentState?.fields['newPassword']?.value;
-                            if (value != newPassword) {
-                              return 'Senhas não coincidem';
-                            }
-                            
-                            return null;
-                          },
+                          labelText: 'Confirmar nova senha',
+                          prefixIcon: Icons.lock,
+                          isConsumer: true,
+                          fieldType: 'confirm',
                         ),
-                        
+
                         const SizedBox(height: 32),
-                        
+
                         // Update button
-                        SizedBox(
-                          width: double.infinity,
-                          child: ElevatedButton(
-                            onPressed: _isLoading ? null : _handlePasswordChange,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Theme.of(context).primaryColor,
-                              foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(vertical: 16),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
-                            child: _isLoading
-                                ? const SizedBox(
-                                    height: 20,
-                                    width: 20,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                                    ),
-                                  )
-                                : const Text(
-                                    'Alterar senha',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                          ),
-                        ),
-                        
+                        _buildUpdateButton(context),
+
                         const SizedBox(height: 16),
-                        
+
                         // Security tips
                         Container(
                           padding: const EdgeInsets.all(16),
@@ -292,28 +205,200 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
     );
   }
 
-  Future<void> _handlePasswordChange() async {
-    if (!_formKey.currentState!.saveAndValidate()) return;
+  Widget _buildPasswordField(
+    BuildContext context, {
+    required String name,
+    required String labelText,
+    required IconData prefixIcon,
+    bool isConsumer = false,
+    String? fieldType,
+  }) {
+    if (isConsumer) {
+      return Consumer(
+        builder: (context, ref, child) {
+          // Determinar qual valor observar baseado no tipo do campo
+          bool obscureText;
+          VoidCallback onToggleVisibility;
+          ValueChanged<String?> onChanged;
 
-    setState(() {
-      _isLoading = true;
-    });
+          switch (fieldType) {
+            case 'current':
+              obscureText = ref.watch(changePasswordProvider
+                  .select((state) => state.obscureCurrentPassword));
+              onToggleVisibility = () => ref
+                  .read(changePasswordProvider.notifier)
+                  .toggleCurrentPasswordVisibility();
+              onChanged = (value) => ref
+                  .read(changePasswordProvider.notifier)
+                  .updateCurrentPassword(value ?? '');
+              break;
+            case 'new':
+              obscureText = ref.watch(changePasswordProvider
+                  .select((state) => state.obscureNewPassword));
+              onToggleVisibility = () => ref
+                  .read(changePasswordProvider.notifier)
+                  .toggleNewPasswordVisibility();
+              onChanged = (value) => ref
+                  .read(changePasswordProvider.notifier)
+                  .updateNewPassword(value ?? '');
+              break;
+            case 'confirm':
+              obscureText = ref.watch(changePasswordProvider
+                  .select((state) => state.obscureConfirmPassword));
+              onToggleVisibility = () => ref
+                  .read(changePasswordProvider.notifier)
+                  .toggleConfirmPasswordVisibility();
+              onChanged = (value) => ref
+                  .read(changePasswordProvider.notifier)
+                  .updateConfirmPassword(value ?? '');
+              break;
+            default:
+              obscureText = true;
+              onToggleVisibility = () {};
+              onChanged = (value) {};
+          }
+
+          FormFieldValidator<String>? validator;
+          if (fieldType == 'current') {
+            validator = FormBuilderValidators.compose([
+              FormBuilderValidators.required(
+                errorText: 'Senha atual é obrigatória',
+              ),
+            ]);
+          } else if (fieldType == 'new') {
+            validator = AppValidators.validatePassword;
+          } else if (fieldType == 'confirm') {
+            validator = (value) {
+              if (value == null || value.isEmpty) {
+                return 'Confirmação de senha é obrigatória';
+              }
+
+              // Usar o provider para validar se as senhas coincidem
+              final notifier = ref.read(changePasswordProvider.notifier);
+              if (!notifier.passwordsMatch) {
+                return 'Senhas não coincidem';
+              }
+
+              return null;
+            };
+          }
+
+          return FormBuilderTextField(
+            name: name,
+            obscureText: obscureText,
+            onChanged: onChanged,
+            decoration: InputDecoration(
+              labelText: labelText,
+              prefixIcon: Icon(prefixIcon),
+              suffixIcon: IconButton(
+                icon: Icon(
+                  obscureText ? Icons.visibility_off : Icons.visibility,
+                ),
+                onPressed: onToggleVisibility,
+              ),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            validator: validator,
+          );
+        },
+      );
+    }
+
+    return FormBuilderTextField(
+      name: name,
+      obscureText: true,
+      decoration: InputDecoration(
+        labelText: labelText,
+        prefixIcon: Icon(prefixIcon),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildUpdateButton(BuildContext context) {
+    return Consumer(
+      builder: (context, ref, child) {
+        final isLoading = ref
+            .watch(changePasswordProvider.select((state) => state.isLoading));
+
+        return SizedBox(
+          width: double.infinity,
+          child: ElevatedButton(
+            onPressed:
+                isLoading ? null : () => _handlePasswordChange(context, ref),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Theme.of(context).primaryColor,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            child: isLoading
+                ? const SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    ),
+                  )
+                : const Text(
+                    'Alterar senha',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _handlePasswordChange(
+      BuildContext context, WidgetRef ref) async {
+    print('🔐 _handlePasswordChange chamada!');
+
+    if (!_formKey.currentState!.saveAndValidate()) {
+      print('❌ Validação do formulário falhou');
+      return;
+    }
+
+    print('✅ Validação do formulário passou');
+
+    final changePasswordNotifier = ref.read(changePasswordProvider.notifier);
+    changePasswordNotifier.setLoading(true);
 
     try {
       final formData = _formKey.currentState!.value;
+      print('📝 Dados do formulário: $formData');
+
       final currentPassword = formData['currentPassword'] as String;
       final newPassword = formData['newPassword'] as String;
       final confirmPassword = formData['confirmPassword'] as String;
-      
+
+      print('🔑 Senha atual: ${currentPassword.isNotEmpty ? "***" : "vazia"}');
+      print('🔑 Nova senha: ${newPassword.isNotEmpty ? "***" : "vazia"}');
+      print(
+          '🔑 Confirmar senha: ${confirmPassword.isNotEmpty ? "***" : "vazia"}');
+
       // Validate if new passwords match
+      print('🔍 Verificando se as senhas coincidem...');
       if (newPassword != confirmPassword) {
+        print('❌ Senhas não coincidem: "$newPassword" vs "$confirmPassword"');
         throw Exception('As senhas não coincidem');
       }
-      
+      print('✅ Senhas coincidem!');
+
       // Call the actual API
       await AuthService.changePassword(currentPassword, newPassword);
-      
-      if (mounted) {
+
+      if (context.mounted) {
         Fluttertoast.showToast(
           msg: 'Senha alterada com sucesso!',
           toastLength: Toast.LENGTH_SHORT,
@@ -321,11 +406,11 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
           backgroundColor: Colors.green,
           textColor: Colors.white,
         );
-        
+
         Navigator.of(context).pop();
       }
     } catch (e) {
-      if (mounted) {
+      if (context.mounted) {
         Fluttertoast.showToast(
           msg: 'Erro ao alterar senha: $e',
           toastLength: Toast.LENGTH_LONG,
@@ -335,10 +420,8 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
         );
       }
     } finally {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
+      if (context.mounted) {
+        changePasswordNotifier.setLoading(false);
       }
     }
   }

@@ -1,24 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../providers/alarm_settings_provider.dart';
 
-class AlarmSettingsScreen extends ConsumerStatefulWidget {
+class AlarmSettingsScreen extends ConsumerWidget {
   const AlarmSettingsScreen({super.key});
 
   @override
-  ConsumerState<AlarmSettingsScreen> createState() => _AlarmSettingsScreenState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    // Usar ref.read para obter o notifier apenas uma vez
+    final alarmNotifier = ref.read(alarmSettingsProvider.notifier);
 
-class _AlarmSettingsScreenState extends ConsumerState<AlarmSettingsScreen> {
-  bool _parkingExpiration = true;
-  bool _paymentReminders = true;
-  bool _promotions = false;
-  bool _systemUpdates = true;
-  
-  int _reminderMinutes = 15;
-  final List<int> _reminderOptions = [5, 10, 15, 30, 60];
-
-  @override
-  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Configurar alarmes'),
@@ -54,16 +45,16 @@ class _AlarmSettingsScreenState extends ConsumerState<AlarmSettingsScreen> {
                   Text(
                     'Notificações e Alarmes',
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                          fontWeight: FontWeight.bold,
+                        ),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 8),
                   Text(
                     'Configure como deseja ser notificado',
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Colors.grey.shade600,
-                    ),
+                          color: Colors.grey.shade600,
+                        ),
                     textAlign: TextAlign.center,
                   ),
                 ],
@@ -72,41 +63,40 @@ class _AlarmSettingsScreenState extends ConsumerState<AlarmSettingsScreen> {
 
             // Notification settings
             _buildSettingsCard(
+              context,
               'Notificações de Estacionamento',
               [
                 _buildSwitchTile(
+                  context,
                   title: 'Vencimento do estacionamento',
                   subtitle: 'Aviso antes do tempo expirar',
-                  value: _parkingExpiration,
+                  value: false,
                   onChanged: (value) {
-                    setState(() {
-                      _parkingExpiration = value;
-                    });
+                    alarmNotifier.updateParkingExpiration(value);
                   },
                   icon: Icons.timer,
+                  isConsumer: true,
                 ),
-                if (_parkingExpiration) ...[
-                  const Divider(),
-                  _buildReminderTimeTile(),
-                ],
+                _buildReminderTimeSection(context, alarmNotifier),
               ],
             ),
 
             const SizedBox(height: 16),
 
             _buildSettingsCard(
+              context,
               'Notificações de Pagamento',
               [
                 _buildSwitchTile(
+                  context,
                   title: 'Lembrete de pagamento',
                   subtitle: 'Aviso sobre pagamentos pendentes',
-                  value: _paymentReminders,
+                  value: false,
                   onChanged: (value) {
-                    setState(() {
-                      _paymentReminders = value;
-                    });
+                    alarmNotifier.updatePaymentReminders(value);
                   },
                   icon: Icons.payment,
+                  isConsumer: true,
                 ),
               ],
             ),
@@ -114,30 +104,31 @@ class _AlarmSettingsScreenState extends ConsumerState<AlarmSettingsScreen> {
             const SizedBox(height: 16),
 
             _buildSettingsCard(
+              context,
               'Outras Notificações',
               [
                 _buildSwitchTile(
+                  context,
                   title: 'Promoções e ofertas',
                   subtitle: 'Receber ofertas especiais',
-                  value: _promotions,
+                  value: false,
                   onChanged: (value) {
-                    setState(() {
-                      _promotions = value;
-                    });
+                    alarmNotifier.updatePromotions(value);
                   },
                   icon: Icons.local_offer,
+                  isConsumer: true,
                 ),
                 const Divider(),
                 _buildSwitchTile(
+                  context,
                   title: 'Atualizações do sistema',
                   subtitle: 'Notificações importantes do app',
-                  value: _systemUpdates,
+                  value: false,
                   onChanged: (value) {
-                    setState(() {
-                      _systemUpdates = value;
-                    });
+                    alarmNotifier.updateSystemUpdates(value);
                   },
                   icon: Icons.system_update,
+                  isConsumer: true,
                 ),
               ],
             ),
@@ -169,8 +160,8 @@ class _AlarmSettingsScreenState extends ConsumerState<AlarmSettingsScreen> {
                   Text(
                     'Testar Notificações',
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                          fontWeight: FontWeight.bold,
+                        ),
                   ),
                   const SizedBox(height: 8),
                   Text(
@@ -182,7 +173,7 @@ class _AlarmSettingsScreenState extends ConsumerState<AlarmSettingsScreen> {
                   ),
                   const SizedBox(height: 16),
                   ElevatedButton.icon(
-                    onPressed: _sendTestNotification,
+                    onPressed: () => _sendTestNotification(context),
                     icon: const Icon(Icons.send),
                     label: const Text('Enviar notificação de teste'),
                     style: ElevatedButton.styleFrom(
@@ -208,7 +199,8 @@ class _AlarmSettingsScreenState extends ConsumerState<AlarmSettingsScreen> {
     );
   }
 
-  Widget _buildSettingsCard(String title, List<Widget> children) {
+  Widget _buildSettingsCard(
+      BuildContext context, String title, List<Widget> children) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -229,8 +221,8 @@ class _AlarmSettingsScreenState extends ConsumerState<AlarmSettingsScreen> {
             child: Text(
               title,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+                    fontWeight: FontWeight.bold,
+                  ),
             ),
           ),
           ...children,
@@ -239,13 +231,72 @@ class _AlarmSettingsScreenState extends ConsumerState<AlarmSettingsScreen> {
     );
   }
 
-  Widget _buildSwitchTile({
+  Widget _buildSwitchTile(
+    BuildContext context, {
     required String title,
     required String subtitle,
     required bool value,
     required ValueChanged<bool> onChanged,
     required IconData icon,
+    bool isConsumer = false,
   }) {
+    if (isConsumer) {
+      return Consumer(
+        builder: (context, ref, child) {
+          // Determinar qual valor observar baseado no título
+          bool currentValue;
+          if (title.contains('Vencimento')) {
+            currentValue = ref.watch(alarmSettingsProvider
+                .select((settings) => settings.parkingExpiration));
+          } else if (title.contains('pagamento')) {
+            currentValue = ref.watch(alarmSettingsProvider
+                .select((settings) => settings.paymentReminders));
+          } else if (title.contains('Promoções')) {
+            currentValue = ref.watch(alarmSettingsProvider
+                .select((settings) => settings.promotions));
+          } else if (title.contains('sistema')) {
+            currentValue = ref.watch(alarmSettingsProvider
+                .select((settings) => settings.systemUpdates));
+          } else {
+            currentValue = value;
+          }
+
+          return ListTile(
+            leading: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(
+                icon,
+                color: Theme.of(context).primaryColor,
+                size: 20,
+              ),
+            ),
+            title: Text(
+              title,
+              style: const TextStyle(
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            subtitle: Text(
+              subtitle,
+              style: TextStyle(
+                color: Colors.grey.shade600,
+                fontSize: 14,
+              ),
+            ),
+            trailing: Switch(
+              value: currentValue,
+              onChanged: onChanged,
+              activeColor: Theme.of(context).primaryColor,
+            ),
+          );
+        },
+      );
+    }
+
     return ListTile(
       leading: Container(
         padding: const EdgeInsets.all(8),
@@ -280,7 +331,41 @@ class _AlarmSettingsScreenState extends ConsumerState<AlarmSettingsScreen> {
     );
   }
 
-  Widget _buildReminderTimeTile() {
+  Widget _buildReminderTimeSection(
+      BuildContext context, dynamic alarmNotifier) {
+    return Consumer(
+      builder: (context, ref, child) {
+        final parkingExpiration = ref.watch(alarmSettingsProvider
+            .select((settings) => settings.parkingExpiration));
+
+        if (!parkingExpiration) return const SizedBox.shrink();
+
+        return Column(
+          children: [
+            const Divider(),
+            _buildReminderTimeTile(
+              context,
+              reminderMinutes: ref.watch(alarmSettingsProvider
+                  .select((settings) => settings.reminderMinutes)),
+              reminderOptions: alarmNotifier.reminderOptions,
+              onChanged: (value) {
+                if (value != null) {
+                  alarmNotifier.updateReminderMinutes(value);
+                }
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildReminderTimeTile(
+    BuildContext context, {
+    required int reminderMinutes,
+    required List<int> reminderOptions,
+    required ValueChanged<int?> onChanged,
+  }) {
     return ListTile(
       leading: Container(
         padding: const EdgeInsets.all(8),
@@ -301,33 +386,27 @@ class _AlarmSettingsScreenState extends ConsumerState<AlarmSettingsScreen> {
         ),
       ),
       subtitle: Text(
-        'Avisar $_reminderMinutes minutos antes',
+        'Avisar $reminderMinutes minutos antes',
         style: TextStyle(
           color: Colors.grey.shade600,
           fontSize: 14,
         ),
       ),
       trailing: DropdownButton<int>(
-        value: _reminderMinutes,
+        value: reminderMinutes,
         underline: const SizedBox(),
-        items: _reminderOptions.map((minutes) {
+        items: reminderOptions.map((minutes) {
           return DropdownMenuItem<int>(
             value: minutes,
             child: Text('${minutes}min'),
           );
         }).toList(),
-        onChanged: (value) {
-          if (value != null) {
-            setState(() {
-              _reminderMinutes = value;
-            });
-          }
-        },
+        onChanged: onChanged,
       ),
     );
   }
 
-  void _sendTestNotification() {
+  void _sendTestNotification(BuildContext context) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: const Row(
