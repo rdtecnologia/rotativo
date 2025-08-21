@@ -351,6 +351,15 @@ class AuthService {
       // Verifica se já existem credenciais armazenadas
       final credentials = await getStoredCredentials();
       if (credentials == null) {
+        // Se não há credenciais armazenadas, verifica se há usuário logado
+        // para tentar restaurar as credenciais
+        final user = await getStoredUser();
+        if (user != null && user.cpf != null) {
+          // Tenta restaurar credenciais do usuário logado
+          // Nota: A senha não pode ser restaurada, então o usuário precisará
+          // fazer login novamente para reabilitar a biometria
+          return false;
+        }
         // Nenhuma credencial armazenada para habilitar biometria
         return false;
       }
@@ -370,10 +379,15 @@ class AuthService {
   }
 
   /// Desabilita autenticação biométrica
+  /// Mantém as credenciais armazenadas para reabilitação futura
   static Future<bool> disableBiometricAuth() async {
     try {
-      await _storage.delete(key: _storedCredentialsKey);
-      await _storage.delete(key: _biometricEnabledKey);
+      // Apenas desabilita o uso da biometria
+      // NÃO exclui as credenciais armazenadas
+      await _storage.write(
+        key: _biometricEnabledKey,
+        value: 'false',
+      );
       return true;
     } catch (e) {
       debugPrint('Erro ao desabilitar biometria: $e');

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:local_auth/local_auth.dart';
 import '../../providers/auth_provider.dart';
-import '../../services/auth_service.dart';
 import '../../services/biometric_service.dart';
 
 class BiometricSettingsScreen extends ConsumerStatefulWidget {
@@ -28,7 +27,6 @@ class _BiometricSettingsScreenState
   Future<void> _checkBiometricStatus() async {
     try {
       final available = await BiometricService.isBiometricAvailable();
-      final enabled = await AuthService.isBiometricEnabled();
       final biometrics = await BiometricService.getAvailableBiometrics();
 
       if (mounted) {
@@ -92,7 +90,8 @@ class _BiometricSettingsScreenState
       builder: (context) => AlertDialog(
         title: const Text('Desabilitar Biometria'),
         content: const Text(
-            'Tem certeza que deseja desabilitar a autenticação biométrica?'),
+            'Tem certeza que deseja desabilitar a autenticação biométrica?\n\n'
+            'Você poderá reabilitar a biometria a qualquer momento'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
@@ -100,8 +99,8 @@ class _BiometricSettingsScreenState
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),
+            style: TextButton.styleFrom(foregroundColor: Colors.orange),
             child: const Text('Confirmar'),
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
           ),
         ],
       ),
@@ -114,7 +113,8 @@ class _BiometricSettingsScreenState
       if (success && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Autenticação biométrica desabilitada'),
+            content: Text(
+                'Autenticação biométrica desabilitada (credenciais mantidas)'),
             backgroundColor: Colors.orange,
           ),
         );
@@ -232,42 +232,6 @@ class _BiometricSettingsScreenState
                         ),
                       ],
                     ),
-                    if (_biometricAvailable) ...[
-                      const SizedBox(height: 16),
-                      Text(
-                        'Tipos disponíveis:',
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: Colors.grey.shade600,
-                            ),
-                      ),
-                      const SizedBox(height: 8),
-                      ..._availableBiometrics.map((type) => Padding(
-                            padding: const EdgeInsets.only(left: 16, bottom: 4),
-                            child: Row(
-                              children: [
-                                Icon(
-                                  type == BiometricType.fingerprint
-                                      ? Icons.fingerprint
-                                      : Icons.face,
-                                  color: Colors.blue,
-                                  size: 20,
-                                ),
-                                const SizedBox(width: 8),
-                                Text(
-                                  type == BiometricType.fingerprint
-                                      ? 'Impressão Digital'
-                                      : type.toString(),
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .bodyMedium
-                                      ?.copyWith(
-                                        color: Colors.black87,
-                                      ),
-                                ),
-                              ],
-                            ),
-                          )),
-                    ],
                   ],
                 ),
               ),
@@ -373,10 +337,9 @@ class _BiometricSettingsScreenState
                     ),
                     const SizedBox(height: 12),
                     Text(
-                      '• A impressão digital é usada apenas para autenticação local\n'
-                      '• Suas credenciais são armazenadas de forma segura\n'
-                      '• O login biométrico não substitui a senha, apenas facilita o acesso\n'
-                      '• Você pode desabilitar a qualquer momento',
+                      '• Habilite o login biométrico para acessar o app sem precisar de senha\n'
+                      '• Suas digitais poderão ser usadas para acessar o app facilitando o login\n'
+                      '• Você poderá desabilitar a biometria a qualquer momento',
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                             color: Colors.grey.shade600,
                             height: 1.5,
