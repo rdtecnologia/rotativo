@@ -4,6 +4,7 @@ import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import '../../models/auth_models.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/register_form_provider.dart';
 import '../../utils/validators.dart';
 import '../../utils/formatters.dart';
 import '../widgets/loading_button.dart';
@@ -23,22 +24,22 @@ class RegisterScreen extends ConsumerStatefulWidget {
 }
 
 class _RegisterScreenState extends ConsumerState<RegisterScreen> {
-  final _formKey = GlobalKey<FormBuilderState>();
-  bool _acceptTerms = false;
-
   @override
   void initState() {
     super.initState();
     // Clear any previous errors
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(authProvider.notifier).clearError();
+      ref.read(registerFormProvider.notifier).clearValidationError();
     });
   }
 
   Future<void> _handleSubmit() async {
-    if (!_formKey.currentState!.saveAndValidate()) return;
+    final formKey = ref.read(registerFormKeyProvider);
+    final registerFormNotifier = ref.read(registerFormProvider.notifier);
 
-    if (!_acceptTerms) {
+    // Valida o formulário usando o provider
+    if (!registerFormNotifier.validateForm(formKey)) {
       Fluttertoast.showToast(
         msg: 'Você deve aceitar os termos de uso',
         toastLength: Toast.LENGTH_LONG,
@@ -49,8 +50,8 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       return;
     }
 
-    final formData = _formKey.currentState!.value;
-    
+    final formData = formKey.currentState!.value;
+
     final registerRequest = RegisterRequest(
       cpf: formData['cpf'],
       fullname: formData['fullname'],
@@ -62,7 +63,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
     try {
       await ref.read(authProvider.notifier).register(registerRequest);
-      
+
       if (mounted) {
         Fluttertoast.showToast(
           msg: 'Cadastro realizado com sucesso!',
@@ -71,9 +72,10 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
           backgroundColor: Colors.green,
           textColor: Colors.white,
         );
-        
+
         // Navigate to main app after successful registration
-        Navigator.of(context).pushNamedAndRemoveUntil('/home', (route) => false);
+        Navigator.of(context)
+            .pushNamedAndRemoveUntil('/home', (route) => false);
       }
     } catch (e) {
       if (mounted) {
@@ -117,7 +119,8 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
           context: context,
           builder: (context) => AlertDialog(
             title: const Text('Termos de Uso'),
-            content: const Text('Os termos de uso estão disponíveis em nosso site.'),
+            content:
+                const Text('Os termos de uso estão disponíveis em nosso site.'),
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(context).pop(),
@@ -133,6 +136,8 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
+    final registerFormState = ref.watch(registerFormProvider);
+    final formKey = ref.read(registerFormKeyProvider);
 
     return Scaffold(
       backgroundColor: Colors.grey.shade100,
@@ -163,11 +168,11 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                         style: Theme.of(context).textTheme.titleMedium,
                         textAlign: TextAlign.center,
                       ),
-                      
+
                       const SizedBox(height: 24),
-                      
+
                       FormBuilder(
-                        key: _formKey,
+                        key: formKey,
                         child: Column(
                           children: [
                             // CPF Field
@@ -180,9 +185,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                               validator: AppValidators.validateCPF,
                               prefixIcon: const Icon(Icons.person),
                             ),
-                            
+
                             const SizedBox(height: 16),
-                            
+
                             // Full Name Field
                             AppTextField(
                               name: 'fullname',
@@ -191,9 +196,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                               validator: AppValidators.validateName,
                               prefixIcon: const Icon(Icons.person_outline),
                             ),
-                            
+
                             const SizedBox(height: 16),
-                            
+
                             // Email Field
                             AppTextField(
                               name: 'email',
@@ -202,9 +207,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                               validator: AppValidators.validateEmail,
                               prefixIcon: const Icon(Icons.email),
                             ),
-                            
+
                             const SizedBox(height: 16),
-                            
+
                             // Phone Field
                             AppTextField(
                               name: 'phone',
@@ -214,9 +219,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                               validator: AppValidators.validatePhone,
                               prefixIcon: const Icon(Icons.phone),
                             ),
-                            
+
                             const SizedBox(height: 16),
-                            
+
                             // Password Field
                             AppTextField(
                               name: 'password',
@@ -225,65 +230,71 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                               validator: AppValidators.validatePassword,
                               prefixIcon: const Icon(Icons.lock),
                             ),
-                            
+
                             const SizedBox(height: 16),
-                            
+
                             // Confirm Password Field
                             AppTextField(
                               name: 'confirmPassword',
                               label: 'Confirmar Senha',
                               obscureText: true,
-                              validator: (value) => AppValidators.validateConfirmPassword(
+                              validator: (value) =>
+                                  AppValidators.validateConfirmPassword(
                                 value,
-                                _formKey.currentState?.value['password'],
+                                formKey.currentState?.value['password'],
                               ),
                               prefixIcon: const Icon(Icons.lock_outline),
                             ),
                           ],
                         ),
                       ),
-                      
+
                       const SizedBox(height: 24),
-                      
+
                       // Terms Checkbox
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Checkbox(
-                            value: _acceptTerms,
+                            value: registerFormState.acceptTerms,
                             onChanged: (value) {
-                              setState(() {
-                                _acceptTerms = value ?? false;
-                              });
+                              ref
+                                  .read(registerFormProvider.notifier)
+                                  .setAcceptTerms(value ?? false);
                             },
                           ),
                           Expanded(
                             child: GestureDetector(
                               onTap: () {
-                                setState(() {
-                                  _acceptTerms = !_acceptTerms;
-                                });
+                                ref
+                                    .read(registerFormProvider.notifier)
+                                    .toggleAcceptTerms();
                               },
                               child: Padding(
                                 padding: const EdgeInsets.only(top: 12),
                                 child: RichText(
                                   text: TextSpan(
-                                    style: Theme.of(context).textTheme.bodyMedium,
+                                    style:
+                                        Theme.of(context).textTheme.bodyMedium,
                                     children: [
-                                      const TextSpan(text: 'Declaro que li e aceito os '),
+                                      const TextSpan(
+                                          text: 'Declaro que li e aceito os '),
                                       WidgetSpan(
                                         child: GestureDetector(
                                           onTap: _openTerms,
                                           child: Text(
                                             'termos e condições',
                                             style: TextStyle(
-                                              color: Theme.of(context).primaryColor,
-                                              decoration: TextDecoration.underline,
+                                              color: Theme.of(context)
+                                                  .primaryColor,
+                                              decoration:
+                                                  TextDecoration.underline,
                                             ),
                                           ),
                                         ),
                                       ),
-                                      const TextSpan(text: ' de uso do aplicativo'),
+                                      const TextSpan(
+                                          text: ' de uso do aplicativo'),
                                     ],
                                   ),
                                 ),
@@ -292,9 +303,41 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                           ),
                         ],
                       ),
-                      
+
+                      // Validation Error Display
+                      if (registerFormState.hasValidationError) ...[
+                        const SizedBox(height: 8),
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Colors.red.shade50,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: Colors.red.shade200),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.error_outline,
+                                color: Colors.red.shade600,
+                                size: 20,
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  registerFormState.validationError!,
+                                  style: TextStyle(
+                                    color: Colors.red.shade700,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+
                       const SizedBox(height: 24),
-                      
+
                       // Register Button
                       LoadingButton(
                         onPressed: _handleSubmit,
@@ -307,9 +350,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                           ),
                         ),
                       ),
-                      
+
                       const SizedBox(height: 16),
-                      
+
                       // Login Link
                       TextButton(
                         onPressed: () {
