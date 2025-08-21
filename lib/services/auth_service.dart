@@ -395,6 +395,27 @@ class AuthService {
     }
   }
 
+  /// Limpa credenciais biométricas e desabilita biometria
+  /// Usado quando a senha é alterada por segurança
+  static Future<bool> clearBiometricCredentials() async {
+    try {
+      // Desabilita a biometria
+      await _storage.write(
+        key: _biometricEnabledKey,
+        value: 'false',
+      );
+
+      // Remove as credenciais armazenadas
+      await _storage.delete(key: _storedCredentialsKey);
+
+      debugPrint('Credenciais biométricas limpas com sucesso');
+      return true;
+    } catch (e) {
+      debugPrint('Erro ao limpar credenciais biométricas: $e');
+      return false;
+    }
+  }
+
   /// Verifica se a biometria está habilitada
   static Future<bool> isBiometricEnabled() async {
     // Verificando se biometria está habilitada...

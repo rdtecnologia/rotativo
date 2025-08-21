@@ -398,10 +398,16 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
       // Call the actual API
       await AuthService.changePassword(currentPassword, newPassword);
 
+      // Limpar credenciais biométricas por segurança
+      print('🔐 Limpando credenciais biométricas...');
+      await AuthService.clearBiometricCredentials();
+      print('✅ Credenciais biométricas limpas');
+
       if (context.mounted) {
         Fluttertoast.showToast(
-          msg: 'Senha alterada com sucesso!',
-          toastLength: Toast.LENGTH_SHORT,
+          msg:
+              'Senha alterada com sucesso! Biometria desabilitada por segurança.',
+          toastLength: Toast.LENGTH_LONG,
           gravity: ToastGravity.BOTTOM,
           backgroundColor: Colors.green,
           textColor: Colors.white,
