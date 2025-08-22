@@ -24,11 +24,11 @@ class CreditCard {
       brand: json['brand']?.toString() ?? '',
       gateway: json['gateway']?.toString() ?? '',
       active: json['active'] ?? false,
-      createdAt: json['createdAt'] != null 
-          ? DateTime.tryParse(json['createdAt']) 
+      createdAt: json['createdAt'] != null
+          ? DateTime.tryParse(json['createdAt'])
           : null,
-      updatedAt: json['updatedAt'] != null 
-          ? DateTime.tryParse(json['updatedAt']) 
+      updatedAt: json['updatedAt'] != null
+          ? DateTime.tryParse(json['updatedAt'])
           : null,
     );
   }
@@ -147,9 +147,11 @@ class CardSelectionState {
     bool? isLoading,
     String? error,
     bool clearError = false,
+    bool clearSelectedCard = false,
   }) {
     return CardSelectionState(
-      selectedCard: selectedCard ?? this.selectedCard,
+      selectedCard:
+          clearSelectedCard ? null : (selectedCard ?? this.selectedCard),
       cards: cards ?? this.cards,
       isLoading: isLoading ?? this.isLoading,
       error: clearError ? null : (error ?? this.error),

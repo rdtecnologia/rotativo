@@ -17,31 +17,32 @@ class CardNotifier extends StateNotifier<CardSelectionState> {
 
     try {
       final cards = await CardService.getCards();
-      
+
       if (kDebugMode) {
         AppLogger.api('Loaded ${cards.length} cards');
       }
 
       // If a selected card no longer exists, clear the selection
-      CreditCard? updatedSelected = state.selectedCard;
-      if (updatedSelected != null &&
-          !cards.any((c) => c.id == updatedSelected!.id)) {
+      bool shouldClearSelection = false;
+      if (state.selectedCard != null &&
+          !cards.any((c) => c.id == state.selectedCard!.id)) {
         if (kDebugMode) {
-          AppLogger.api('Previously selected card not found. Clearing selection');
+          AppLogger.api(
+              'Previously selected card not found. Clearing selection');
         }
-        updatedSelected = null;
+        shouldClearSelection = true;
       }
 
       state = state.copyWith(
         cards: cards,
         isLoading: false,
-        selectedCard: updatedSelected,
+        clearSelectedCard: shouldClearSelection,
       );
     } catch (e) {
       if (kDebugMode) {
         AppLogger.error('Error loading cards: $e');
       }
-      
+
       state = state.copyWith(
         isLoading: false,
         error: e.toString(),
@@ -68,7 +69,7 @@ class CardNotifier extends StateNotifier<CardSelectionState> {
     }
 
     state = state.copyWith(
-      selectedCard: null,
+      clearSelectedCard: true,
       clearError: true,
     );
   }
@@ -77,9 +78,9 @@ class CardNotifier extends StateNotifier<CardSelectionState> {
   Future<CreditCard?> createCard(CreateCardRequest request) async {
     try {
       state = state.copyWith(isLoading: true, error: null);
-      
+
       final card = await CardService.createCard(request);
-      
+
       if (card != null) {
         // Add the new card to the list
         final updatedCards = List<CreditCard>.from(state.cards)..add(card);
@@ -93,7 +94,7 @@ class CardNotifier extends StateNotifier<CardSelectionState> {
           error: 'Falha ao criar cartão',
         );
       }
-      
+
       return card;
     } catch (e) {
       state = state.copyWith(
@@ -112,23 +113,21 @@ class CardNotifier extends StateNotifier<CardSelectionState> {
 
     try {
       await CardService.deleteCard(cardId, gateway);
-      
+
       if (kDebugMode) {
         AppLogger.api('Card deleted successfully');
       }
 
       // Remove card from the list
-      final updatedCards = state.cards.where((card) => card.id != cardId).toList();
-      
+      final updatedCards =
+          state.cards.where((card) => card.id != cardId).toList();
+
       // If deleted card was selected, clear selection
-      CreditCard? updatedSelectedCard = state.selectedCard;
-      if (state.selectedCard?.id == cardId) {
-        updatedSelectedCard = null;
-      }
-      
+      bool shouldClearSelection = state.selectedCard?.id == cardId;
+
       state = state.copyWith(
         cards: updatedCards,
-        selectedCard: updatedSelectedCard,
+        clearSelectedCard: shouldClearSelection,
         clearError: true,
       );
 
@@ -137,11 +136,11 @@ class CardNotifier extends StateNotifier<CardSelectionState> {
       if (kDebugMode) {
         AppLogger.error('Error deleting card: $e');
       }
-      
+
       state = state.copyWith(
         error: e.toString(),
       );
-      
+
       return false;
     }
   }
@@ -182,7 +181,8 @@ class CardNotifier extends StateNotifier<CardSelectionState> {
 }
 
 // Provider instance
-final cardProvider = StateNotifierProvider<CardNotifier, CardSelectionState>((ref) {
+final cardProvider =
+    StateNotifierProvider<CardNotifier, CardSelectionState>((ref) {
   return CardNotifier();
 });
 
