@@ -1,12 +1,13 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dio/dio.dart';
 import '../../models/purchase_models.dart';
 import '../../models/card_models.dart';
 import '../../providers/purchase_provider.dart';
 import '../../providers/card_provider.dart';
+import '../../providers/credit_card_payment_provider.dart';
+import '../../widgets/credit_card_form_fields.dart';
 import '../../utils/formatters.dart';
 import '../../utils/logger.dart';
 import '../../utils/error_handler.dart';
@@ -28,14 +29,10 @@ class CreditCardPaymentScreen extends ConsumerStatefulWidget {
 
 class _CreditCardPaymentScreenState
     extends ConsumerState<CreditCardPaymentScreen> {
-  bool _isProcessing = false;
-  String? _error;
-
   // Form controllers
   final _formKey = GlobalKey<FormState>();
   final _cardNumberController = TextEditingController();
-  final _expiryController =
-      TextEditingController(); // Campo unificado para validade
+  final _expiryController = TextEditingController();
   final _cvcController = TextEditingController();
   final _holderNameController = TextEditingController();
   final _holderDocumentController = TextEditingController();
@@ -63,12 +60,11 @@ class _CreditCardPaymentScreenState
 
   Future<void> _confirmPurchase() async {
     if (!_formKey.currentState!.validate()) return;
-    if (_isProcessing) return;
 
-    setState(() {
-      _isProcessing = true;
-      _error = null;
-    });
+    final isProcessing = ref.read(isProcessingProvider);
+    if (isProcessing) return;
+
+    ref.read(creditCardPaymentProvider.notifier).startProcessing();
 
     try {
       if (kDebugMode) {
@@ -113,9 +109,7 @@ class _CreditCardPaymentScreenState
       final response =
           await ref.read(purchaseProvider.notifier).createOrder(order);
 
-      setState(() {
-        _isProcessing = false;
-      });
+      ref.read(creditCardPaymentProvider.notifier).finishProcessing();
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -139,10 +133,9 @@ class _CreditCardPaymentScreenState
         }
       }
 
-      setState(() {
-        _error = ErrorHandler.getErrorMessage(e);
-        _isProcessing = false;
-      });
+      ref
+          .read(creditCardPaymentProvider.notifier)
+          .setError(ErrorHandler.getErrorMessage(e));
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -164,12 +157,10 @@ class _CreditCardPaymentScreenState
   }
 
   Future<void> _confirmPurchaseWithSavedCard(CreditCard savedCard) async {
-    if (_isProcessing) return;
+    final isProcessing = ref.read(isProcessingProvider);
+    if (isProcessing) return;
 
-    setState(() {
-      _isProcessing = true;
-      _error = null;
-    });
+    ref.read(creditCardPaymentProvider.notifier).startProcessing();
 
     try {
       if (kDebugMode) {
@@ -204,9 +195,7 @@ class _CreditCardPaymentScreenState
       final response =
           await ref.read(purchaseProvider.notifier).createOrder(order);
 
-      setState(() {
-        _isProcessing = false;
-      });
+      ref.read(creditCardPaymentProvider.notifier).finishProcessing();
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -230,10 +219,9 @@ class _CreditCardPaymentScreenState
         }
       }
 
-      setState(() {
-        _error = ErrorHandler.getErrorMessage(e);
-        _isProcessing = false;
-      });
+      ref
+          .read(creditCardPaymentProvider.notifier)
+          .setError(ErrorHandler.getErrorMessage(e));
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -339,28 +327,6 @@ class _CreditCardPaymentScreenState
     return null;
   }
 
-  String _detectCardBrand(String cardNumber) {
-    final cleanNumber = cardNumber.replaceAll(' ', '');
-
-    if (cleanNumber.startsWith('4')) {
-      return 'VISA';
-    } else if (cleanNumber.startsWith('5')) {
-      return 'MASTER';
-    } else if (cleanNumber.startsWith('3')) {
-      return 'AMEX';
-    } else if (cleanNumber.startsWith('6')) {
-      return 'ELO';
-    } else if (cleanNumber.startsWith('35') ||
-        cleanNumber.startsWith('36') ||
-        cleanNumber.startsWith('38')) {
-      return 'DINNERS';
-    } else if (cleanNumber.startsWith('60') || cleanNumber.startsWith('65')) {
-      return 'HIPERCARD';
-    }
-
-    return 'GENERIC';
-  }
-
   /// Format birth date from DD/MM/AAAA to YYYY-MM-DD format (like React)
   String _formatBirthDate(String input) {
     // Remove separators and check length
@@ -406,32 +372,11 @@ class _CreditCardPaymentScreenState
     return '';
   }
 
-  IconData _getCardBrandIcon(String brand) {
-    switch (brand.toUpperCase()) {
-      case 'VISA':
-        return Icons.credit_card;
-      case 'MASTER':
-        return Icons.credit_card;
-      case 'AMEX':
-        return Icons.credit_card;
-      case 'DINNERS':
-        return Icons.credit_card;
-      case 'ELO':
-        return Icons.credit_card;
-      case 'HIPERCARD':
-        return Icons.credit_card;
-      default:
-        return Icons.credit_card;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final selectedCard = ref.watch(selectedCardProvider);
     final isLoading = ref.watch(cardLoadingProvider);
-    final totalValue =
-        widget.product.price; // O preço já é o total para esta opção
-    final detectedBrand = _detectCardBrand(_cardNumberController.text);
+    final totalValue = widget.product.price;
 
     return Scaffold(
       backgroundColor: Colors.grey.shade50,
@@ -606,38 +551,15 @@ class _CreditCardPaymentScreenState
                               ),
                               const SizedBox(height: 16),
                               // Confirm purchase button for saved card
-                              SizedBox(
-                                width: double.infinity,
-                                child: ElevatedButton(
-                                  onPressed: _isProcessing
-                                      ? null
-                                      : () => _confirmPurchaseWithSavedCard(
-                                          selectedCard),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.green,
-                                    foregroundColor: Colors.white,
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 12),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
+                              SavedCardProcessingButton(
+                                onPressed: () =>
+                                    _confirmPurchaseWithSavedCard(selectedCard),
+                                child: const Text(
+                                  'Confirmar a compra',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
                                   ),
-                                  child: _isProcessing
-                                      ? const SizedBox(
-                                          height: 16,
-                                          width: 16,
-                                          child: CircularProgressIndicator(
-                                            color: Colors.white,
-                                            strokeWidth: 2,
-                                          ),
-                                        )
-                                      : const Text(
-                                          'Confirmar a compra',
-                                          style: TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
                                 ),
                               ),
                             ],
@@ -693,40 +615,9 @@ class _CreditCardPaymentScreenState
                       const SizedBox(height: 20),
 
                       // Card number with brand detection
-                      TextFormField(
+                      CardNumberField(
                         controller: _cardNumberController,
-                        decoration: InputDecoration(
-                          labelText: 'Número do Cartão',
-                          border: const OutlineInputBorder(),
-                          hintText: '0000 0000 0000 0000',
-                          suffixIcon: _cardNumberController.text.isNotEmpty
-                              ? Container(
-                                  margin: const EdgeInsets.all(8),
-                                  padding: const EdgeInsets.all(8),
-                                  decoration: BoxDecoration(
-                                    color: Theme.of(context)
-                                        .primaryColor
-                                        .withValues(alpha: 0.1),
-                                    borderRadius: BorderRadius.circular(4),
-                                  ),
-                                  child: Icon(
-                                    _getCardBrandIcon(detectedBrand),
-                                    size: 20,
-                                    color: Theme.of(context).primaryColor,
-                                  ),
-                                )
-                              : null,
-                        ),
-                        keyboardType: TextInputType.number,
-                        inputFormatters: [
-                          FilteringTextInputFormatter.digitsOnly,
-                          LengthLimitingTextInputFormatter(19),
-                          _CardNumberFormatter(),
-                        ],
                         validator: _validateCardNumber,
-                        onChanged: (value) {
-                          setState(() {}); // Rebuild to show brand icon
-                        },
                       ),
                       const SizedBox(height: 16),
 
@@ -736,19 +627,8 @@ class _CreditCardPaymentScreenState
                           // Expiry date (unified field)
                           Expanded(
                             flex: 2,
-                            child: TextFormField(
+                            child: ExpiryField(
                               controller: _expiryController,
-                              decoration: const InputDecoration(
-                                labelText: 'Validade (MM/AA)',
-                                border: OutlineInputBorder(),
-                                hintText: 'MM/AA',
-                              ),
-                              keyboardType: TextInputType.number,
-                              inputFormatters: [
-                                FilteringTextInputFormatter.digitsOnly,
-                                LengthLimitingTextInputFormatter(4),
-                                _ExpiryMaskFormatter(), // Máscara MM/AA
-                              ],
                               validator: (value) =>
                                   _validateExpiryMonth(value) ??
                                   _validateExpiryYear(value),
@@ -758,18 +638,8 @@ class _CreditCardPaymentScreenState
                           // CVC
                           Expanded(
                             flex: 1,
-                            child: TextFormField(
+                            child: CvcField(
                               controller: _cvcController,
-                              decoration: const InputDecoration(
-                                labelText: 'CVC',
-                                border: OutlineInputBorder(),
-                                hintText: '123',
-                              ),
-                              keyboardType: TextInputType.number,
-                              inputFormatters: [
-                                FilteringTextInputFormatter.digitsOnly,
-                                LengthLimitingTextInputFormatter(4),
-                              ],
                               validator: _validateCVC,
                             ),
                           ),
@@ -797,47 +667,22 @@ class _CreditCardPaymentScreenState
                       const SizedBox(height: 20),
 
                       // Holder name
-                      TextFormField(
+                      HolderNameField(
                         controller: _holderNameController,
-                        decoration: const InputDecoration(
-                          labelText: 'Nome Completo',
-                          hintText: 'Seu nome como aparece no cartão',
-                          border: OutlineInputBorder(),
-                        ),
-                        textCapitalization: TextCapitalization.words,
                         validator: (value) => _validateRequired(value, 'Nome'),
                       ),
                       const SizedBox(height: 16),
 
                       // Holder document
-                      TextFormField(
+                      HolderDocumentField(
                         controller: _holderDocumentController,
-                        decoration: const InputDecoration(
-                          labelText: 'CPF',
-                          border: OutlineInputBorder(),
-                          hintText: '000.000.000-00',
-                        ),
-                        keyboardType: TextInputType.number,
-                        inputFormatters: [
-                          FilteringTextInputFormatter.digitsOnly,
-                          LengthLimitingTextInputFormatter(11),
-                        ],
                         validator: (value) => _validateRequired(value, 'CPF'),
                       ),
                       const SizedBox(height: 16),
 
                       // Holder birth date
-                      TextFormField(
+                      HolderBirthDateField(
                         controller: _holderBirthDateController,
-                        decoration: const InputDecoration(
-                          labelText: 'Data de Nascimento',
-                          border: OutlineInputBorder(),
-                          hintText: 'DD/MM/AAAA',
-                        ),
-                        keyboardType: TextInputType.number,
-                        inputFormatters: [
-                          _BirthDateMaskFormatter(), // Máscara DD/MM/AAAA
-                        ],
                         validator: (value) =>
                             _validateRequired(value, 'Data de Nascimento'),
                       ),
@@ -850,35 +695,14 @@ class _CreditCardPaymentScreenState
               const SizedBox(height: 20),
 
               // Confirm purchase button
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed:
-                      (isLoading || _isProcessing) ? null : _confirmPurchase,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
+              ProcessingButton(
+                onPressed: (isLoading) ? null : _confirmPurchase,
+                child: const Text(
+                  'COMPRAR AGORA',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
                   ),
-                  child: _isProcessing
-                      ? const SizedBox(
-                          height: 20,
-                          width: 20,
-                          child: CircularProgressIndicator(
-                            color: Colors.white,
-                            strokeWidth: 2,
-                          ),
-                        )
-                      : const Text(
-                          'COMPRAR AGORA',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
                 ),
               ),
 
@@ -905,143 +729,11 @@ class _CreditCardPaymentScreenState
               const SizedBox(height: 16),
 
               // Error display
-              if (_error != null) ...[
-                const SizedBox(height: 16),
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.red.shade50,
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.red.shade200),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.error_outline,
-                        color: Colors.red.shade700,
-                        size: 24,
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          _error!,
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.red.shade800,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+              const ErrorDisplay(),
             ],
           ),
         ),
       ),
-    );
-  }
-}
-
-/// Custom formatter for card number with spaces
-class _CardNumberFormatter extends TextInputFormatter {
-  @override
-  TextEditingValue formatEditUpdate(
-    TextEditingValue oldValue,
-    TextEditingValue newValue,
-  ) {
-    if (newValue.text.isEmpty) {
-      return newValue;
-    }
-
-    final text = newValue.text.replaceAll(' ', '');
-    final formatted = _formatCardNumber(text);
-
-    return TextEditingValue(
-      text: formatted,
-      selection: TextSelection.collapsed(offset: formatted.length),
-    );
-  }
-
-  String _formatCardNumber(String text) {
-    final buffer = StringBuffer();
-    for (int i = 0; i < text.length; i++) {
-      if (i > 0 && i % 4 == 0) {
-        buffer.write(' ');
-      }
-      buffer.write(text[i]);
-    }
-    return buffer.toString();
-  }
-}
-
-/// Custom formatter for expiry date with MM/AA mask
-class _ExpiryMaskFormatter extends TextInputFormatter {
-  @override
-  TextEditingValue formatEditUpdate(
-    TextEditingValue oldValue,
-    TextEditingValue newValue,
-  ) {
-    if (newValue.text.isEmpty) {
-      return newValue;
-    }
-
-    // Remove all non-digit characters
-    final text = newValue.text.replaceAll(RegExp(r'[^\d]'), '');
-
-    // Limit to 4 digits
-    if (text.length > 4) {
-      return oldValue;
-    }
-
-    // Apply mask MM/AA
-    String formatted = '';
-    for (int i = 0; i < text.length; i++) {
-      if (i == 2) {
-        formatted += '/';
-      }
-      formatted += text[i];
-    }
-
-    return TextEditingValue(
-      text: formatted,
-      selection: TextSelection.collapsed(offset: formatted.length),
-    );
-  }
-}
-
-/// Custom formatter for birth date with DD/MM/AAAA mask
-class _BirthDateMaskFormatter extends TextInputFormatter {
-  @override
-  TextEditingValue formatEditUpdate(
-    TextEditingValue oldValue,
-    TextEditingValue newValue,
-  ) {
-    if (newValue.text.isEmpty) {
-      return newValue;
-    }
-
-    // Remove all non-digit characters
-    final text = newValue.text.replaceAll(RegExp(r'[^\d]'), '');
-
-    // Limit to 8 digits
-    if (text.length > 8) {
-      return oldValue;
-    }
-
-    // Apply mask DD/MM/AAAA
-    String formatted = '';
-    for (int i = 0; i < text.length; i++) {
-      if (i == 2 || i == 4) {
-        formatted += '/';
-      }
-      formatted += text[i];
-    }
-
-    return TextEditingValue(
-      text: formatted,
-      selection: TextSelection.collapsed(offset: formatted.length),
     );
   }
 }
