@@ -1,33 +1,16 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:geolocator/geolocator.dart';
+import '../../providers/location_settings_provider.dart';
 
-class LocationSettingsScreen extends ConsumerStatefulWidget {
+class LocationSettingsScreen extends ConsumerWidget {
   const LocationSettingsScreen({super.key});
 
   @override
-  ConsumerState<LocationSettingsScreen> createState() =>
-      _LocationSettingsScreenState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    inspect('build');
 
-class _LocationSettingsScreenState
-    extends ConsumerState<LocationSettingsScreen> {
-  bool _shareLocation = false;
-  bool _highAccuracy = true;
-  bool _backgroundLocation = false;
-  bool _automaticParking = true;
-
-  String _currentLocation = 'Carregando...';
-  String _locationStatus = 'Permissão não concedida';
-
-  @override
-  void initState() {
-    super.initState();
-    _checkLocationStatus();
-  }
-
-  @override
-  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Compartilhar localização'),
@@ -51,171 +34,23 @@ class _LocationSettingsScreenState
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Current location status
-              Card(
-                elevation: 2,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.my_location,
-                            color: Theme.of(context).primaryColor,
-                            size: 24,
-                          ),
-                          const SizedBox(width: 12),
-                          const Text(
-                            'Status da Localização',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-
-                      // Location status
-                      _buildStatusItem(
-                        'Status',
-                        _locationStatus,
-                        _getStatusColor(_locationStatus),
-                      ),
-
-                      const SizedBox(height: 12),
-
-                      // Current location
-                      _buildStatusItem(
-                        'Localização Atual',
-                        _currentLocation,
-                        Colors.grey[700]!,
-                      ),
-
-                      const SizedBox(height: 16),
-
-                      // Test location button
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton.icon(
-                          onPressed: _testLocation,
-                          icon: const Icon(Icons.location_searching),
-                          label: const Text('Testar Localização'),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Theme.of(context).primaryColor,
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+              // Current location status - Consumer específico
+              const _LocationStatusCard(),
 
               const SizedBox(height: 16),
 
-              // Location settings
-              _buildSettingsCard(
-                'Compartilhamento de Localização',
-                [
-                  _buildSwitchTile(
-                    title: 'Compartilhar localização',
-                    subtitle: 'Permitir que o app acesse sua localização',
-                    value: _shareLocation,
-                    onChanged: _handleLocationToggle,
-                    icon: Icons.my_location,
-                  ),
-                  if (_shareLocation) ...[
-                    const Divider(),
-                    _buildSwitchTile(
-                      title: 'Alta precisão',
-                      subtitle: 'Usar GPS para maior precisão',
-                      value: _highAccuracy,
-                      onChanged: (value) {
-                        setState(() {
-                          _highAccuracy = value;
-                        });
-                      },
-                      icon: Icons.gps_fixed,
-                    ),
-                    const Divider(),
-                    _buildSwitchTile(
-                      title: 'Localização em segundo plano',
-                      subtitle:
-                          'Continuar rastreando quando o app estiver fechado',
-                      value: _backgroundLocation,
-                      onChanged: (value) {
-                        setState(() {
-                          _backgroundLocation = value;
-                        });
-                      },
-                      icon: Icons.location_history,
-                    ),
-                  ],
-                ],
-              ),
+              // Location settings - Consumer específico
+              const _LocationSettingsCard(),
 
               const SizedBox(height: 16),
 
-              _buildSettingsCard(
-                'Recursos Automáticos',
-                [
-                  _buildSwitchTile(
-                    title: 'Estacionamento automático',
-                    subtitle: 'Detectar automaticamente quando você estacionar',
-                    value: _automaticParking,
-                    onChanged: (value) {
-                      setState(() {
-                        _automaticParking = value;
-                      });
-                    },
-                    icon: Icons.directions_car,
-                  ),
-                ],
-              ),
+              // Automatic features - Consumer específico
+              const _AutomaticFeaturesCard(),
 
               const SizedBox(height: 20),
 
-              // Information card
-              Card(
-                elevation: 1,
-                color: Colors.blue.shade50,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  side: BorderSide(color: Colors.blue.shade200),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.info_outline,
-                        color: Colors.blue.shade700,
-                        size: 24,
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          'A localização é necessária para registrar onde você estacionou e fornecer serviços baseados em localização.',
-                          style: TextStyle(
-                            color: Colors.blue.shade700,
-                            fontSize: 14,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+              // Information card - Widget estático
+              _buildInformationCard(context),
             ],
           ),
         ),
@@ -223,7 +58,49 @@ class _LocationSettingsScreenState
     );
   }
 
-  Widget _buildSettingsCard(String title, List<Widget> children) {
+  Widget _buildInformationCard(BuildContext context) {
+    return Card(
+      elevation: 1,
+      color: Colors.blue.shade50,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: Colors.blue.shade200),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          children: [
+            Icon(
+              Icons.info_outline,
+              color: Colors.blue.shade700,
+              size: 24,
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                'A localização é necessária para registrar onde você estacionou e fornecer serviços baseados em localização.',
+                style: TextStyle(
+                  color: Colors.blue.shade700,
+                  fontSize: 14,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// Widget específico para status de localização
+class _LocationStatusCard extends ConsumerWidget {
+  const _LocationStatusCard();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final locationState = ref.watch(locationSettingsProvider);
+    final locationNotifier = ref.read(locationSettingsProvider.notifier);
+
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(
@@ -234,63 +111,79 @@ class _LocationSettingsScreenState
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              title,
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+            Row(
+              children: [
+                Icon(
+                  Icons.my_location,
+                  color: Theme.of(context).primaryColor,
+                  size: 24,
+                ),
+                const SizedBox(width: 12),
+                const Text(
+                  'Status da Localização',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 16),
-            ...children,
+
+            // Location status
+            _buildStatusItem(
+              'Status',
+              locationState.locationStatus,
+              _getStatusColor(locationState.locationStatus),
+            ),
+
+            const SizedBox(height: 12),
+
+            // Current location
+            _buildStatusItem(
+              'Localização Atual',
+              locationState.currentLocation,
+              Colors.grey[700]!,
+            ),
+
+            const SizedBox(height: 16),
+
+            // Test location button
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: locationState.isLoading
+                    ? null
+                    : () => locationNotifier.testLocation(),
+                icon: locationState.isLoading
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor:
+                              AlwaysStoppedAnimation<Color>(Colors.white),
+                        ),
+                      )
+                    : const Icon(Icons.location_searching),
+                label: Text(
+                  locationState.isLoading
+                      ? 'Testando...'
+                      : 'Testar Localização',
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Theme.of(context).primaryColor,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+              ),
+            ),
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildSwitchTile({
-    required String title,
-    required String subtitle,
-    required bool value,
-    required ValueChanged<bool> onChanged,
-    required IconData icon,
-  }) {
-    return Row(
-      children: [
-        Icon(
-          icon,
-          color: Theme.of(context).primaryColor,
-          size: 20,
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              Text(
-                subtitle,
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey[600],
-                ),
-              ),
-            ],
-          ),
-        ),
-        Switch(
-          value: value,
-          onChanged: onChanged,
-          activeColor: Theme.of(context).primaryColor,
-        ),
-      ],
     );
   }
 
@@ -331,285 +224,197 @@ class _LocationSettingsScreenState
         return Colors.grey;
     }
   }
+}
 
-  void _handleLocationToggle(bool value) async {
-    if (value) {
-      // Request location permission
-      final hasPermission = await _requestLocationPermission();
-      if (hasPermission) {
-        setState(() {
-          _shareLocation = true;
-          _locationStatus = 'Ativo';
-        });
-        _getCurrentLocation();
-      } else {
-        _showPermissionDialog();
-      }
-    } else {
-      setState(() {
-        _shareLocation = false;
-        _locationStatus = 'Desativado';
-        _currentLocation = 'Localização desativada';
-      });
-    }
-  }
+// Widget específico para configurações de localização
+class _LocationSettingsCard extends ConsumerWidget {
+  const _LocationSettingsCard();
 
-  Future<bool> _requestLocationPermission() async {
-    try {
-      debugPrint('🔍 LocationSettings: Verificando serviços de localização...');
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final locationState = ref.watch(locationSettingsProvider);
+    final locationNotifier = ref.read(locationSettingsProvider.notifier);
 
-      // Check if location services are enabled
-      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-      debugPrint(
-          '🔍 LocationSettings: Serviços de localização habilitados: $serviceEnabled');
-
-      if (!serviceEnabled) {
-        debugPrint('❌ LocationSettings: Serviços de localização desabilitados');
-        // Show dialog to enable location services
-        if (mounted) {
-          _showLocationServicesDialog();
-        }
-        return false;
-      }
-
-      debugPrint('🔍 LocationSettings: Verificando permissões...');
-
-      // Check location permission
-      LocationPermission permission = await Geolocator.checkPermission();
-      debugPrint('🔍 LocationSettings: Permissão atual: $permission');
-
-      if (permission == LocationPermission.denied) {
-        debugPrint('🔍 LocationSettings: Solicitando permissão...');
-        try {
-          permission = await Geolocator.requestPermission();
-          debugPrint('🔍 LocationSettings: Nova permissão: $permission');
-        } catch (e) {
-          debugPrint('❌ LocationSettings: Erro ao solicitar permissão: $e');
-          return false;
-        }
-
-        if (permission == LocationPermission.denied) {
-          debugPrint('❌ LocationSettings: Permissão negada pelo usuário');
-          return false;
-        }
-      }
-
-      if (permission == LocationPermission.deniedForever) {
-        debugPrint('❌ LocationSettings: Permissão negada permanentemente');
-        if (mounted) {
-          _showPermanentDenialDialog();
-        }
-        return false;
-      }
-
-      debugPrint('✅ LocationSettings: Permissão concedida: $permission');
-      return true;
-    } catch (e, stackTrace) {
-      debugPrint(
-          '❌ LocationSettings: Erro ao solicitar permissão de localização: $e');
-      debugPrint('❌ LocationSettings: Stack trace: $stackTrace');
-      return false;
-    }
-  }
-
-  void _checkLocationStatus() async {
-    setState(() {
-      _locationStatus = 'Verificando...';
-    });
-
-    try {
-      debugPrint('🔍 LocationSettings: Iniciando verificação de status...');
-
-      // Check if location services are enabled
-      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-      debugPrint('🔍 LocationSettings: Serviços habilitados: $serviceEnabled');
-
-      if (!serviceEnabled) {
-        debugPrint('❌ LocationSettings: Serviços desabilitados');
-        setState(() {
-          _locationStatus = 'Serviços de localização desabilitados';
-          _currentLocation = 'Ative a localização nas configurações';
-        });
-        return;
-      }
-
-      debugPrint('🔍 LocationSettings: Verificando permissões...');
-
-      // Check location permission
-      LocationPermission permission = await Geolocator.checkPermission();
-      debugPrint('🔍 LocationSettings: Permissão: $permission');
-
-      switch (permission) {
-        case LocationPermission.denied:
-          debugPrint('❌ LocationSettings: Permissão negada');
-          setState(() {
-            _locationStatus = 'Permissão negada';
-            _currentLocation = 'Permissão necessária para funcionar';
-          });
-          break;
-        case LocationPermission.deniedForever:
-          debugPrint('❌ LocationSettings: Permissão negada permanentemente');
-          setState(() {
-            _locationStatus = 'Permissão negada permanentemente';
-            _currentLocation = 'Configure nas configurações do app';
-          });
-          break;
-        case LocationPermission.whileInUse:
-        case LocationPermission.always:
-          debugPrint('✅ LocationSettings: Permissão concedida');
-          setState(() {
-            _locationStatus = 'Permissão concedida';
-            _shareLocation = true;
-          });
-          _getCurrentLocation();
-          break;
-        case LocationPermission.unableToDetermine:
-          debugPrint('❓ LocationSettings: Não foi possível determinar');
-          setState(() {
-            _locationStatus = 'Não foi possível determinar';
-            _currentLocation = 'Erro ao verificar permissões';
-          });
-          break;
-      }
-    } catch (e, stackTrace) {
-      debugPrint('❌ LocationSettings: Erro ao verificar status: $e');
-      debugPrint('❌ LocationSettings: Stack trace: $stackTrace');
-      setState(() {
-        _locationStatus = 'Erro ao verificar';
-        _currentLocation = 'Erro desconhecido';
-      });
-    }
-  }
-
-  void _getCurrentLocation() async {
-    setState(() {
-      _currentLocation = 'Obtendo localização...';
-    });
-
-    try {
-      debugPrint('🔍 LocationSettings: Solicitando localização atual...');
-
-      final position = await Geolocator.getCurrentPosition(
-        desiredAccuracy:
-            _highAccuracy ? LocationAccuracy.high : LocationAccuracy.medium,
-        timeLimit: const Duration(seconds: 10),
-      );
-
-      debugPrint(
-          '✅ LocationSettings: Localização obtida: ${position.latitude}, ${position.longitude}');
-
-      setState(() {
-        _currentLocation =
-            '${position.latitude.toStringAsFixed(4)}, ${position.longitude.toStringAsFixed(4)}';
-      });
-    } catch (e, stackTrace) {
-      debugPrint('❌ LocationSettings: Erro ao obter localização: $e');
-      debugPrint('❌ LocationSettings: Stack trace: $stackTrace');
-
-      String errorMessage = 'Erro ao obter localização';
-
-      // Provide more specific error messages
-      if (e.toString().contains('Location service is disabled')) {
-        errorMessage = 'Serviços de localização desabilitados';
-      } else if (e.toString().contains('Location permission denied')) {
-        errorMessage = 'Permissão de localização negada';
-      } else if (e.toString().contains('timeout')) {
-        errorMessage = 'Timeout ao obter localização';
-      } else if (e.toString().contains('network')) {
-        errorMessage = 'Erro de rede';
-      }
-
-      setState(() {
-        _currentLocation = errorMessage;
-      });
-    }
-  }
-
-  void _testLocation() {
-    _getCurrentLocation();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: const Row(
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(Icons.location_searching, color: Colors.white),
-            SizedBox(width: 12),
-            Text('Buscando localização atual...'),
+            Text(
+              'Compartilhamento de Localização',
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 16),
+            _buildSwitchTile(
+              title: 'Compartilhar localização',
+              subtitle: 'Permitir que o app acesse sua localização',
+              value: locationState.shareLocation,
+              onChanged: (value) =>
+                  locationNotifier.toggleLocationSharing(value),
+              icon: Icons.my_location,
+            ),
+            if (locationState.shareLocation) ...[
+              const Divider(),
+              _buildSwitchTile(
+                title: 'Alta precisão',
+                subtitle: 'Usar GPS para maior precisão',
+                value: locationState.highAccuracy,
+                onChanged: (value) => locationNotifier.setHighAccuracy(value),
+                icon: Icons.gps_fixed,
+              ),
+              const Divider(),
+              _buildSwitchTile(
+                title: 'Localização em segundo plano',
+                subtitle: 'Continuar rastreando quando o app estiver fechado',
+                value: locationState.backgroundLocation,
+                onChanged: (value) =>
+                    locationNotifier.setBackgroundLocation(value),
+                icon: Icons.location_history,
+              ),
+            ],
           ],
         ),
-        backgroundColor: Theme.of(context).primaryColor,
-        duration: const Duration(seconds: 2),
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
       ),
     );
   }
 
-  void _showPermissionDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Permissão de Localização'),
-        content: const Text(
-          'Para usar este recurso, você precisa conceder permissão de localização nas configurações do dispositivo.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancelar'),
+  Widget _buildSwitchTile({
+    required String title,
+    required String subtitle,
+    required bool value,
+    required ValueChanged<bool> onChanged,
+    required IconData icon,
+  }) {
+    return Builder(
+      builder: (context) => Row(
+        children: [
+          Icon(
+            icon,
+            color: Theme.of(context).primaryColor,
+            size: 20,
           ),
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-              // TODO: Open app settings
-              // openAppSettings();
-            },
-            child: const Text('Configurações'),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                Text(
+                  subtitle,
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey[600],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Switch(
+            value: value,
+            onChanged: onChanged,
+            activeColor: Theme.of(context).primaryColor,
           ),
         ],
       ),
     );
   }
+}
 
-  void _showLocationServicesDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Serviços de Localização Desabilitados'),
-        content: const Text(
-          'Para usar o compartilhamento de localização, você precisa habilitar os serviços de localização nas configurações do dispositivo.',
+// Widget específico para recursos automáticos
+class _AutomaticFeaturesCard extends ConsumerWidget {
+  const _AutomaticFeaturesCard();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final locationState = ref.watch(locationSettingsProvider);
+    final locationNotifier = ref.read(locationSettingsProvider.notifier);
+
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Recursos Automáticos',
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 16),
+            _buildSwitchTile(
+              title: 'Estacionamento automático',
+              subtitle: 'Detectar automaticamente quando você estacionar',
+              value: locationState.automaticParking,
+              onChanged: (value) => locationNotifier.setAutomaticParking(value),
+              icon: Icons.directions_car,
+            ),
+          ],
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancelar'),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-              // TODO: Open app settings
-              // openAppSettings();
-            },
-            child: const Text('Configurações'),
-          ),
-        ],
       ),
     );
   }
 
-  void _showPermanentDenialDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Permissão Negada Permanentemente'),
-        content: const Text(
-          'A permissão de localização foi negada permanentemente. Você precisará configurar manualmente nas configurações do dispositivo.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('OK'),
+  Widget _buildSwitchTile({
+    required String title,
+    required String subtitle,
+    required bool value,
+    required ValueChanged<bool> onChanged,
+    required IconData icon,
+  }) {
+    return Builder(
+      builder: (context) => Row(
+        children: [
+          Icon(
+            icon,
+            color: Theme.of(context).primaryColor,
+            size: 20,
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                Text(
+                  subtitle,
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey[600],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Switch(
+            value: value,
+            onChanged: onChanged,
+            activeColor: Theme.of(context).primaryColor,
           ),
         ],
       ),
