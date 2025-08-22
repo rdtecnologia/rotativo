@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
 import '../../models/vehicle_models.dart';
@@ -14,9 +15,9 @@ class ParkingScreen extends ConsumerStatefulWidget {
   final Vehicle vehicle;
 
   const ParkingScreen({
-    Key? key,
+    super.key,
     required this.vehicle,
-  }) : super(key: key);
+  });
 
   @override
   ConsumerState<ParkingScreen> createState() => _ParkingScreenState();
@@ -25,11 +26,43 @@ class ParkingScreen extends ConsumerStatefulWidget {
 class _ParkingScreenState extends ConsumerState<ParkingScreen> {
   Position? _currentPosition;
   bool _isGettingLocation = false;
+  Vehicle? _previousVehicle;
 
   @override
   void initState() {
     super.initState();
     _getCurrentLocation();
+    _previousVehicle = widget.vehicle;
+
+    // Always clear any previous selection when entering the screen
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        ref.read(parkingProvider.notifier).forceClear();
+        if (kDebugMode) {
+          print('🔄 ParkingScreen.initState - Force cleared all state');
+        }
+      }
+    });
+  }
+
+  @override
+  void didUpdateWidget(ParkingScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    // Only clear state when vehicle actually changes
+    if (oldWidget.vehicle.licensePlate != widget.vehicle.licensePlate ||
+        oldWidget.vehicle.type != widget.vehicle.type) {
+      if (kDebugMode) {
+        print(
+            '🔄 ParkingScreen - Vehicle changed from ${oldWidget.vehicle.licensePlate} (type: ${oldWidget.vehicle.type}) to ${widget.vehicle.licensePlate} (type: ${widget.vehicle.type})');
+        print(
+            '🔄 ParkingScreen.didUpdateWidget - Clearing state due to vehicle change');
+      }
+
+      // Clear state only on vehicle change
+      ref.read(parkingProvider.notifier).forceClear();
+      _previousVehicle = widget.vehicle;
+    }
   }
 
   Future<void> _getCurrentLocation() async {
@@ -64,7 +97,7 @@ class _ParkingScreenState extends ConsumerState<ParkingScreen> {
       setState(() {
         _isGettingLocation = false;
       });
-      
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -124,7 +157,7 @@ class _ParkingScreenState extends ConsumerState<ParkingScreen> {
       if (currentBalance == null || currentBalance.credits < selectedCredits) {
         final requiredCredits = selectedCredits;
         final availableCredits = currentBalance?.credits ?? 0;
-        
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
@@ -141,21 +174,21 @@ class _ParkingScreenState extends ConsumerState<ParkingScreen> {
       }
 
       // First, get possible parking tickets
-      final possibleParking = await ref.read(parkingProvider.notifier).getPossibleParking(
-        licensePlate: widget.vehicle.licensePlate,
-        quantity: selectedCredits.toString(),
-      );
+      final possibleParking =
+          await ref.read(parkingProvider.notifier).getPossibleParking(
+                licensePlate: widget.vehicle.licensePlate,
+                quantity: selectedCredits.toString(),
+              );
 
       // Check if there are sufficient tickets
       if (possibleParking.tickets.isEmpty ||
           possibleParking.tickets[0].tickets.isEmpty ||
           possibleParking.tickets[0].tickets.length < selectedCredits) {
-        
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
               'Créditos insuficientes para estacionar!\n'
-              'Você possui: ${currentBalance?.credits.toStringAsFixed(1) ?? '0'} créditos\n'
+              'Você possui: ${currentBalance.credits.toStringAsFixed(1)} créditos\n'
               'Necessário: ${selectedCredits.toStringAsFixed(1)} créditos\n'
               'Faça uma compra de créditos para continuar.',
             ),
@@ -173,7 +206,7 @@ class _ParkingScreenState extends ConsumerState<ParkingScreen> {
           title: const Text('Confirmação'),
           content: Text(
             possibleParking.message ??
-            'Tem certeza que deseja realizar esta ativação de seus créditos para placa ${_formatLicensePlate(widget.vehicle.licensePlate)}?',
+                'Tem certeza que deseja realizar esta ativação de seus créditos para placa ${_formatLicensePlate(widget.vehicle.licensePlate)}?',
           ),
           actions: [
             TextButton(
@@ -194,10 +227,11 @@ class _ParkingScreenState extends ConsumerState<ParkingScreen> {
       if (confirmed != true) return;
 
       // Activate parking
-      final parkingResponse = await ref.read(parkingProvider.notifier).activateParking(
-        licensePlate: widget.vehicle.licensePlate,
-        ticketIds: possibleParking.tickets[0].tickets,
-      );
+      final parkingResponse =
+          await ref.read(parkingProvider.notifier).activateParking(
+                licensePlate: widget.vehicle.licensePlate,
+                ticketIds: possibleParking.tickets[0].tickets,
+              );
 
       // Reload vehicles and balance
       await Future.wait([
@@ -215,14 +249,20 @@ class _ParkingScreenState extends ConsumerState<ParkingScreen> {
           ),
         );
 
+        // Clear selection after successful activation
+        ref.read(parkingProvider.notifier).clearSelection();
+        if (kDebugMode) {
+          print(
+              '🔄 ParkingScreen._submitParking - Cleared selection after successful activation');
+        }
+
         // Return to home
         Navigator.of(context).popUntil((route) => route.isFirst);
       }
-
     } catch (e) {
       if (mounted) {
         String errorMessage = 'Erro ao ativar estacionamento';
-        
+
         // Extract error message from exception
         if (e.toString().contains('Fora do horário de funcionamento')) {
           errorMessage = '❌ Fora do horário de funcionamento\n'
@@ -237,7 +277,7 @@ class _ParkingScreenState extends ConsumerState<ParkingScreen> {
           errorMessage = '❌ Erro ao ativar estacionamento\n'
               '${e.toString().replaceAll('Exception: ', '')}';
         }
-        
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(errorMessage),
@@ -276,7 +316,7 @@ class _ParkingScreenState extends ConsumerState<ParkingScreen> {
               onRetryLocation: _getCurrentLocation,
             ),
           ),
-          
+
           // Parking options section
           Expanded(
             flex: 3,
@@ -294,7 +334,7 @@ class _ParkingScreenState extends ConsumerState<ParkingScreen> {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  
+
                   // Parking time options
                   Expanded(
                     child: RefreshIndicator(
@@ -305,38 +345,58 @@ class _ParkingScreenState extends ConsumerState<ParkingScreen> {
                       child: FutureBuilder<Map<String, dynamic>>(
                         future: DynamicAppConfig.parkingRules,
                         builder: (context, snapshot) {
-                          if (snapshot.connectionState == ConnectionState.waiting) {
-                            return const Center(child: CircularProgressIndicator());
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return const Center(
+                                child: CircularProgressIndicator());
                           }
-                          
+
                           if (snapshot.hasError) {
                             return Center(
-                              child: Text('Erro ao carregar opções: ${snapshot.error}'),
+                              child: Text(
+                                  'Erro ao carregar opções: ${snapshot.error}'),
                             );
                           }
 
                           final parkingRules = snapshot.data ?? {};
-                          final vehicleRules = parkingRules[widget.vehicle.type.toString()] as List<dynamic>? ?? [];
+                          final vehicleRules =
+                              parkingRules[widget.vehicle.type.toString()]
+                                      as List<dynamic>? ??
+                                  [];
+
+                          // Debug log for loaded rules
+                          if (kDebugMode) {
+                            print(
+                                '🅿️ ParkingScreen - Vehicle type: ${widget.vehicle.type}');
+                            print(
+                                '🅿️ ParkingScreen - All parking rules: $parkingRules');
+                            print(
+                                '🅿️ ParkingScreen - Vehicle rules: $vehicleRules');
+                          }
 
                           if (vehicleRules.isEmpty) {
                             return const Center(
-                              child: Text('Nenhuma opção de estacionamento disponível para este veículo'),
+                              child: Text(
+                                  'Nenhuma opção de estacionamento disponível para este veículo'),
                             );
                           }
 
                           return ListView.builder(
                             itemCount: vehicleRules.length,
                             itemBuilder: (context, index) {
-                              final rule = vehicleRules[index] as Map<String, dynamic>;
+                              final rule =
+                                  vehicleRules[index] as Map<String, dynamic>;
                               final time = rule['time'] as int? ?? 0;
                               final credits = rule['credits'] as int? ?? 0;
-                              final price = (rule['price'] as num?)?.toDouble() ?? 0.0;
+                              final price =
+                                  (rule['price'] as num?)?.toDouble() ?? 0.0;
 
                               return Padding(
                                 padding: const EdgeInsets.only(bottom: 12),
                                 child: Consumer(
                                   builder: (context, ref, child) {
-                                    final currentBalance = ref.watch(currentBalanceProvider);
+                                    final currentBalance =
+                                        ref.watch(currentBalanceProvider);
                                     return ParkingTimeCard(
                                       time: time,
                                       credits: credits,
@@ -344,7 +404,9 @@ class _ParkingScreenState extends ConsumerState<ParkingScreen> {
                                       isSelected: selectedTime == time,
                                       availableCredits: currentBalance?.credits,
                                       onTap: () {
-                                        ref.read(parkingProvider.notifier).selectParkingTime(time, credits);
+                                        ref
+                                            .read(parkingProvider.notifier)
+                                            .selectParkingTime(time, credits);
                                       },
                                     );
                                   },
@@ -356,9 +418,9 @@ class _ParkingScreenState extends ConsumerState<ParkingScreen> {
                       ),
                     ),
                   ),
-                  
+
                   const SizedBox(height: 16),
-                  
+
                   // Warning message
                   if (selectedTime != null) ...[
                     Container(
@@ -390,7 +452,7 @@ class _ParkingScreenState extends ConsumerState<ParkingScreen> {
                     ),
                     const SizedBox(height: 16),
                   ],
-                  
+
                   // Parking button
                   SizedBox(
                     width: double.infinity,

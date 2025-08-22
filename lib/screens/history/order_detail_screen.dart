@@ -14,9 +14,9 @@ class OrderDetailScreen extends ConsumerStatefulWidget {
   final String orderId;
 
   const OrderDetailScreen({
-    Key? key,
+    super.key,
     required this.orderId,
-  }) : super(key: key);
+  });
 
   @override
   ConsumerState<OrderDetailScreen> createState() => _OrderDetailScreenState();

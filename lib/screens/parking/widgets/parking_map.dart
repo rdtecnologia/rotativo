@@ -8,11 +8,11 @@ class ParkingMap extends StatelessWidget {
   final VoidCallback onRetryLocation;
 
   const ParkingMap({
-    Key? key,
+    super.key,
     this.currentPosition,
     required this.isGettingLocation,
     required this.onRetryLocation,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -45,9 +45,11 @@ class ParkingMap extends StatelessWidget {
                   ),
                   infoWindow: InfoWindow(
                     title: 'Sua localização atual',
-                    snippet: 'Lat: ${currentPosition!.latitude.toStringAsFixed(6)}\nLng: ${currentPosition!.longitude.toStringAsFixed(6)}',
+                    snippet:
+                        'Lat: ${currentPosition!.latitude.toStringAsFixed(6)}\nLng: ${currentPosition!.longitude.toStringAsFixed(6)}',
                   ),
-                  icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
+                  icon: BitmapDescriptor.defaultMarkerWithHue(
+                      BitmapDescriptor.hueRed),
                 ),
               },
               myLocationEnabled: true,
@@ -142,7 +144,7 @@ class ParkingMap extends StatelessWidget {
                 ),
               ),
             ),
-          
+
           // Info overlay
           Positioned(
             top: 16,

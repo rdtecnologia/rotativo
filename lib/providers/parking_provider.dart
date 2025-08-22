@@ -25,7 +25,7 @@ class ParkingNotifier extends StateNotifier<ParkingState> {
         licensePlate: licensePlate,
         quantity: quantity,
       );
-      
+
       if (kDebugMode) {
         AppLogger.parking('Got ${response.tickets.length} tickets');
       }
@@ -40,7 +40,7 @@ class ParkingNotifier extends StateNotifier<ParkingState> {
       if (kDebugMode) {
         AppLogger.error('Error: $e');
       }
-      
+
       state = state.copyWith(
         isLoadingTickets: false,
         error: e.toString(),
@@ -76,7 +76,7 @@ class ParkingNotifier extends StateNotifier<ParkingState> {
         ticketIds: ticketIds,
         parkingTime: parkingTime, // Passar o tempo selecionado
       );
-      
+
       if (kDebugMode) {
         AppLogger.parking('Activated: ${response.id}');
       }
@@ -91,7 +91,7 @@ class ParkingNotifier extends StateNotifier<ParkingState> {
       if (kDebugMode) {
         AppLogger.error('Error: $e');
       }
-      
+
       state = state.copyWith(
         isLoadingParking: false,
         error: e.toString(),
@@ -110,7 +110,7 @@ class ParkingNotifier extends StateNotifier<ParkingState> {
 
     try {
       final response = await ParkingService.getActivationDetail(activationId);
-      
+
       if (kDebugMode) {
         AppLogger.parking('ID: $activationId');
       }
@@ -125,7 +125,7 @@ class ParkingNotifier extends StateNotifier<ParkingState> {
       if (kDebugMode) {
         AppLogger.error('Error: $e');
       }
-      
+
       state = state.copyWith(
         isLoadingActivationDetail: false,
         error: e.toString(),
@@ -136,6 +136,12 @@ class ParkingNotifier extends StateNotifier<ParkingState> {
 
   /// Select parking time and credits
   void selectParkingTime(int time, int credits) {
+    // Log previous state before updating
+    if (kDebugMode) {
+      print(
+          '🎯 ParkingProvider.selectParkingTime - Previous state: Time: ${state.selectedParkingTime}min, Credits: ${state.selectedCredits}');
+    }
+
     state = state.copyWith(
       selectedParkingTime: time,
       selectedCredits: credits,
@@ -143,16 +149,43 @@ class ParkingNotifier extends StateNotifier<ParkingState> {
     );
 
     if (kDebugMode) {
-      AppLogger.parking('Time: ${time}min, Credits: $credits');
+      AppLogger.parking(
+          '🎯 selectParkingTime called - Time: ${time}min, Credits: $credits');
+      print(
+          '🎯 ParkingProvider.selectParkingTime - New state: Time: ${time}min, Credits: $credits');
     }
   }
 
   /// Reset parking state
   void reset() {
     state = ParkingState();
-    
+
     if (kDebugMode) {
       AppLogger.parking('State reset');
+    }
+  }
+
+  /// Clear selected parking time and credits (useful when switching vehicles)
+  void clearSelection() {
+    state = state.copyWith(
+      selectedParkingTime: null,
+      selectedCredits: null,
+      clearError: true,
+    );
+
+    if (kDebugMode) {
+      AppLogger.parking('Selection cleared - Time and credits reset');
+      print('🎯 ParkingProvider.clearSelection - Selection cleared');
+    }
+  }
+
+  /// Force clear all state (useful for complete reset)
+  void forceClear() {
+    state = ParkingState();
+
+    if (kDebugMode) {
+      AppLogger.parking('Force clear - All state reset');
+      print('🎯 ParkingProvider.forceClear - All state reset');
     }
   }
 
@@ -163,7 +196,8 @@ class ParkingNotifier extends StateNotifier<ParkingState> {
 }
 
 // Provider instance
-final parkingProvider = StateNotifierProvider<ParkingNotifier, ParkingState>((ref) {
+final parkingProvider =
+    StateNotifierProvider<ParkingNotifier, ParkingState>((ref) {
   return ParkingNotifier();
 });
 
@@ -190,9 +224,9 @@ final selectedCreditsProvider = Provider<int?>((ref) {
 
 final parkingLoadingProvider = Provider<bool>((ref) {
   final parkingState = ref.watch(parkingProvider);
-  return parkingState.isLoadingTickets || 
-         parkingState.isLoadingParking || 
-         parkingState.isLoadingActivationDetail;
+  return parkingState.isLoadingTickets ||
+      parkingState.isLoadingParking ||
+      parkingState.isLoadingActivationDetail;
 });
 
 final parkingErrorProvider = Provider<String?>((ref) {

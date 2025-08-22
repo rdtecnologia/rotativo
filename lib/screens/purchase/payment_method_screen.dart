@@ -10,10 +10,10 @@ class PaymentMethodScreen extends ConsumerWidget {
   final ProductOption product;
 
   const PaymentMethodScreen({
-    Key? key,
+    super.key,
     required this.vehicleType,
     required this.product,
-  }) : super(key: key);
+  });
 
   String _getPaymentMethodName(PaymentMethodType method) {
     switch (method) {
@@ -59,9 +59,10 @@ class PaymentMethodScreen extends ConsumerWidget {
     }
   }
 
-  void _selectPaymentMethod(BuildContext context, WidgetRef ref, PaymentMethodType method) {
+  void _selectPaymentMethod(
+      BuildContext context, WidgetRef ref, PaymentMethodType method) {
     ref.read(purchaseProvider.notifier).selectPaymentMethod(method);
-    
+
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -80,7 +81,7 @@ class PaymentMethodScreen extends ConsumerWidget {
     PaymentMethodType method,
   ) {
     final color = _getPaymentMethodColor(method);
-    
+
     return Card(
       elevation: 3,
       shape: RoundedRectangleBorder(
@@ -105,9 +106,7 @@ class PaymentMethodScreen extends ConsumerWidget {
                   color: color,
                 ),
               ),
-              
               const SizedBox(width: 16),
-              
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -131,7 +130,6 @@ class PaymentMethodScreen extends ConsumerWidget {
                   ],
                 ),
               ),
-              
               Icon(
                 Icons.arrow_forward_ios,
                 size: 16,
@@ -165,9 +163,6 @@ class PaymentMethodScreen extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: 12),
-          
-
-          
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -209,7 +204,7 @@ class PaymentMethodScreen extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildOrderSummary(context),
-            
+
             const Text(
               'Escolha a forma de pagamento:',
               style: TextStyle(
@@ -219,90 +214,91 @@ class PaymentMethodScreen extends ConsumerWidget {
               ),
             ),
             const SizedBox(height: 16),
-            
+
             // Lista de métodos de pagamento
             cityConfigAsync.when(
-                loading: () => const Center(
-                  child: CircularProgressIndicator(),
-                ),
-                error: (error, stack) => Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(
-                        Icons.error_outline,
-                        size: 64,
+              loading: () => const Center(
+                child: CircularProgressIndicator(),
+              ),
+              error: (error, stack) => Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(
+                      Icons.error_outline,
+                      size: 64,
+                      color: Colors.red,
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Erro ao carregar formas de pagamento',
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      error.toString(),
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
                         color: Colors.red,
                       ),
-                      const SizedBox(height: 16),
-                      Text(
-                        'Erro ao carregar formas de pagamento',
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        error.toString(),
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          color: Colors.red,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      ElevatedButton(
-                        onPressed: () {
-                          ref.invalidate(cityConfigProvider);
-                        },
-                        child: const Text('Tentar Novamente'),
-                      ),
-                    ],
-                  ),
+                    ),
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: () {
+                        ref.invalidate(cityConfigProvider);
+                      },
+                      child: const Text('Tentar Novamente'),
+                    ),
+                  ],
                 ),
-                data: (config) {
-                  final availableMethods = config.payment.availableMethods;
-                  
-                  if (availableMethods.isEmpty) {
-                    return const Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.info_outline,
-                            size: 64,
+              ),
+              data: (config) {
+                final availableMethods = config.payment.availableMethods;
+
+                if (availableMethods.isEmpty) {
+                  return const Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.info_outline,
+                          size: 64,
+                          color: Colors.grey,
+                        ),
+                        SizedBox(height: 16),
+                        Text(
+                          'Nenhuma forma de pagamento disponível',
+                          style: TextStyle(
+                            fontSize: 16,
                             color: Colors.grey,
                           ),
-                          SizedBox(height: 16),
-                          Text(
-                            'Nenhuma forma de pagamento disponível',
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.grey,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                        ],
-                      ),
-                    );
-                  }
-
-                  return Column(
-                    children: availableMethods.map((method) => Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
-                      child: _buildPaymentMethodCard(
-                        context,
-                        ref,
-                        method,
-                      ),
-                    )).toList(),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ),
                   );
-                },
-              ),
-            ],
-          ),
+                }
+
+                return Column(
+                  children: availableMethods
+                      .map((method) => Padding(
+                            padding: const EdgeInsets.only(bottom: 12),
+                            child: _buildPaymentMethodCard(
+                              context,
+                              ref,
+                              method,
+                            ),
+                          ))
+                      .toList(),
+                );
+              },
+            ),
+          ],
         ),
-      
+      ),
     );
   }
 }

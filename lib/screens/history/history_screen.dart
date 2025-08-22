@@ -24,7 +24,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen>
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
-    
+
     // Load initial data
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(historyProvider.notifier).loadOrders(refresh: true);
@@ -90,9 +90,9 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen>
 
     if (shouldDelete == true) {
       final success = await ref.read(historyProvider.notifier).deleteOrder(
-        order.id,
-        order.value.toString(),
-      );
+            order.id,
+            order.value.toString(),
+          );
 
       if (success) {
         Fluttertoast.showToast(
@@ -188,7 +188,9 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen>
                 ),
                 const SizedBox(height: 16),
                 ElevatedButton(
-                  onPressed: () => ref.read(historyProvider.notifier).loadOrders(refresh: true),
+                  onPressed: () => ref
+                      .read(historyProvider.notifier)
+                      .loadOrders(refresh: true),
                   child: const Text('Tentar novamente'),
                 ),
               ],
@@ -296,7 +298,9 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen>
                 ),
                 const SizedBox(height: 16),
                 ElevatedButton(
-                  onPressed: () => ref.read(historyProvider.notifier).loadActivations(refresh: true),
+                  onPressed: () => ref
+                      .read(historyProvider.notifier)
+                      .loadActivations(refresh: true),
                   child: const Text('Tentar novamente'),
                 ),
               ],
@@ -401,9 +405,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen>
                   _buildStatusChip(order.status),
                 ],
               ),
-              
               const SizedBox(height: 8),
-              
               Row(
                 children: [
                   Icon(
@@ -420,9 +422,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen>
                   ),
                 ],
               ),
-              
               const SizedBox(height: 8),
-              
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -434,7 +434,6 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen>
                       color: Theme.of(context).primaryColor,
                     ),
                   ),
-                  
                   Row(
                     children: [
                       if (order.status.toLowerCase() == 'pending')
@@ -446,7 +445,6 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen>
                             foregroundColor: Colors.red,
                           ),
                         ),
-                      
                       Icon(
                         Icons.arrow_forward_ios,
                         size: 16,
@@ -456,7 +454,6 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen>
                   ),
                 ],
               ),
-              
               if (order.description != null) ...[
                 const SizedBox(height: 8),
                 Text(
@@ -478,177 +475,152 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen>
     final dateFormat = DateFormat('dd/MM/yyyy HH:mm');
 
     return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(12),
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => ActivationDetailScreen(
-                activationId: activation.id,
-              ),
-            ),
-          );
-        },
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Ativação #${activation.id}',
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                  ),
-                ),
-                Row(
-                  children: [
-                    _buildParkingStatusChip(activation),
-                    const SizedBox(width: 8),
-                    Icon(
-                      Icons.arrow_forward_ios,
-                      size: 16,
-                      color: Colors.grey[400],
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            
-            const SizedBox(height: 8),
-            
-            Row(
-              children: [
-                Icon(
-                  Icons.directions_car,
-                  size: 18,
-                  color: Colors.grey.shade600,
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  activation.licensePlate,
-                  style: TextStyle(
-                    color: Colors.grey.shade700,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
-            ),
-            
-            const SizedBox(height: 4),
-            
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  children: [
-                    Icon(
-                      Icons.credit_card,
-                      size: 18,
-                      color: Colors.grey.shade600,
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      '${activation.quantity} créditos',
-                      style: TextStyle(
-                        color: Colors.grey.shade600,
-                      ),
-                    ),
-                  ],
-                ),
-                Row(
-                  children: [
-                    Icon(
-                      Icons.timer,
-                      size: 18,
-                      color: Colors.grey.shade600,
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      '${activation.parkingTime} min',
-                      style: TextStyle(
-                        color: Colors.grey.shade600,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            
-            const SizedBox(height: 4),
-            
-            Row(
-              children: [
-                Icon(
-                  Icons.schedule,
-                  size: 18,
-                  color: Colors.grey.shade600,
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  'Ativado em ${dateFormat.format(activation.activatedAt)}',
-                  style: TextStyle(
-                    color: Colors.grey.shade600,
-                  ),
-                ),
-              ],
-            ),
-            
-            if (activation.expiresAt != null) ...[
-              const SizedBox(height: 4),
-              Row(
-                children: [
-                  Icon(
-                    Icons.schedule_outlined,
-                    size: 18,
-                    color: Colors.grey.shade600,
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    'Expira em ${dateFormat.format(activation.expiresAt!)}',
-                    style: TextStyle(
-                      color: Colors.grey.shade600,
-                    ),
-                  ),
-                ],
-              ),
-            ],
-            
-            if (activation.location != null) ...[
-              const SizedBox(height: 4),
-              Row(
-                children: [
-                  Icon(
-                    Icons.location_on,
-                    size: 18,
-                    color: Colors.grey.shade600,
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      activation.location!,
-                      style: TextStyle(
-                        color: Colors.grey.shade600,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ],
+        margin: const EdgeInsets.only(bottom: 12),
+        elevation: 2,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
         ),
-      ),
-    )
-    );
+        child: InkWell(
+          borderRadius: BorderRadius.circular(12),
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ActivationDetailScreen(
+                  activationId: activation.id,
+                ),
+              ),
+            );
+          },
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.confirmation_number,
+                          size: 18,
+                          color: Theme.of(context).primaryColor,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Ativação #${activation.id}',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        _buildParkingStatusChip(activation),
+                        const SizedBox(width: 8),
+                        Icon(
+                          Icons.arrow_forward_ios,
+                          size: 16,
+                          color: Colors.grey[400],
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                const SizedBox(height: 4),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      activation.licensePlate,
+                      style: const TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.timer,
+                          size: 18,
+                          color: Colors.grey.shade600,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          '${activation.parkingTime} min',
+                          style: TextStyle(
+                            color: Colors.grey.shade600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Row(
+                  children: [
+                    Icon(
+                      Icons.schedule,
+                      size: 18,
+                      color: Colors.grey.shade600,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Ativado em ${dateFormat.format(activation.activatedAt)}',
+                      style: TextStyle(
+                        color: Colors.grey.shade600,
+                      ),
+                    ),
+                  ],
+                ),
+                if (activation.expiresAt != null) ...[
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.schedule_outlined,
+                        size: 18,
+                        color: Colors.grey.shade600,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Expira em ${dateFormat.format(activation.expiresAt!)}',
+                        style: TextStyle(
+                          color: Colors.grey.shade600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+                if (activation.location != null) ...[
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.location_on,
+                        size: 18,
+                        color: Colors.grey.shade600,
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          activation.location!,
+                          style: TextStyle(
+                            color: Colors.grey.shade600,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ));
   }
 
   Widget _buildStatusChip(String status) {
@@ -674,7 +646,8 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen>
       case 'expired':
         backgroundColor = Colors.red.shade100;
         textColor = Colors.red.shade700;
-        displayText = status.toLowerCase() == 'cancelled' ? 'Cancelado' : 'Expirado';
+        displayText =
+            status.toLowerCase() == 'cancelled' ? 'Cancelado' : 'Expirado';
         break;
       default:
         backgroundColor = Colors.grey.shade100;

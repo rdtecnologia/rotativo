@@ -6,29 +6,28 @@ class ParkingBackground extends StatelessWidget {
   final double opacity;
 
   const ParkingBackground({
-    Key? key,
+    super.key,
     required this.child,
     this.primaryColor,
     this.opacity = 0.3,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
     final color = primaryColor ?? Theme.of(context).primaryColor;
-    
+
     return Stack(
       children: [
         // Background image
         Container(
-          decoration:  BoxDecoration(
+          decoration: BoxDecoration(
             image: DecorationImage(
               image: AssetImage('assets/images/parking_background.png'),
               fit: BoxFit.cover,
-                    colorFilter: ColorFilter.mode(
-        Colors.white, 
-        BlendMode.darken, 
-      ),
-              
+              colorFilter: ColorFilter.mode(
+                Colors.white,
+                BlendMode.darken,
+              ),
             ),
           ),
         ),

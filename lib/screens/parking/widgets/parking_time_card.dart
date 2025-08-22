@@ -10,14 +10,14 @@ class ParkingTimeCard extends StatelessWidget {
   final double? availableCredits;
 
   const ParkingTimeCard({
-    Key? key,
+    super.key,
     required this.time,
     required this.credits,
     required this.price,
     required this.isSelected,
     required this.onTap,
     this.availableCredits,
-  }) : super(key: key);
+  });
 
   String _formatTime(int minutes) {
     if (minutes < 60) {
@@ -35,8 +35,9 @@ class ParkingTimeCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final hasEnoughCredits = availableCredits == null || availableCredits! >= credits;
-    
+    final hasEnoughCredits =
+        availableCredits == null || availableCredits! >= credits;
+
     return Card(
       elevation: isSelected ? 8 : 2,
       shape: RoundedRectangleBorder(
@@ -99,8 +100,12 @@ class ParkingTimeCard extends StatelessWidget {
                           '$credits créditos',
                           style: TextStyle(
                             fontSize: 14,
-                            color: hasEnoughCredits ? Colors.grey[600] : Colors.red[600],
-                            fontWeight: hasEnoughCredits ? FontWeight.normal : FontWeight.bold,
+                            color: hasEnoughCredits
+                                ? Colors.grey[600]
+                                : Colors.red[600],
+                            fontWeight: hasEnoughCredits
+                                ? FontWeight.normal
+                                : FontWeight.bold,
                           ),
                         ),
                         if (!hasEnoughCredits) ...[
@@ -116,7 +121,7 @@ class ParkingTimeCard extends StatelessWidget {
                   ],
                 ),
               ),
-              
+
               // Price
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
@@ -140,9 +145,9 @@ class ParkingTimeCard extends StatelessWidget {
                   ),
                 ],
               ),
-              
+
               const SizedBox(width: 12),
-              
+
               // Selection indicator
               Container(
                 width: 24,
@@ -174,4 +179,3 @@ class ParkingTimeCard extends StatelessWidget {
     );
   }
 }
-

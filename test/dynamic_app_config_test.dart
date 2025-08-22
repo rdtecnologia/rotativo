@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/services.dart';
-import '../lib/config/dynamic_app_config.dart';
-import '../lib/config/environment.dart';
+import 'package:rotativo/config/dynamic_app_config.dart';
+import 'package:rotativo/config/environment.dart';
 
 void main() {
   group('DynamicAppConfig Tests', () {

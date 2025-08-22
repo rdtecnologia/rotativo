@@ -26,10 +26,12 @@ class OrderHistory {
         id: json['id']?.toString() ?? '',
         licensePlate: json['licensePlate']?.toString() ?? '',
         value: (json['value'] ?? json['valueTotal'] ?? 0.0).toDouble(),
-        createdAt: AppDateUtils.DateUtils.parseUtcDate(json['createdAt'] ?? json['created_at']),
+        createdAt: AppDateUtils.DateUtils.parseUtcDate(
+            json['createdAt'] ?? json['created_at']),
         status: json['status']?.toString() ?? '',
         description: json['description']?.toString(),
-        paymentMethod: json['paymentMethod']?.toString() ?? json['payment_method']?.toString(),
+        paymentMethod: json['paymentMethod']?.toString() ??
+            json['payment_method']?.toString(),
       );
     } catch (e) {
       throw Exception('Erro ao fazer parse de OrderHistory: $e. JSON: $json');
@@ -57,6 +59,7 @@ class ActivationHistory {
   final DateTime? expiresAt;
   final String status;
   final String? location;
+  final int? vehicleType;
 
   ActivationHistory({
     required this.id,
@@ -66,21 +69,53 @@ class ActivationHistory {
     this.expiresAt,
     required this.status,
     this.location,
+    this.vehicleType,
   });
 
-  /// Calcula a quantidade de créditos baseado no tempo de estacionamento
-  /// Baseado nas regras da cidade (1h = 4 créditos, 2h = 7 créditos, 3h = 10 créditos)
-  int get quantity {
-    switch (parkingTime) {
-      case 60: // 1 hora
-        return 4;
-      case 120: // 2 horas
-        return 7;
-      case 180: // 3 horas
-        return 10;
+  /// Determina o tipo de veículo baseado na placa (1 = carro, 2 = moto)
+  /// Se vehicleType não estiver disponível, tenta inferir da placa
+  int get effectiveVehicleType {
+    if (vehicleType != null) return vehicleType!;
+
+    // Se não tem vehicleType, assume carro por padrão
+    // Em uma implementação real, poderia consultar uma API ou usar lógica mais complexa
+    return _inferVehicleTypeFromPlate(licensePlate);
+  }
+
+  /// Infere o tipo de veículo baseado no padrão da placa
+  int _inferVehicleTypeFromPlate(String plate) {
+    // Remove hífens e espaços para análise
+    final cleanPlate = plate.replaceAll(RegExp(r'[-\s]'), '').toUpperCase();
+
+    // Verifica se é uma placa Mercosul de moto (formato ABC1D23 onde D é letra)
+    if (cleanPlate.length == 7) {
+      // Posição 4 (índice 4) deve ser letra para motos Mercosul
+      if (RegExp(r'[A-Z]').hasMatch(cleanPlate[4])) {
+        return 2; // Moto
+      }
+    }
+
+    // Por padrão, assume carro
+    return 1; // Carro
+  }
+
+  /// Retorna o ícone do tipo de veículo
+  String get vehicleIcon {
+    switch (effectiveVehicleType) {
+      case 2:
+        return 'motorcycle'; // Ícone de moto
       default:
-        // Para outros tempos, calcula proporcionalmente (1 crédito = 15 minutos)
-        return (parkingTime / 15).ceil();
+        return 'directions_car'; // Ícone de carro
+    }
+  }
+
+  /// Retorna o nome do tipo de veículo
+  String get vehicleTypeName {
+    switch (effectiveVehicleType) {
+      case 2:
+        return 'Moto';
+      default:
+        return 'Carro';
     }
   }
 
@@ -108,6 +143,11 @@ class ActivationHistory {
 
   /// Retorna o status visual do estacionamento
   String get displayStatus {
+    // Check if this activation was superseded
+    if (status.toLowerCase() == 'superseded') {
+      return 'Substituída';
+    }
+
     if (isActive) {
       if (remainingMinutes <= 15) {
         return 'Expirando em ${remainingMinutes}min';
@@ -123,6 +163,11 @@ class ActivationHistory {
 
   /// Retorna a cor do status
   Color get statusColor {
+    // Check if this activation was superseded
+    if (status.toLowerCase() == 'superseded') {
+      return Colors.amber; // Yellow/amber color for superseded
+    }
+
     if (isActive) {
       if (remainingMinutes <= 15) {
         return Colors.red;
@@ -142,14 +187,22 @@ class ActivationHistory {
         id: json['id']?.toString() ?? '',
         licensePlate: json['licensePlate']?.toString() ?? '',
         parkingTime: json['parkingTime'] ?? 0,
-        activatedAt: AppDateUtils.DateUtils.parseUtcDate(json['activatedAt'] ?? json['activated_at']),
-        expiresAt: json['expiresAt'] != null ? AppDateUtils.DateUtils.parseUtcDate(json['expiresAt']) : 
-                  json['expires_at'] != null ? AppDateUtils.DateUtils.parseUtcDate(json['expires_at']) : null,
-        status: json['status']?.toString() ?? 'active', // Default para 'active' se não existir
+        activatedAt: AppDateUtils.DateUtils.parseUtcDate(
+            json['activatedAt'] ?? json['activated_at']),
+        expiresAt: json['expiresAt'] != null
+            ? AppDateUtils.DateUtils.parseUtcDate(json['expiresAt'])
+            : json['expires_at'] != null
+                ? AppDateUtils.DateUtils.parseUtcDate(json['expires_at'])
+                : null,
+        status: json['status']?.toString() ??
+            'active', // Default para 'active' se não existir
         location: json['location']?.toString(),
+        vehicleType:
+            json['vehicleType']?.toInt() ?? json['vehicle_type']?.toInt(),
       );
     } catch (e) {
-      throw Exception('Erro ao fazer parse de ActivationHistory: $e. JSON: $json');
+      throw Exception(
+          'Erro ao fazer parse de ActivationHistory: $e. JSON: $json');
     }
   }
 
@@ -162,6 +215,7 @@ class ActivationHistory {
       'expiresAt': expiresAt?.toIso8601String(),
       'status': status,
       'location': location,
+      'vehicleType': vehicleType,
     };
   }
 }
@@ -181,7 +235,7 @@ class HistoryFilter {
 
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
-    
+
     if (licensePlate != null && licensePlate!.isNotEmpty) {
       map['licensePlate'] = licensePlate;
     }
@@ -194,7 +248,7 @@ class HistoryFilter {
     if (status != null && status!.isNotEmpty) {
       map['status'] = status;
     }
-    
+
     return map;
   }
 }
@@ -322,8 +376,12 @@ class OrderPayment {
       gateway: json['gateway']?.toString() ?? '',
       method: json['method']?.toString() ?? 'Dinheiro',
       pix: json['pix'] != null ? OrderPaymentPix.fromJson(json['pix']) : null,
-      billet: json['billet'] != null ? OrderPaymentBillet.fromJson(json['billet']) : null,
-      creditCard: json['creditCard'] != null ? OrderPaymentCreditCard.fromJson(json['creditCard']) : null,
+      billet: json['billet'] != null
+          ? OrderPaymentBillet.fromJson(json['billet'])
+          : null,
+      creditCard: json['creditCard'] != null
+          ? OrderPaymentCreditCard.fromJson(json['creditCard'])
+          : null,
     );
   }
 }
@@ -357,7 +415,9 @@ class OrderChargeback {
     return OrderChargeback(
       message: json['message']?.toString() ?? '',
       action: OrderChargebackAction.fromJson(json['action'] ?? {}),
-      last: json['last'] != null ? OrderChargebackLast.fromJson(json['last']) : null,
+      last: json['last'] != null
+          ? OrderChargebackLast.fromJson(json['last'])
+          : null,
     );
   }
 }
@@ -395,8 +455,10 @@ class OrderChargebackLast {
   factory OrderChargebackLast.fromJson(Map<String, dynamic> json) {
     return OrderChargebackLast(
       status: json['status']?.toString() ?? '',
-      createdAt: AppDateUtils.DateUtils.parseUtcDate(json['createdAt']?.toString()),
-      updatedAt: AppDateUtils.DateUtils.parseUtcDate(json['updatedAt']?.toString()),
+      createdAt:
+          AppDateUtils.DateUtils.parseUtcDate(json['createdAt']?.toString()),
+      updatedAt:
+          AppDateUtils.DateUtils.parseUtcDate(json['updatedAt']?.toString()),
       value: (json['value'] ?? 0).toDouble(),
     );
   }
@@ -431,18 +493,23 @@ class OrderDetail {
     try {
       return OrderDetail(
         id: json['id']?.toString() ?? '',
-        createdAt: AppDateUtils.DateUtils.parseUtcDate(json['createdAt']?.toString()),
+        createdAt:
+            AppDateUtils.DateUtils.parseUtcDate(json['createdAt']?.toString()),
         status: json['status']?.toString() ?? 'Desconhecido',
         action: json['action']?.toString(),
         value: (json['value'] ?? 0).toDouble(),
         gateway: json['gateway']?.toString() ?? '',
         products: (json['products'] as List<dynamic>?)
-            ?.map((p) => OrderProduct.fromJson(p as Map<String, dynamic>))
-            .toList() ?? [],
+                ?.map((p) => OrderProduct.fromJson(p as Map<String, dynamic>))
+                .toList() ??
+            [],
         payments: (json['payments'] as List<dynamic>?)
-            ?.map((p) => OrderPayment.fromJson(p as Map<String, dynamic>))
-            .toList() ?? [],
-        chargeback: json['chargeback'] != null ? OrderChargeback.fromJson(json['chargeback']) : null,
+                ?.map((p) => OrderPayment.fromJson(p as Map<String, dynamic>))
+                .toList() ??
+            [],
+        chargeback: json['chargeback'] != null
+            ? OrderChargeback.fromJson(json['chargeback'])
+            : null,
         referenceCode: json['referenceCode']?.toString(),
       );
     } catch (e) {

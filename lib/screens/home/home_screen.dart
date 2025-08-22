@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rotativo/config/dynamic_app_config.dart';
+import 'package:rotativo/debug_page.dart';
 
 import '../../models/vehicle_models.dart';
 import '../../providers/active_activations_provider.dart';
@@ -199,11 +200,10 @@ class _HomePageState extends ConsumerState<HomePage>
                     // Debug button
                     IconButton(
                       onPressed: () {
-                        // Debug functionality removed
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Debug mode'),
-                            duration: Duration(seconds: 1),
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const DebugPage(),
                           ),
                         );
                       },

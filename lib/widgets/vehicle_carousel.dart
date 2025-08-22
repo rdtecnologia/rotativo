@@ -255,7 +255,7 @@ class VehicleCard extends StatelessWidget {
               Column(
                 children: [
                   // Parking timer (se houver estacionamento ativo)
-                  Container(
+                  SizedBox(
                     width: double.infinity,
                     height: 80,
                     child: ParkingTimer(

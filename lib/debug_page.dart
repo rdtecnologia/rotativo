@@ -35,7 +35,7 @@ class DebugPage extends ConsumerWidget {
           }
 
           final debugInfo = snapshot.data!;
-          
+
           return SingleChildScrollView(
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -73,7 +73,7 @@ class DebugPage extends ConsumerWidget {
                   },
                 ),
                 const SizedBox(height: 16),
-                
+
                 // API Environment Debug Info
                 _buildSection('🌐 Ambiente API', [
                   'Ambiente Atual: ${Environment.currentEnvironment}',
@@ -83,7 +83,7 @@ class DebugPage extends ConsumerWidget {
                   'Voucher API: ${Environment.voucherApi}',
                 ]),
                 const SizedBox(height: 16),
-                
+
                 // Environment Switcher
                 Card(
                   child: Padding(
@@ -107,15 +107,17 @@ class DebugPage extends ConsumerWidget {
                                   Environment.setEnvironment('dev');
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     const SnackBar(
-                                      content: Text('Ambiente alterado para DEV. Reinicie o app.'),
+                                      content: Text(
+                                          'Ambiente alterado para DEV. Reinicie o app.'),
                                       backgroundColor: Colors.orange,
                                     ),
                                   );
                                 },
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: Environment.currentEnvironment == 'dev' 
-                                      ? Colors.orange 
-                                      : Colors.grey,
+                                  backgroundColor:
+                                      Environment.currentEnvironment == 'dev'
+                                          ? Colors.orange
+                                          : Colors.grey,
                                 ),
                                 child: const Text('DEV'),
                               ),
@@ -127,15 +129,17 @@ class DebugPage extends ConsumerWidget {
                                   Environment.setEnvironment('prod');
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     const SnackBar(
-                                      content: Text('Ambiente alterado para PROD. Reinicie o app.'),
+                                      content: Text(
+                                          'Ambiente alterado para PROD. Reinicie o app.'),
                                       backgroundColor: Colors.green,
                                     ),
                                   );
                                 },
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: Environment.currentEnvironment == 'prod' 
-                                      ? Colors.green 
-                                      : Colors.grey,
+                                  backgroundColor:
+                                      Environment.currentEnvironment == 'prod'
+                                          ? Colors.green
+                                          : Colors.grey,
                                 ),
                                 child: const Text('PROD'),
                               ),
@@ -147,13 +151,13 @@ class DebugPage extends ConsumerWidget {
                   ),
                 ),
                 const SizedBox(height: 16),
-                
+
                 // Auth Debug Info
                 Consumer(
                   builder: (context, ref, child) {
                     final authState = ref.watch(authProvider);
                     final user = authState.user;
-                    
+
                     return _buildSection('🔐 Debug Autenticação', [
                       'Autenticado: ${authState.isAuthenticated}',
                       'Carregando: ${authState.isLoading}',
@@ -165,11 +169,18 @@ class DebugPage extends ConsumerWidget {
                         'CPF: ${user.cpf ?? 'N/A'}',
                         'Telefone: ${user.phone ?? 'N/A'}',
                         'Tem Token: ${user.token != null}',
-                        if (user.token != null) 'Token: ${user.token!.substring(0, 20)}...',
+                        if (user.token != null)
+                          'Token: ${user.token!.substring(0, 20)}...',
                       ] else
                         'Dados do usuário: Não disponível',
                     ]);
                   },
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'Current Environment: ${Environment.currentEnvironment}',
+                  style: const TextStyle(
+                      fontSize: 18, fontWeight: FontWeight.bold),
                 ),
               ],
             ),
@@ -195,12 +206,12 @@ class DebugPage extends ConsumerWidget {
             ),
             const SizedBox(height: 8),
             ...items.map((item) => Padding(
-              padding: const EdgeInsets.symmetric(vertical: 2),
-              child: Text(
-                item,
-                style: const TextStyle(fontFamily: 'monospace'),
-              ),
-            )),
+                  padding: const EdgeInsets.symmetric(vertical: 2),
+                  child: Text(
+                    item,
+                    style: const TextStyle(fontFamily: 'monospace'),
+                  ),
+                )),
           ],
         ),
       ),

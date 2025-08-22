@@ -16,7 +16,7 @@ class ApiConfig {
 /// Environment configuration class that manages all API endpoints and app configuration
 class Environment {
   /// Current environment - change this to switch between dev/prod for entire app
-  static String _currentEnvironment = 'dev';
+  static String _currentEnvironment = 'prod';
 
   /// API endpoints configuration for different environments
   static const Map<String, ApiConfig> _apiConfigs = {
@@ -42,7 +42,8 @@ class Environment {
     if (_apiConfigs.containsKey(env)) {
       _currentEnvironment = env;
     } else {
-      throw ArgumentError('Invalid environment: $env. Valid options: ${_apiConfigs.keys.join(', ')}');
+      throw ArgumentError(
+          'Invalid environment: $env. Valid options: ${_apiConfigs.keys.join(', ')}');
     }
   }
 
@@ -73,7 +74,8 @@ class Environment {
   static bool get isConfigured => cityName != 'Cidade não configurada';
 
   /// Get display information
-  static String get displayInfo => 'Cidade: $cityName (Flavor: $flavor) | Env: $_currentEnvironment';
+  static String get displayInfo =>
+      'Cidade: $cityName (Flavor: $flavor) | Env: $_currentEnvironment';
 
   /// Get all available environments
   static List<String> get availableEnvironments => _apiConfigs.keys.toList();

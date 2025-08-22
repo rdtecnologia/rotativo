@@ -6,7 +6,7 @@ import 'environment.dart';
 /// Dynamic app configuration that loads city config based on environment variables
 class DynamicAppConfig {
   static Map<String, dynamic>? _cachedConfig;
-  
+
   /// Flavor to city directory mapping
   static const Map<String, String> flavorToCityMapping = {
     'demo': 'Main',
@@ -28,28 +28,31 @@ class DynamicAppConfig {
 
     final flavor = Environment.flavor;
     final cityDirectory = flavorToCityMapping[flavor];
-    
+
     if (cityDirectory == null) {
       throw Exception('No city directory mapped for flavor: $flavor');
     }
 
     try {
-      final configPath = 'assets/config/cities/$cityDirectory/$cityDirectory.json';
+      final configPath =
+          'assets/config/cities/$cityDirectory/$cityDirectory.json';
       final configString = await rootBundle.loadString(configPath);
       _cachedConfig = jsonDecode(configString) as Map<String, dynamic>;
-      
+
       // Debug log
       if (kDebugMode) {
         print('🏙️ DynamicAppConfig - Flavor: $flavor');
         print('🏙️ DynamicAppConfig - City Directory: $cityDirectory');
         print('🏙️ DynamicAppConfig - Config Path: $configPath');
         print('🏙️ DynamicAppConfig - Loaded city: ${_cachedConfig!['city']}');
-        print('🏙️ DynamicAppConfig - Loaded domain: ${_cachedConfig!['domain']}');
+        print(
+            '🏙️ DynamicAppConfig - Loaded domain: ${_cachedConfig!['domain']}');
       }
-      
+
       return _cachedConfig!;
     } catch (e) {
-      throw Exception('Failed to load config for flavor $flavor (city: $cityDirectory): $e');
+      throw Exception(
+          'Failed to load config for flavor $flavor (city: $cityDirectory): $e');
     }
   }
 
@@ -59,7 +62,7 @@ class DynamicAppConfig {
     if (Environment.isConfigured) {
       return Environment.cityName;
     }
-    
+
     // Otherwise, load from config file
     final config = await _loadConfig();
     return config['city'] ?? 'Unknown City';
@@ -150,7 +153,30 @@ class DynamicAppConfig {
 
   static Future<Map<String, dynamic>> get parkingRules async {
     final config = await _loadConfig();
-    return config['parkingRules'] ?? {};
+    final rules = config['parkingRules'] ?? {};
+
+    // Debug log for parking rules
+    if (kDebugMode) {
+      print(
+          '🏁 DynamicAppConfig.parkingRules - Current flavor: ${Environment.flavor}');
+      print(
+          '🏁 DynamicAppConfig.parkingRules - Loaded city: ${config['city']}');
+      print('🏁 DynamicAppConfig.parkingRules - Parking rules: $rules');
+
+      // Check specific rules for vehicle types
+      final carRules = rules['1'] as List?;
+      final motoRules = rules['2'] as List?;
+
+      print('🏁 Car rules (type 1): $carRules');
+      print('🏁 Moto rules (type 2): $motoRules');
+
+      if (motoRules != null && motoRules.isNotEmpty) {
+        final firstMotoRule = motoRules[0] as Map<String, dynamic>;
+        print('🏁 First moto rule credits: ${firstMotoRule['credits']}');
+      }
+    }
+
+    return rules;
   }
 
   static Future<Map<String, dynamic>> get purchase async {

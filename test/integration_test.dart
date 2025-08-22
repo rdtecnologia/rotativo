@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import '../lib/config/environment.dart';
-import '../lib/config/dynamic_app_config.dart';
+import 'package:rotativo/config/environment.dart';
+import 'package:rotativo/config/dynamic_app_config.dart';
 
 void main() {
   group('Integration Tests - Environment & Dynamic Config', () {

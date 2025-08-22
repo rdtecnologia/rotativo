@@ -9,21 +9,25 @@ class ActivationDetailScreen extends ConsumerStatefulWidget {
   final String activationId;
 
   const ActivationDetailScreen({
-    Key? key,
+    super.key,
     required this.activationId,
-  }) : super(key: key);
+  });
 
   @override
-  ConsumerState<ActivationDetailScreen> createState() => _ActivationDetailScreenState();
+  ConsumerState<ActivationDetailScreen> createState() =>
+      _ActivationDetailScreenState();
 }
 
-class _ActivationDetailScreenState extends ConsumerState<ActivationDetailScreen> {
+class _ActivationDetailScreenState
+    extends ConsumerState<ActivationDetailScreen> {
   @override
   void initState() {
     super.initState();
     // Load activation details when screen opens
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(parkingProvider.notifier).getActivationDetail(widget.activationId);
+      ref
+          .read(parkingProvider.notifier)
+          .getActivationDetail(widget.activationId);
     });
   }
 
@@ -46,9 +50,10 @@ class _ActivationDetailScreenState extends ConsumerState<ActivationDetailScreen>
   }
 
   Future<void> _openMap(double latitude, double longitude) async {
-    final url = 'https://www.google.com/maps/search/?api=1&query=$latitude,$longitude';
+    final url =
+        'https://www.google.com/maps/search/?api=1&query=$latitude,$longitude';
     final uri = Uri.parse(url);
-    
+
     if (await canLaunchUrl(uri)) {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
     } else {
@@ -242,7 +247,9 @@ class _ActivationDetailScreenState extends ConsumerState<ActivationDetailScreen>
                       const SizedBox(height: 16),
                       ElevatedButton(
                         onPressed: () {
-                          ref.read(parkingProvider.notifier).getActivationDetail(widget.activationId);
+                          ref
+                              .read(parkingProvider.notifier)
+                              .getActivationDetail(widget.activationId);
                         },
                         child: const Text('Tentar Novamente'),
                       ),
@@ -284,32 +291,35 @@ class _ActivationDetailScreenState extends ConsumerState<ActivationDetailScreen>
                             ],
                           ),
                           const SizedBox(height: 16),
-                          
+
                           _buildDetailItem(
                             'Placa:',
                             _formatLicensePlate(activationDetail.licensePlate),
                           ),
-                          
+
                           _buildDetailItem(
                             'Tipo de veículo:',
-                            activationDetail.product.vehicleType == 1 ? 'Carro' : 'Moto',
+                            activationDetail.product.vehicleType == 1
+                                ? 'Carro'
+                                : 'Moto',
                           ),
-                          
+
                           _buildDetailItem(
                             'Data da ativação:',
-                            AppFormatters.formatDateTime(activationDetail.transactionDate),
+                            AppFormatters.formatDateTime(
+                                activationDetail.transactionDate),
                           ),
-                          
+
                           _buildDetailItem(
                             'Tipo da ativação:',
                             activationDetail.product.description,
                           ),
-                          
+
                           _buildDetailItem(
-                            'Tempo selecionado:',
+                            'Tempo:',
                             _formatParkingTime(activationDetail.parkingTime),
                           ),
-                          
+
                           // Status do estacionamento
                           Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -327,9 +337,11 @@ class _ActivationDetailScreenState extends ConsumerState<ActivationDetailScreen>
                               ),
                               Expanded(
                                 child: Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 8, vertical: 4),
                                   decoration: BoxDecoration(
-                                    color: _getParkingStatusColor(activationDetail),
+                                    color: _getParkingStatusColor(
+                                        activationDetail),
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                   child: Text(
@@ -344,44 +356,41 @@ class _ActivationDetailScreenState extends ConsumerState<ActivationDetailScreen>
                               ),
                             ],
                           ),
-                          
+
                           if (_isParkingActive(activationDetail)) ...[
                             _buildDetailItem(
                               'Tempo restante:',
-                              _formatParkingTime(_getRemainingMinutes(activationDetail)),
+                              _formatParkingTime(
+                                  _getRemainingMinutes(activationDetail)),
                             ),
                           ],
-                          
-                          if (activationDetail.origin.isNotEmpty)
-                            _buildDetailItem(
-                              'Origem:',
-                              activationDetail.origin,
-                            ),
-                          
+
                           if (activationDetail.device.isNotEmpty)
                             _buildDetailItem(
                               'Dispositivo:',
                               activationDetail.device,
                             ),
-                          
-                          if (activationDetail.area != null && activationDetail.area!.isNotEmpty)
+
+                          if (activationDetail.area != null &&
+                              activationDetail.area!.isNotEmpty)
                             _buildDetailItem(
                               'Área:',
                               activationDetail.area!,
                             ),
-                          
+
                           if (activationDetail.scheduledAt != null)
                             _buildDetailItem(
                               'Agendado para:',
-                              AppFormatters.formatDateTime(activationDetail.scheduledAt!),
+                              AppFormatters.formatDateTime(
+                                  activationDetail.scheduledAt!),
                             ),
                         ],
                       ),
                     ),
                   ),
-                  
+
                   const SizedBox(height: 16),
-                  
+
                   // Informação sobre status e atualização
                   Container(
                     padding: const EdgeInsets.all(16),
@@ -411,9 +420,9 @@ class _ActivationDetailScreenState extends ConsumerState<ActivationDetailScreen>
                       ],
                     ),
                   ),
-                  
+
                   const SizedBox(height: 16),
-                  
+
                   // Location section
                   const Text(
                     'Localização',
@@ -424,7 +433,7 @@ class _ActivationDetailScreenState extends ConsumerState<ActivationDetailScreen>
                     ),
                   ),
                   const SizedBox(height: 8),
-                  
+
                   _buildLocationSection(activationDetail),
                 ],
               )
@@ -449,12 +458,14 @@ class _ActivationDetailScreenState extends ConsumerState<ActivationDetailScreen>
 
   // Métodos auxiliares para status do estacionamento
   bool _isParkingActive(ActivationDetail activation) {
-    final expirationTime = activation.transactionDate.add(Duration(minutes: activation.parkingTime));
+    final expirationTime = activation.transactionDate
+        .add(Duration(minutes: activation.parkingTime));
     return DateTime.now().isBefore(expirationTime);
   }
 
   int _getRemainingMinutes(ActivationDetail activation) {
-    final expirationTime = activation.transactionDate.add(Duration(minutes: activation.parkingTime));
+    final expirationTime = activation.transactionDate
+        .add(Duration(minutes: activation.parkingTime));
     final remaining = expirationTime.difference(DateTime.now()).inMinutes;
     return remaining > 0 ? remaining : 0;
   }

@@ -22,18 +22,20 @@ class CreditCardPaymentScreen extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<CreditCardPaymentScreen> createState() => _CreditCardPaymentScreenState();
+  ConsumerState<CreditCardPaymentScreen> createState() =>
+      _CreditCardPaymentScreenState();
 }
 
-class _CreditCardPaymentScreenState extends ConsumerState<CreditCardPaymentScreen> {
+class _CreditCardPaymentScreenState
+    extends ConsumerState<CreditCardPaymentScreen> {
   bool _isProcessing = false;
   String? _error;
-  
+
   // Form controllers
   final _formKey = GlobalKey<FormState>();
   final _cardNumberController = TextEditingController();
-  final _expiryMonthController = TextEditingController();
-  final _expiryYearController = TextEditingController();
+  final _expiryController =
+      TextEditingController(); // Campo unificado para validade
   final _cvcController = TextEditingController();
   final _holderNameController = TextEditingController();
   final _holderDocumentController = TextEditingController();
@@ -51,8 +53,7 @@ class _CreditCardPaymentScreenState extends ConsumerState<CreditCardPaymentScree
   @override
   void dispose() {
     _cardNumberController.dispose();
-    _expiryMonthController.dispose();
-    _expiryYearController.dispose();
+    _expiryController.dispose();
     _cvcController.dispose();
     _holderNameController.dispose();
     _holderDocumentController.dispose();
@@ -79,13 +80,14 @@ class _CreditCardPaymentScreenState extends ConsumerState<CreditCardPaymentScree
         method: PaymentMethodType.creditCard,
         creditCard: CreditCardOrder(
           number: _cardNumberController.text.replaceAll(' ', ''),
-          expirationMonth: _expiryMonthController.text,
-          expirationYear: _expiryYearController.text,
+          expirationMonth: _extractExpiryMonth(_expiryController.text),
+          expirationYear: _extractExpiryYear(_expiryController.text),
           cvc: _cvcController.text,
           store: true, // Sempre salvar o cartão após compra bem-sucedida
           holder: HolderCard(
             name: _holderNameController.text,
-            cpf: _holderDocumentController.text.replaceAll(RegExp(r'[^\d]'), ''), // CPF limpo sem máscara
+            cpf: _holderDocumentController.text
+                .replaceAll(RegExp(r'[^\d]'), ''), // CPF limpo sem máscara
             birthDate: _formatBirthDate(_holderBirthDateController.text),
           ),
         ),
@@ -108,8 +110,9 @@ class _CreditCardPaymentScreenState extends ConsumerState<CreditCardPaymentScree
         totalValue: widget.product.price, // Incluindo o valor total do produto
       );
 
-      final response = await ref.read(purchaseProvider.notifier).createOrder(order);
-      
+      final response =
+          await ref.read(purchaseProvider.notifier).createOrder(order);
+
       setState(() {
         _isProcessing = false;
       });
@@ -121,26 +124,26 @@ class _CreditCardPaymentScreenState extends ConsumerState<CreditCardPaymentScree
             backgroundColor: Colors.green,
           ),
         );
-        
+
         // Navigate back to home
         Navigator.of(context).popUntil((route) => route.isFirst);
       }
-
     } catch (e) {
       if (kDebugMode) {
         AppLogger.error('Error type: ${e.runtimeType}');
         AppLogger.error('Error content: $e');
         if (e is DioException) {
           AppLogger.error('DioException response data: ${e.response?.data}');
-          AppLogger.error('DioException status code: ${e.response?.statusCode}');
+          AppLogger.error(
+              'DioException status code: ${e.response?.statusCode}');
         }
       }
-      
+
       setState(() {
         _error = ErrorHandler.getErrorMessage(e);
         _isProcessing = false;
       });
-      
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -170,7 +173,8 @@ class _CreditCardPaymentScreenState extends ConsumerState<CreditCardPaymentScree
 
     try {
       if (kDebugMode) {
-        AppLogger.purchase('Processing payment with saved card: ${savedCard.id}');
+        AppLogger.purchase(
+            'Processing payment with saved card: ${savedCard.id}');
       }
 
       // Create payment data for saved card - matching React structure exactly
@@ -197,8 +201,9 @@ class _CreditCardPaymentScreenState extends ConsumerState<CreditCardPaymentScree
         totalValue: widget.product.price, // Incluindo o valor total do produto
       );
 
-      final response = await ref.read(purchaseProvider.notifier).createOrder(order);
-      
+      final response =
+          await ref.read(purchaseProvider.notifier).createOrder(order);
+
       setState(() {
         _isProcessing = false;
       });
@@ -210,26 +215,26 @@ class _CreditCardPaymentScreenState extends ConsumerState<CreditCardPaymentScree
             backgroundColor: Colors.green,
           ),
         );
-        
+
         // Navigate back to home
         Navigator.of(context).popUntil((route) => route.isFirst);
       }
-
     } catch (e) {
       if (kDebugMode) {
         AppLogger.error('Error type: ${e.runtimeType}');
         AppLogger.error('Error content: $e');
         if (e is DioException) {
           AppLogger.error('DioException response data: ${e.response?.data}');
-          AppLogger.error('DioException status code: ${e.response?.statusCode}');
+          AppLogger.error(
+              'DioException status code: ${e.response?.statusCode}');
         }
       }
-      
+
       setState(() {
         _error = ErrorHandler.getErrorMessage(e);
         _isProcessing = false;
       });
-      
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -253,38 +258,65 @@ class _CreditCardPaymentScreenState extends ConsumerState<CreditCardPaymentScree
     if (value == null || value.isEmpty) {
       return 'Número do cartão é obrigatório';
     }
-    
+
     final cleanNumber = value.replaceAll(' ', '');
     if (cleanNumber.length < 13 || cleanNumber.length > 19) {
       return 'Número do cartão inválido';
     }
-    
+
     return null;
   }
 
   String? _validateExpiryMonth(String? value) {
     if (value == null || value.isEmpty) {
-      return 'Mês é obrigatório';
+      return 'Data de validade é obrigatória';
     }
-    
-    final month = int.tryParse(value);
+
+    // Remove a barra e pega apenas os números
+    final cleanValue = value.replaceAll('/', '');
+    if (cleanValue.length < 4) {
+      return 'Data de validade incompleta';
+    }
+
+    final month = int.tryParse(cleanValue.substring(0, 2));
     if (month == null || month < 1 || month > 12) {
-      return 'Mês inválido (1-12)';
+      return 'Mês deve ser entre 01 e 12';
     }
-    
+
     return null;
   }
 
   String? _validateExpiryYear(String? value) {
     if (value == null || value.isEmpty) {
-      return 'Ano é obrigatório';
+      return 'Data de validade é obrigatória';
     }
-    
-    final year = int.tryParse(value);
-    if (year == null || year < DateTime.now().year) {
+
+    // Remove a barra e pega apenas os números
+    final cleanValue = value.replaceAll('/', '');
+    if (cleanValue.length < 4) {
+      return 'Data de validade incompleta';
+    }
+
+    final year = int.tryParse(cleanValue.substring(2, 4));
+    if (year == null) {
       return 'Ano inválido';
     }
-    
+
+    // Validação do ano (máximo 15 anos no futuro)
+    final currentYear = DateTime.now().year;
+    final currentYearShort =
+        currentYear % 100; // Pega apenas os últimos 2 dígitos
+    final maxYearShort = (currentYear + 15) % 100; // Máximo 15 anos no futuro
+
+    // Validação simples: ano deve ser >= ano atual e <= ano atual + 15
+    if (year < currentYearShort) {
+      return 'Ano deve ser ${currentYearShort.toString().padLeft(2, '0')} ou posterior';
+    }
+
+    if (year > maxYearShort) {
+      return 'Ano não pode ser maior que ${maxYearShort.toString().padLeft(2, '0')}';
+    }
+
     return null;
   }
 
@@ -292,11 +324,11 @@ class _CreditCardPaymentScreenState extends ConsumerState<CreditCardPaymentScree
     if (value == null || value.isEmpty) {
       return 'CVC é obrigatório';
     }
-    
+
     if (value.length < 3 || value.length > 4) {
       return 'CVC inválido';
     }
-    
+
     return null;
   }
 
@@ -309,7 +341,7 @@ class _CreditCardPaymentScreenState extends ConsumerState<CreditCardPaymentScree
 
   String _detectCardBrand(String cardNumber) {
     final cleanNumber = cardNumber.replaceAll(' ', '');
-    
+
     if (cleanNumber.startsWith('4')) {
       return 'VISA';
     } else if (cleanNumber.startsWith('5')) {
@@ -318,12 +350,14 @@ class _CreditCardPaymentScreenState extends ConsumerState<CreditCardPaymentScree
       return 'AMEX';
     } else if (cleanNumber.startsWith('6')) {
       return 'ELO';
-    } else if (cleanNumber.startsWith('35') || cleanNumber.startsWith('36') || cleanNumber.startsWith('38')) {
+    } else if (cleanNumber.startsWith('35') ||
+        cleanNumber.startsWith('36') ||
+        cleanNumber.startsWith('38')) {
       return 'DINNERS';
     } else if (cleanNumber.startsWith('60') || cleanNumber.startsWith('65')) {
       return 'HIPERCARD';
     }
-    
+
     return 'GENERIC';
   }
 
@@ -332,12 +366,44 @@ class _CreditCardPaymentScreenState extends ConsumerState<CreditCardPaymentScree
     // Remove separators and check length
     final cleanInput = input.replaceAll(RegExp(r'[^\d]'), '');
     if (cleanInput.length != 8) return '';
-    
+
     final day = cleanInput.substring(0, 2);
     final month = cleanInput.substring(2, 4);
     final year = cleanInput.substring(4, 8);
-    
+
     return '$year-$month-$day'; // Format YYYY-MM-DD like React
+  }
+
+  /// Extracts the month from a string like "MM/AA"
+  String _extractExpiryMonth(String value) {
+    final cleanValue = value.replaceAll('/', '');
+    if (cleanValue.length >= 2) {
+      return cleanValue.substring(0, 2);
+    }
+    return '';
+  }
+
+  /// Extracts the year from a string like "MM/AA" and converts to 4-digit format
+  String _extractExpiryYear(String value) {
+    final cleanValue = value.replaceAll('/', '');
+    if (cleanValue.length >= 4) {
+      final year = cleanValue.substring(2, 4);
+      // Convert 2-digit year to 4-digit year
+      final currentYear = DateTime.now().year;
+      final currentYearShort = currentYear % 100;
+      final inputYear = int.tryParse(year) ?? 0;
+
+      // For years 00-99, assume 20xx for recent years and 19xx for older years
+      // This is a common convention for credit card expiry dates
+      if (inputYear >= 0 && inputYear <= 99) {
+        if (inputYear >= currentYearShort) {
+          return '20${year.padLeft(2, '0')}';
+        } else {
+          return '19${year.padLeft(2, '0')}';
+        }
+      }
+    }
+    return '';
   }
 
   IconData _getCardBrandIcon(String brand) {
@@ -363,7 +429,8 @@ class _CreditCardPaymentScreenState extends ConsumerState<CreditCardPaymentScree
   Widget build(BuildContext context) {
     final selectedCard = ref.watch(selectedCardProvider);
     final isLoading = ref.watch(cardLoadingProvider);
-    final totalValue = widget.product.price; // O preço já é o total para esta opção
+    final totalValue =
+        widget.product.price; // O preço já é o total para esta opção
     final detectedBrand = _detectCardBrand(_cardNumberController.text);
 
     return Scaffold(
@@ -415,7 +482,7 @@ class _CreditCardPaymentScreenState extends ConsumerState<CreditCardPaymentScree
                         ],
                       ),
                       const SizedBox(height: 20),
-                      
+
                       // Total value
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -438,7 +505,7 @@ class _CreditCardPaymentScreenState extends ConsumerState<CreditCardPaymentScree
                         ],
                       ),
                       const SizedBox(height: 16),
-                      
+
                       // Payment method
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -464,9 +531,9 @@ class _CreditCardPaymentScreenState extends ConsumerState<CreditCardPaymentScree
                   ),
                 ),
               ),
-              
+
               const SizedBox(height: 20),
-              
+
               // Show selected card if available
               if (selectedCard != null) ...[
                 Card(
@@ -496,7 +563,6 @@ class _CreditCardPaymentScreenState extends ConsumerState<CreditCardPaymentScree
                           ],
                         ),
                         const SizedBox(height: 16),
-                        
                         Container(
                           padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
@@ -516,7 +582,8 @@ class _CreditCardPaymentScreenState extends ConsumerState<CreditCardPaymentScree
                                   const SizedBox(width: 12),
                                   Expanded(
                                     child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         Text(
                                           'Final ${selectedCard.lastFourDigits}',
@@ -542,11 +609,15 @@ class _CreditCardPaymentScreenState extends ConsumerState<CreditCardPaymentScree
                               SizedBox(
                                 width: double.infinity,
                                 child: ElevatedButton(
-                                  onPressed: _isProcessing ? null : () => _confirmPurchaseWithSavedCard(selectedCard),
+                                  onPressed: _isProcessing
+                                      ? null
+                                      : () => _confirmPurchaseWithSavedCard(
+                                          selectedCard),
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: Colors.green,
                                     foregroundColor: Colors.white,
-                                    padding: const EdgeInsets.symmetric(vertical: 12),
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 12),
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(8),
                                     ),
@@ -578,7 +649,7 @@ class _CreditCardPaymentScreenState extends ConsumerState<CreditCardPaymentScree
                 ),
                 const SizedBox(height: 20),
               ],
-              
+
               // Credit card form
               Card(
                 elevation: 2,
@@ -602,7 +673,7 @@ class _CreditCardPaymentScreenState extends ConsumerState<CreditCardPaymentScree
                         ),
                         const SizedBox(height: 20),
                       ],
-                      
+
                       Row(
                         children: [
                           Icon(
@@ -620,7 +691,7 @@ class _CreditCardPaymentScreenState extends ConsumerState<CreditCardPaymentScree
                         ],
                       ),
                       const SizedBox(height: 20),
-                      
+
                       // Card number with brand detection
                       TextFormField(
                         controller: _cardNumberController,
@@ -633,7 +704,9 @@ class _CreditCardPaymentScreenState extends ConsumerState<CreditCardPaymentScree
                                   margin: const EdgeInsets.all(8),
                                   padding: const EdgeInsets.all(8),
                                   decoration: BoxDecoration(
-                                    color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
+                                    color: Theme.of(context)
+                                        .primaryColor
+                                        .withValues(alpha: 0.1),
                                     borderRadius: BorderRadius.circular(4),
                                   ),
                                   child: Icon(
@@ -656,48 +729,35 @@ class _CreditCardPaymentScreenState extends ConsumerState<CreditCardPaymentScree
                         },
                       ),
                       const SizedBox(height: 16),
-                      
+
                       // Expiry and CVC row
                       Row(
                         children: [
-                          // Expiry month
+                          // Expiry date (unified field)
                           Expanded(
+                            flex: 2,
                             child: TextFormField(
-                              controller: _expiryMonthController,
+                              controller: _expiryController,
                               decoration: const InputDecoration(
-                                labelText: 'Mês',
+                                labelText: 'Validade (MM/AA)',
                                 border: OutlineInputBorder(),
-                                hintText: 'MM',
-                              ),
-                              keyboardType: TextInputType.number,
-                              inputFormatters: [
-                                FilteringTextInputFormatter.digitsOnly,
-                                LengthLimitingTextInputFormatter(2),
-                              ],
-                              validator: _validateExpiryMonth,
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          // Expiry year
-                          Expanded(
-                            child: TextFormField(
-                              controller: _expiryYearController,
-                              decoration: const InputDecoration(
-                                labelText: 'Ano',
-                                border: OutlineInputBorder(),
-                                hintText: 'AAAA',
+                                hintText: 'MM/AA',
                               ),
                               keyboardType: TextInputType.number,
                               inputFormatters: [
                                 FilteringTextInputFormatter.digitsOnly,
                                 LengthLimitingTextInputFormatter(4),
+                                _ExpiryMaskFormatter(), // Máscara MM/AA
                               ],
-                              validator: _validateExpiryYear,
+                              validator: (value) =>
+                                  _validateExpiryMonth(value) ??
+                                  _validateExpiryYear(value),
                             ),
                           ),
                           const SizedBox(width: 16),
                           // CVC
                           Expanded(
+                            flex: 1,
                             child: TextFormField(
                               controller: _cvcController,
                               decoration: const InputDecoration(
@@ -716,7 +776,7 @@ class _CreditCardPaymentScreenState extends ConsumerState<CreditCardPaymentScree
                         ],
                       ),
                       const SizedBox(height: 20),
-                      
+
                       // Cardholder information
                       Row(
                         children: [
@@ -735,7 +795,7 @@ class _CreditCardPaymentScreenState extends ConsumerState<CreditCardPaymentScree
                         ],
                       ),
                       const SizedBox(height: 20),
-                      
+
                       // Holder name
                       TextFormField(
                         controller: _holderNameController,
@@ -748,7 +808,7 @@ class _CreditCardPaymentScreenState extends ConsumerState<CreditCardPaymentScree
                         validator: (value) => _validateRequired(value, 'Nome'),
                       ),
                       const SizedBox(height: 16),
-                      
+
                       // Holder document
                       TextFormField(
                         controller: _holderDocumentController,
@@ -765,7 +825,7 @@ class _CreditCardPaymentScreenState extends ConsumerState<CreditCardPaymentScree
                         validator: (value) => _validateRequired(value, 'CPF'),
                       ),
                       const SizedBox(height: 16),
-                      
+
                       // Holder birth date
                       TextFormField(
                         controller: _holderBirthDateController,
@@ -778,25 +838,23 @@ class _CreditCardPaymentScreenState extends ConsumerState<CreditCardPaymentScree
                         inputFormatters: [
                           _BirthDateMaskFormatter(), // Máscara DD/MM/AAAA
                         ],
-                        validator: (value) => _validateRequired(value, 'Data de Nascimento'),
+                        validator: (value) =>
+                            _validateRequired(value, 'Data de Nascimento'),
                       ),
                       const SizedBox(height: 20),
-                      
-
                     ],
                   ),
                 ),
               ),
-              
-              const SizedBox(height: 20),
-              
 
-              
+              const SizedBox(height: 20),
+
               // Confirm purchase button
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: (isLoading || _isProcessing) ? null : _confirmPurchase,
+                  onPressed:
+                      (isLoading || _isProcessing) ? null : _confirmPurchase,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.green,
                     foregroundColor: Colors.white,
@@ -823,11 +881,9 @@ class _CreditCardPaymentScreenState extends ConsumerState<CreditCardPaymentScree
                         ),
                 ),
               ),
-              
 
-              
               const SizedBox(height: 16),
-              
+
               // Meus Cartões button
               SizedBox(
                 width: double.infinity,
@@ -845,9 +901,9 @@ class _CreditCardPaymentScreenState extends ConsumerState<CreditCardPaymentScree
                   label: const Text('MEUS CARTÕES'),
                 ),
               ),
-              
+
               const SizedBox(height: 16),
-              
+
               // Error display
               if (_error != null) ...[
                 const SizedBox(height: 16),
@@ -886,8 +942,6 @@ class _CreditCardPaymentScreenState extends ConsumerState<CreditCardPaymentScree
       ),
     );
   }
-
-
 }
 
 /// Custom formatter for card number with spaces
@@ -900,16 +954,16 @@ class _CardNumberFormatter extends TextInputFormatter {
     if (newValue.text.isEmpty) {
       return newValue;
     }
-    
+
     final text = newValue.text.replaceAll(' ', '');
     final formatted = _formatCardNumber(text);
-    
+
     return TextEditingValue(
       text: formatted,
       selection: TextSelection.collapsed(offset: formatted.length),
     );
   }
-  
+
   String _formatCardNumber(String text) {
     final buffer = StringBuffer();
     for (int i = 0; i < text.length; i++) {
@@ -919,6 +973,41 @@ class _CardNumberFormatter extends TextInputFormatter {
       buffer.write(text[i]);
     }
     return buffer.toString();
+  }
+}
+
+/// Custom formatter for expiry date with MM/AA mask
+class _ExpiryMaskFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    if (newValue.text.isEmpty) {
+      return newValue;
+    }
+
+    // Remove all non-digit characters
+    final text = newValue.text.replaceAll(RegExp(r'[^\d]'), '');
+
+    // Limit to 4 digits
+    if (text.length > 4) {
+      return oldValue;
+    }
+
+    // Apply mask MM/AA
+    String formatted = '';
+    for (int i = 0; i < text.length; i++) {
+      if (i == 2) {
+        formatted += '/';
+      }
+      formatted += text[i];
+    }
+
+    return TextEditingValue(
+      text: formatted,
+      selection: TextSelection.collapsed(offset: formatted.length),
+    );
   }
 }
 
@@ -932,15 +1021,15 @@ class _BirthDateMaskFormatter extends TextInputFormatter {
     if (newValue.text.isEmpty) {
       return newValue;
     }
-    
+
     // Remove all non-digit characters
     final text = newValue.text.replaceAll(RegExp(r'[^\d]'), '');
-    
+
     // Limit to 8 digits
     if (text.length > 8) {
       return oldValue;
     }
-    
+
     // Apply mask DD/MM/AAAA
     String formatted = '';
     for (int i = 0; i < text.length; i++) {
@@ -949,7 +1038,7 @@ class _BirthDateMaskFormatter extends TextInputFormatter {
       }
       formatted += text[i];
     }
-    
+
     return TextEditingValue(
       text: formatted,
       selection: TextSelection.collapsed(offset: formatted.length),

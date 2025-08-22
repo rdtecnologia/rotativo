@@ -49,9 +49,9 @@ class IOSFlavorFixer {
       return;
     }
 
-    final debugConfigId = debugConfigMatch.group(1)!;
-    final releaseConfigId = releaseConfigMatch.group(1)!;
-    final profileConfigId = profileConfigMatch.group(1)!;
+    //final debugConfigId = debugConfigMatch.group(1)!;
+    //final releaseConfigId = releaseConfigMatch.group(1)!;
+    //final profileConfigId = profileConfigMatch.group(1)!;
 
     // Gerar novos IDs únicos para cada flavor
     final newConfigs = <String>[];
@@ -92,14 +92,14 @@ class IOSFlavorFixer {
     final beforeConfigs = content.substring(0, buildConfigsSectionEnd);
     final afterConfigs = content.substring(buildConfigsSectionEnd);
 
-    content = beforeConfigs + newConfigs.join('\n') + '\n' + afterConfigs;
+    content = '$beforeConfigs${newConfigs.join('\n')}\n$afterConfigs';
 
     // Encontrar e atualizar as listas de configuração
     final configListRegex = RegExp(
         r'(\w+) \/\* Debug \*\/ = \{[^}]+\};\s*(\w+) \/\* Profile \*\/ = \{[^}]+\};\s*(\w+) \/\* Release \*\/ = \{[^}]+\};');
 
     content = content.replaceAllMapped(configListRegex, (match) {
-      return match.group(0)! + '\n' + configListEntries.join('\n');
+      return '${match.group(0)!}\n${configListEntries.join('\n')}';
     });
 
     // Salvar o arquivo modificado

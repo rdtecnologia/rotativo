@@ -4,7 +4,6 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
-        
         // ==========================================
         // 🚀 CONFIGURAÇÕES GERAIS (SEM FLAVOR)
         // ==========================================
@@ -26,7 +25,6 @@
             "type": "dart",
             "flutterMode": "release"
         },
-
         // ==========================================
         // 🏙️ FLAVORS POR CIDADE - ANDROID
         // ==========================================
@@ -36,10 +34,13 @@
             "type": "dart",
             "flutterMode": "debug",
             "args": [
-                "--flavor", "demo",
-                "--dart-define-from-file", "env/demo.json",
-                "--target", "lib/main.dart",
-				"--web-browser-flag",
+                "--flavor",
+                "demo",
+                "--dart-define-from-file",
+                "env/demo.json",
+                "--target",
+                "lib/main.dart",
+                "--web-browser-flag",
                 "--disable-web-security"
             ]
         },
@@ -49,10 +50,13 @@
             "type": "dart",
             "flutterMode": "debug",
             "args": [
-                "--flavor", "patosDeMinas",
-                "--dart-define-from-file", "env/patosDeMinas.json",
-                "--target", "lib/main.dart",
-				"--web-browser-flag",
+                "--flavor",
+                "patosDeMinas",
+                "--dart-define-from-file",
+                "env/patosDeMinas.json",
+                "--target",
+                "lib/main.dart",
+                "--web-browser-flag",
                 "--disable-web-security"
             ]
         },
@@ -62,10 +66,13 @@
             "type": "dart",
             "flutterMode": "debug",
             "args": [
-                "--flavor", "janauba",
-                "--dart-define-from-file", "env/janauba.json",
-                "--target", "lib/main.dart",
-				"--web-browser-flag",
+                "--flavor",
+                "janauba",
+                "--dart-define-from-file",
+                "env/janauba.json",
+                "--target",
+                "lib/main.dart",
+                "--web-browser-flag",
                 "--disable-web-security"
             ]
         },
@@ -75,10 +82,13 @@
             "type": "dart",
             "flutterMode": "debug",
             "args": [
-                "--flavor", "conselheiroLafaiete",
-                "--dart-define-from-file", "env/conselheiroLafaiete.json",
-                "--target", "lib/main.dart",
-				"--web-browser-flag",
+                "--flavor",
+                "conselheiroLafaiete",
+                "--dart-define-from-file",
+                "env/conselheiroLafaiete.json",
+                "--target",
+                "lib/main.dart",
+                "--web-browser-flag",
                 "--disable-web-security"
             ]
         },
@@ -88,10 +98,13 @@
             "type": "dart",
             "flutterMode": "debug",
             "args": [
-                "--flavor", "capaoBonito",
-                "--dart-define-from-file", "env/capaoBonito.json",
-                "--target", "lib/main.dart",
-				"--web-browser-flag",
+                "--flavor",
+                "capaoBonito",
+                "--dart-define-from-file",
+                "env/capaoBonito.json",
+                "--target",
+                "lib/main.dart",
+                "--web-browser-flag",
                 "--disable-web-security"
             ]
         },
@@ -101,10 +114,13 @@
             "type": "dart",
             "flutterMode": "debug",
             "args": [
-                "--flavor", "joaoMonlevade",
-                "--dart-define-from-file", "env/joaoMonlevade.json",
-                "--target", "lib/main.dart",
-				"--web-browser-flag",
+                "--flavor",
+                "joaoMonlevade",
+                "--dart-define-from-file",
+                "env/joaoMonlevade.json",
+                "--target",
+                "lib/main.dart",
+                "--web-browser-flag",
                 "--disable-web-security"
             ]
         },
@@ -114,10 +130,13 @@
             "type": "dart",
             "flutterMode": "debug",
             "args": [
-                "--flavor", "itarare",
-                "--dart-define-from-file", "env/itarare.json",
-                "--target", "lib/main.dart",
-				"--web-browser-flag",
+                "--flavor",
+                "itarare",
+                "--dart-define-from-file",
+                "env/itarare.json",
+                "--target",
+                "lib/main.dart",
+                "--web-browser-flag",
                 "--disable-web-security"
             ]
         },
@@ -127,10 +146,13 @@
             "type": "dart",
             "flutterMode": "debug",
             "args": [
-                "--flavor", "passos",
-                "--dart-define-from-file", "env/passos.json",
-                "--target", "lib/main.dart",
-				"--web-browser-flag",
+                "--flavor",
+                "passos",
+                "--dart-define-from-file",
+                "env/passos.json",
+                "--target",
+                "lib/main.dart",
+                "--web-browser-flag",
                 "--disable-web-security"
             ]
         },
@@ -140,10 +162,13 @@
             "type": "dart",
             "flutterMode": "debug",
             "args": [
-                "--flavor", "ribeiraoDasNeves",
-                "--dart-define-from-file", "env/ribeiraoDasNeves.json",
-                "--target", "lib/main.dart",
-				"--web-browser-flag",
+                "--flavor",
+                "ribeiraoDasNeves",
+                "--dart-define-from-file",
+                "env/ribeiraoDasNeves.json",
+                "--target",
+                "lib/main.dart",
+                "--web-browser-flag",
                 "--disable-web-security"
             ]
         },
@@ -153,27 +178,33 @@
             "type": "dart",
             "flutterMode": "debug",
             "args": [
-                "--flavor", "igarape",
-                "--dart-define-from-file", "env/igarape.json",
-                "--target", "lib/main.dart",
-				"--web-browser-flag",
+                "--flavor",
+                "igarape",
+                "--dart-define-from-file",
+                "env/igarape.json",
+                "--target",
+                "lib/main.dart",
+                "--web-browser-flag",
                 "--disable-web-security"
             ]
         },
         {
-            "name": "💰 Ouro Preto - Android Debug",
+            "name": "💰 Ouro Preto - Debug",
             "request": "launch",
             "type": "dart",
             "flutterMode": "debug",
             "args": [
-                "--flavor", "ouroPreto",
-                "--dart-define-from-file", "env/ouroPreto.json",
-                "--target", "lib/main.dart",
-				"--web-browser-flag",
-				"--disable-web-security"
+                "--flavor",
+                "ouroPreto",
+                "--dart-define-from-file",
+                "env/ouroPreto.json",
+                "--target",
+                "lib/main.dart",
+                "--web-browser-flag",
+                "--disable-web-security",
+                "--debug"
             ]
         },
-
         // ==========================================
         // 📱 FLAVORS POR CIDADE - RELEASE ANDROID
         // ==========================================
@@ -183,9 +214,12 @@
             "type": "dart",
             "flutterMode": "release",
             "args": [
-                "--flavor", "demo",
-                "--dart-define-from-file", "env/demo.json",
-                "--target", "lib/main.dart"
+                "--flavor",
+                "demo",
+                "--dart-define-from-file",
+                "env/demo.json",
+                "--target",
+                "lib/main.dart"
             ]
         },
         {
@@ -194,9 +228,12 @@
             "type": "dart",
             "flutterMode": "release",
             "args": [
-                "--flavor", "patosDeMinas",
-                "--dart-define-from-file", "env/patosDeMinas.json",
-                "--target", "lib/main.dart"
+                "--flavor",
+                "patosDeMinas",
+                "--dart-define-from-file",
+                "env/patosDeMinas.json",
+                "--target",
+                "lib/main.dart"
             ]
         },
         {
@@ -205,9 +242,12 @@
             "type": "dart",
             "flutterMode": "release",
             "args": [
-                "--flavor", "janauba",
-                "--dart-define-from-file", "env/janauba.json",
-                "--target", "lib/main.dart"
+                "--flavor",
+                "janauba",
+                "--dart-define-from-file",
+                "env/janauba.json",
+                "--target",
+                "lib/main.dart"
             ]
         },
         {
@@ -216,9 +256,12 @@
             "type": "dart",
             "flutterMode": "release",
             "args": [
-                "--flavor", "conselheiroLafaiete",
-                "--dart-define-from-file", "env/conselheiroLafaiete.json",
-                "--target", "lib/main.dart"
+                "--flavor",
+                "conselheiroLafaiete",
+                "--dart-define-from-file",
+                "env/conselheiroLafaiete.json",
+                "--target",
+                "lib/main.dart"
             ]
         },
         {
@@ -227,9 +270,12 @@
             "type": "dart",
             "flutterMode": "release",
             "args": [
-                "--flavor", "capaoBonito",
-                "--dart-define-from-file", "env/capaoBonito.json",
-                "--target", "lib/main.dart"
+                "--flavor",
+                "capaoBonito",
+                "--dart-define-from-file",
+                "env/capaoBonito.json",
+                "--target",
+                "lib/main.dart"
             ]
         },
         {
@@ -238,9 +284,12 @@
             "type": "dart",
             "flutterMode": "release",
             "args": [
-                "--flavor", "joaoMonlevade",
-                "--dart-define-from-file", "env/joaoMonlevade.json",
-                "--target", "lib/main.dart"
+                "--flavor",
+                "joaoMonlevade",
+                "--dart-define-from-file",
+                "env/joaoMonlevade.json",
+                "--target",
+                "lib/main.dart"
             ]
         },
         {
@@ -249,9 +298,12 @@
             "type": "dart",
             "flutterMode": "release",
             "args": [
-                "--flavor", "itarare",
-                "--dart-define-from-file", "env/itarare.json",
-                "--target", "lib/main.dart"
+                "--flavor",
+                "itarare",
+                "--dart-define-from-file",
+                "env/itarare.json",
+                "--target",
+                "lib/main.dart"
             ]
         },
         {
@@ -260,9 +312,12 @@
             "type": "dart",
             "flutterMode": "release",
             "args": [
-                "--flavor", "passos",
-                "--dart-define-from-file", "env/passos.json",
-                "--target", "lib/main.dart"
+                "--flavor",
+                "passos",
+                "--dart-define-from-file",
+                "env/passos.json",
+                "--target",
+                "lib/main.dart"
             ]
         },
         {
@@ -271,9 +326,12 @@
             "type": "dart",
             "flutterMode": "release",
             "args": [
-                "--flavor", "ribeiraoDasNeves",
-                "--dart-define-from-file", "env/ribeiraoDasNeves.json",
-                "--target", "lib/main.dart"
+                "--flavor",
+                "ribeiraoDasNeves",
+                "--dart-define-from-file",
+                "env/ribeiraoDasNeves.json",
+                "--target",
+                "lib/main.dart"
             ]
         },
         {
@@ -282,9 +340,12 @@
             "type": "dart",
             "flutterMode": "release",
             "args": [
-                "--flavor", "igarape",
-                "--dart-define-from-file", "env/igarape.json",
-                "--target", "lib/main.dart"
+                "--flavor",
+                "igarape",
+                "--dart-define-from-file",
+                "env/igarape.json",
+                "--target",
+                "lib/main.dart"
             ]
         },
         {
@@ -293,12 +354,14 @@
             "type": "dart",
             "flutterMode": "release",
             "args": [
-                "--flavor", "ouroPreto",
-                "--dart-define-from-file", "env/ouroPreto.json",
-                "--target", "lib/main.dart"
+                "--flavor",
+                "ouroPreto",
+                "--dart-define-from-file",
+                "env/ouroPreto.json",
+                "--target",
+                "lib/main.dart"
             ]
         },
-
         // ==========================================
         // 🍎 CONFIGURAÇÕES ESPECIAIS - iOS
         // ==========================================
@@ -311,7 +374,9 @@
             "preLaunchTask": {
                 "type": "shell",
                 "command": "echo",
-                "args": ["Use: dart scripts/build_city.dart <cidade> '<Nome>' antes de executar"]
+                "args": [
+                    "Use: dart scripts/build_city.dart <cidade> '<Nome>' antes de executar"
+                ]
             }
         },
         {
@@ -323,10 +388,11 @@
             "preLaunchTask": {
                 "type": "shell",
                 "command": "echo",
-                "args": ["Use: dart scripts/build_city.dart <cidade> '<Nome>' antes de executar"]
+                "args": [
+                    "Use: dart scripts/build_city.dart <cidade> '<Nome>' antes de executar"
+                ]
             }
         },
-
         // ==========================================
         // 🔧 CONFIGURAÇÕES AVANÇADAS
         // ==========================================
@@ -337,9 +403,12 @@
             "flutterMode": "debug",
             "deviceId": "${input:deviceId}",
             "args": [
-                "--flavor", "${input:flavorName}",
-                "--dart-define-from-file", "env/${input:flavorName}.json",
-                "--target", "lib/main.dart"
+                "--flavor",
+                "${input:flavorName}",
+                "--dart-define-from-file",
+                "env/${input:flavorName}.json",
+                "--target",
+                "lib/main.dart"
             ]
         }
     ],

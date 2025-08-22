@@ -12,9 +12,9 @@ class ChooseValueScreen extends ConsumerStatefulWidget {
   final int vehicleType;
 
   const ChooseValueScreen({
-    Key? key,
+    super.key,
     required this.vehicleType,
-  }) : super(key: key);
+  });
 
   @override
   ConsumerState<ChooseValueScreen> createState() => _ChooseValueScreenState();
@@ -543,11 +543,6 @@ class _ChooseValueScreenState extends ConsumerState<ChooseValueScreen> {
                 data: (config) {
                   final products =
                       config.getProductsForVehicleType(widget.vehicleType);
-
-                  print(
-                      '🔍 ChooseValueScreen - Products found: ${products.length}');
-                  print(
-                      '🔍 ChooseValueScreen - Vehicle type: ${widget.vehicleType}');
 
                   if (products.isEmpty) {
                     return const Center(

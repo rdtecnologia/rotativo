@@ -32,7 +32,7 @@ class BiometricService {
     try {
       final biometrics = await _localAuth.getAvailableBiometrics();
       return biometrics;
-    } on PlatformException catch (e) {
+    } on PlatformException {
       return [];
     }
   }
@@ -50,7 +50,7 @@ class BiometricService {
       );
 
       return result;
-    } on PlatformException catch (e) {
+    } on PlatformException {
       return false;
     }
   }
@@ -61,7 +61,7 @@ class BiometricService {
       final biometrics = await _localAuth.getAvailableBiometrics();
       final hasFingerprint = biometrics.contains(BiometricType.fingerprint);
       return hasFingerprint;
-    } on PlatformException catch (e) {
+    } on PlatformException {
       return false;
     }
   }

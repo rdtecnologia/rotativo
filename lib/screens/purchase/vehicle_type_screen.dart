@@ -4,7 +4,7 @@ import '../../providers/purchase_provider.dart';
 import 'choose_value_screen.dart';
 
 class VehicleTypeScreen extends ConsumerWidget {
-  const VehicleTypeScreen({Key? key}) : super(key: key);
+  const VehicleTypeScreen({super.key});
 
   String _getVehicleTypeName(int vehicleType) {
     switch (vehicleType) {
@@ -38,9 +38,10 @@ class VehicleTypeScreen extends ConsumerWidget {
     }
   }
 
-  void _selectVehicleType(BuildContext context, WidgetRef ref, int vehicleType) {
+  void _selectVehicleType(
+      BuildContext context, WidgetRef ref, int vehicleType) {
     ref.read(purchaseProvider.notifier).selectVehicleType(vehicleType);
-    
+
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -73,7 +74,6 @@ class VehicleTypeScreen extends ConsumerWidget {
               ),
             ),
             const SizedBox(height: 24),
-            
             Expanded(
               child: vehicleTypesAsync.when(
                 loading: () => const Center(
@@ -139,7 +139,8 @@ class VehicleTypeScreen extends ConsumerWidget {
                   }
 
                   return GridView.builder(
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 2,
                       crossAxisSpacing: 16,
                       mainAxisSpacing: 16,
@@ -148,7 +149,7 @@ class VehicleTypeScreen extends ConsumerWidget {
                     itemCount: vehicleTypes.length,
                     itemBuilder: (context, index) {
                       final vehicleType = vehicleTypes[index];
-                      
+
                       return Card(
                         elevation: 4,
                         shape: RoundedRectangleBorder(
@@ -156,7 +157,8 @@ class VehicleTypeScreen extends ConsumerWidget {
                         ),
                         child: InkWell(
                           borderRadius: BorderRadius.circular(12),
-                          onTap: () => _selectVehicleType(context, ref, vehicleType),
+                          onTap: () =>
+                              _selectVehicleType(context, ref, vehicleType),
                           child: Padding(
                             padding: const EdgeInsets.all(16),
                             child: Column(
@@ -165,7 +167,9 @@ class VehicleTypeScreen extends ConsumerWidget {
                                 Icon(
                                   _getVehicleTypeIcon(vehicleType),
                                   size: 64,
-                                  color: Theme.of(context).primaryColor.withValues(alpha: 0.7),
+                                  color: Theme.of(context)
+                                      .primaryColor
+                                      .withValues(alpha: 0.7),
                                 ),
                                 const SizedBox(height: 16),
                                 Text(

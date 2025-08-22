@@ -362,46 +362,30 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
 
   Future<void> _handlePasswordChange(
       BuildContext context, WidgetRef ref) async {
-    print('🔐 _handlePasswordChange chamada!');
-
     if (!_formKey.currentState!.saveAndValidate()) {
-      print('❌ Validação do formulário falhou');
       return;
     }
-
-    print('✅ Validação do formulário passou');
 
     final changePasswordNotifier = ref.read(changePasswordProvider.notifier);
     changePasswordNotifier.setLoading(true);
 
     try {
       final formData = _formKey.currentState!.value;
-      print('📝 Dados do formulário: $formData');
 
       final currentPassword = formData['currentPassword'] as String;
       final newPassword = formData['newPassword'] as String;
       final confirmPassword = formData['confirmPassword'] as String;
 
-      print('🔑 Senha atual: ${currentPassword.isNotEmpty ? "***" : "vazia"}');
-      print('🔑 Nova senha: ${newPassword.isNotEmpty ? "***" : "vazia"}');
-      print(
-          '🔑 Confirmar senha: ${confirmPassword.isNotEmpty ? "***" : "vazia"}');
-
       // Validate if new passwords match
-      print('🔍 Verificando se as senhas coincidem...');
       if (newPassword != confirmPassword) {
-        print('❌ Senhas não coincidem: "$newPassword" vs "$confirmPassword"');
         throw Exception('As senhas não coincidem');
       }
-      print('✅ Senhas coincidem!');
 
       // Call the actual API
       await AuthService.changePassword(currentPassword, newPassword);
 
       // Limpar credenciais biométricas por segurança
-      print('🔐 Limpando credenciais biométricas...');
       await AuthService.clearBiometricCredentials();
-      print('✅ Credenciais biométricas limpas');
 
       if (context.mounted) {
         Fluttertoast.showToast(
