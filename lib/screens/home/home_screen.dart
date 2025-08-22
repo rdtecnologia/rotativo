@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:rotativo/config/dynamic_app_config.dart';
 import 'package:rotativo/debug_page.dart';
 
 import '../../models/vehicle_models.dart';
-import '../../providers/active_activations_provider.dart';
 import '../../providers/balance_provider.dart';
+import '../../providers/city_config_provider.dart';
+import '../../providers/home_screen_provider.dart';
 import '../../providers/vehicle_provider.dart';
 import '../../widgets/balance_card.dart';
 import '../../widgets/custom_drawer.dart';
@@ -25,7 +25,6 @@ class HomePage extends ConsumerStatefulWidget {
 class _HomePageState extends ConsumerState<HomePage>
     with WidgetsBindingObserver {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  String? cityName;
   late FocusNode _focusNode;
 
   @override
@@ -62,43 +61,17 @@ class _HomePageState extends ConsumerState<HomePage>
   }
 
   Future<void> _loadData() async {
-    // Load city name
-    cityName = await DynamicAppConfig.cityName;
-    setState(() {}); // Update UI with city name
-
-    // Load vehicles and balance from API
-    await ref.read(vehicleProvider.notifier).loadVehicles();
-    ref.read(balanceProvider.notifier).loadBalance();
-
-    // Carrega as ativações ativas para todos os veículos após os veículos serem carregados
-    await _loadActiveActivations();
+    // Usa o provider otimizado para carregar todos os dados
+    await ref.read(homeScreenProvider.notifier).loadAllData();
   }
 
   Future<void> _refreshData() async {
-    await _loadData();
-    // Recarrega as ativações ativas
-    await _loadActiveActivations();
+    await ref.read(homeScreenProvider.notifier).refresh();
   }
 
   /// Atualiza apenas o saldo sem recarregar toda a tela
   Future<void> _updateBalanceOnly() async {
-    ref.read(balanceProvider.notifier).loadBalance();
-    // Também atualiza as ativações ativas
-    await _loadActiveActivations();
-  }
-
-  /// Carrega as ativações ativas para todos os veículos
-  Future<void> _loadActiveActivations() async {
-    final vehicleState = ref.read(vehicleProvider);
-    // debugPrint('🅿️ Main - _loadActiveActivations: ${vehicleState.vehicles.length} veículos carregados');
-    if (vehicleState.vehicles.isNotEmpty) {
-      //debugPrint('🅿️ Main - _loadActiveActivations: Iniciando carregamento para veículos: ${vehicleState.vehicles.map((v) => v.licensePlate).join(', ')}');
-      await ref
-          .read(activeActivationsProvider.notifier)
-          .loadActiveActivationsForVehicles(vehicleState.vehicles);
-    } else {
-      //debugPrint('🅿️ Main - _loadActiveActivations: Nenhum veículo disponível ainda');
-    }
+    await ref.read(homeScreenProvider.notifier).updateBalanceAndActivations();
   }
 
   void _onVehicleTap(Vehicle vehicle) async {
@@ -110,7 +83,6 @@ class _HomePageState extends ConsumerState<HomePage>
     );
     // Quando retorna da tela de estacionamento, atualiza o saldo e ativações
     await _updateBalanceOnly();
-    await _loadActiveActivations();
   }
 
   void _onPurchaseTap() async {
@@ -123,7 +95,6 @@ class _HomePageState extends ConsumerState<HomePage>
     );
     // Quando retorna da tela de compra, atualiza o saldo e ativações
     await _updateBalanceOnly();
-    await _loadActiveActivations();
   }
 
   void _onBalanceTap() {
@@ -142,7 +113,6 @@ class _HomePageState extends ConsumerState<HomePage>
     );
     // Quando retorna da tela de histórico, atualiza o saldo e ativações
     await _updateBalanceOnly();
-    await _loadActiveActivations();
   }
 
   @override
@@ -153,7 +123,7 @@ class _HomePageState extends ConsumerState<HomePage>
       body: Focus(
         focusNode: _focusNode,
         onFocusChange: (hasFocus) async {
-          // Quando a tela recebe foco, atualiza o saldo
+          // Quando a tela recebe foco, atualiza o saldo e ativações
           if (hasFocus) {
             await _updateBalanceOnly();
           }
@@ -185,13 +155,36 @@ class _HomePageState extends ConsumerState<HomePage>
                       child: GestureDetector(
                         onTap: _refreshData,
                         child: Center(
-                          child: Text(
-                            cityName ?? 'Carregando...',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
+                          child: Consumer(
+                            builder: (context, ref, child) {
+                              final cityNameAsync = ref.watch(cityNameProvider);
+                              return cityNameAsync.when(
+                                data: (cityName) => Text(
+                                  cityName,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                loading: () => const Text(
+                                  'Carregando...',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                error: (error, stack) => const Text(
+                                  'Erro',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              );
+                            },
                           ),
                         ),
                       ),
