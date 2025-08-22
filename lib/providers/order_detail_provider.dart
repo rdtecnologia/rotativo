@@ -3,6 +3,53 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/history_models.dart';
 import '../services/history_service.dart';
 
+// Copy message state
+class CopyMessageState {
+  final String message;
+  final bool isVisible;
+
+  CopyMessageState({
+    this.message = '',
+    this.isVisible = false,
+  });
+
+  CopyMessageState copyWith({
+    String? message,
+    bool? isVisible,
+  }) {
+    return CopyMessageState(
+      message: message ?? this.message,
+      isVisible: isVisible ?? this.isVisible,
+    );
+  }
+}
+
+// Copy message notifier
+class CopyMessageNotifier extends StateNotifier<CopyMessageState> {
+  CopyMessageNotifier() : super(CopyMessageState());
+
+  void showMessage(String message) {
+    state = state.copyWith(message: message, isVisible: true);
+
+    // Auto-hide after 3 seconds
+    Future.delayed(const Duration(seconds: 3), () {
+      if (state.isVisible) {
+        hideMessage();
+      }
+    });
+  }
+
+  void hideMessage() {
+    state = state.copyWith(isVisible: false);
+  }
+}
+
+// Copy message provider
+final copyMessageProvider =
+    StateNotifierProvider<CopyMessageNotifier, CopyMessageState>((ref) {
+  return CopyMessageNotifier();
+});
+
 // Order detail state
 class OrderDetailState {
   final OrderDetail? orderDetail;
@@ -43,12 +90,16 @@ class OrderDetailNotifier extends StateNotifier<OrderDetailState> {
 
     try {
       final orderDetail = await HistoryService.getOrderDetail(orderId);
-      
+
       if (kDebugMode) {
-        print('📋 OrderDetailProvider.loadOrderDetail - Loaded order: ${orderDetail.id}');
-        print('📋 OrderDetailProvider.loadOrderDetail - Status: ${orderDetail.status}');
-        print('📋 OrderDetailProvider.loadOrderDetail - Value: ${orderDetail.value}');
-        print('📋 OrderDetailProvider.loadOrderDetail - Payments: ${orderDetail.payments.length}');
+        print(
+            '📋 OrderDetailProvider.loadOrderDetail - Loaded order: ${orderDetail.id}');
+        print(
+            '📋 OrderDetailProvider.loadOrderDetail - Status: ${orderDetail.status}');
+        print(
+            '📋 OrderDetailProvider.loadOrderDetail - Value: ${orderDetail.value}');
+        print(
+            '📋 OrderDetailProvider.loadOrderDetail - Payments: ${orderDetail.payments.length}');
       }
 
       state = state.copyWith(
@@ -59,7 +110,7 @@ class OrderDetailNotifier extends StateNotifier<OrderDetailState> {
       if (kDebugMode) {
         print('📋 OrderDetailProvider.loadOrderDetail - Error: $e');
       }
-      
+
       state = state.copyWith(
         isLoading: false,
         error: e.toString(),
@@ -81,7 +132,8 @@ class OrderDetailNotifier extends StateNotifier<OrderDetailState> {
 }
 
 // Provider instance
-final orderDetailProvider = StateNotifierProvider<OrderDetailNotifier, OrderDetailState>((ref) {
+final orderDetailProvider =
+    StateNotifierProvider<OrderDetailNotifier, OrderDetailState>((ref) {
   return OrderDetailNotifier();
 });
 
