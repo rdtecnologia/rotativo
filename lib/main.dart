@@ -13,7 +13,6 @@ import 'providers/auth_provider.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/home/home_screen.dart';
 import 'screens/cards/cards_screen.dart';
-import 'screens/cards/new_card_screen.dart';
 import 'screens/settings/biometric_settings_screen.dart';
 
 void main() {
@@ -66,7 +65,6 @@ class RotativoApp extends ConsumerWidget {
             '/home': (context) => const HomePage(),
             '/login': (context) => const LoginScreen(),
             '/cards': (context) => const CardsScreen(),
-            '/new-card': (context) => const NewCardScreen(),
             '/biometric-settings': (context) => const BiometricSettingsScreen(),
           },
         );

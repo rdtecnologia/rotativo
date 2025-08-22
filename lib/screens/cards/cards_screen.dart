@@ -9,7 +9,6 @@ import '../../providers/card_ui_provider.dart';
 import '../../providers/history_provider.dart';
 import '../../utils/logger.dart';
 import '../../utils/formatters.dart';
-import 'new_card_screen.dart';
 
 class CardsScreen extends ConsumerStatefulWidget {
   const CardsScreen({super.key});
@@ -61,20 +60,7 @@ class _CardsScreenState extends ConsumerState<CardsScreen> {
         backgroundColor: Theme.of(context).primaryColor,
         foregroundColor: Colors.white,
         elevation: 0,
-        actions: [
-          IconButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const NewCardScreen(),
-                ),
-              );
-            },
-            icon: const Icon(Icons.add),
-            tooltip: 'Adicionar Cartão',
-          ),
-        ],
+        actions: [],
       ),
       body: Stack(
         children: [
@@ -171,7 +157,7 @@ class _CardsScreenState extends ConsumerState<CardsScreen> {
                                       ),
                                       const SizedBox(height: 16),
                                       Text(
-                                        'Nenhum cartão cadastrado',
+                                        'Nenhum cartão adicionado',
                                         style: TextStyle(
                                           color: Colors.white
                                               .withValues(alpha: 0.9),
@@ -180,32 +166,13 @@ class _CardsScreenState extends ConsumerState<CardsScreen> {
                                       ),
                                       const SizedBox(height: 8),
                                       Text(
-                                        'Adicione um cartão para facilitar suas compras',
+                                        'Ao fazer compra com cartão, ele aparecerá aqui\n para que você possa selecioná-lo \n\nSeus cartões serão guardados de forma segura\n e não serão compartilhados com ninguém.',
                                         style: TextStyle(
                                           color: Colors.white
                                               .withValues(alpha: 0.7),
                                           fontSize: 14,
                                         ),
                                         textAlign: TextAlign.center,
-                                      ),
-                                      const SizedBox(height: 16),
-                                      ElevatedButton.icon(
-                                        onPressed: () {
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (context) =>
-                                                  const NewCardScreen(),
-                                            ),
-                                          );
-                                        },
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: Colors.white,
-                                          foregroundColor:
-                                              Theme.of(context).primaryColor,
-                                        ),
-                                        icon: const Icon(Icons.add),
-                                        label: const Text('Adicionar Cartão'),
                                       ),
                                     ],
                                   ),
