@@ -1,9 +1,12 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import '../../config/dynamic_app_config.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/login_screen_provider.dart';
 import '../../utils/validators.dart';
 import '../../utils/formatters.dart';
 import '../../widgets/parking_background.dart';
@@ -11,7 +14,6 @@ import '../widgets/loading_button.dart';
 import '../widgets/app_text_field.dart';
 import 'register_screen.dart';
 import 'forgot_password_screen.dart';
-import '../../services/biometric_service.dart';
 import '../../services/auth_service.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -23,51 +25,15 @@ class LoginScreen extends ConsumerStatefulWidget {
 
 class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _formKey = GlobalKey<FormBuilderState>();
-  //bool _biometricAvailable = false;
-  bool _biometricEnabled = false;
-  bool _showLoginCard = true;
 
   @override
   void initState() {
     super.initState();
-    _checkBiometricStatus();
 
-    // Clear any previous errors
+    // Clear any previous errors and initialize login screen state
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(authProvider.notifier).clearError();
-    });
-  }
-
-  Future<void> _checkBiometricStatus() async {
-    try {
-      final available = await BiometricService.isBiometricAvailable();
-      final enabled = await AuthService.isBiometricEnabled();
-      final credentials = await AuthService.getStoredCredentials();
-
-      // Só habilita biometria se tiver credenciais armazenadas E biometria estiver habilitada
-      final finalEnabled = available && enabled && credentials != null;
-
-      if (mounted) {
-        setState(() {
-          //_biometricAvailable = available;
-          _biometricEnabled = finalEnabled;
-          // Se biometria estiver ativa, oculta o card de login por padrão
-          _showLoginCard = !finalEnabled;
-        });
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() {
-          //_biometricAvailable = false;
-          _biometricEnabled = false;
-        });
-      }
-    }
-  }
-
-  void _toggleLoginCard() {
-    setState(() {
-      _showLoginCard = !_showLoginCard;
+      ref.read(loginScreenProvider.notifier).initialize();
     });
   }
 
@@ -151,8 +117,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final authState = ref.watch(authProvider);
-
+    inspect('build');
     return Scaffold(
       body: Stack(
         children: [
@@ -213,247 +178,322 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       const SizedBox(height: 48),
 
                       // Opção biométrica (só se estiver realmente configurada)
-                      if (_biometricEnabled) ...[
-                        Card(
-                          elevation: 0,
-                          color: Colors.grey.withValues(alpha: 0.2),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(24.0),
-                            child: Column(
-                              children: [
-                                const Icon(
-                                  Icons.fingerprint,
-                                  size: 48,
-                                  color: Colors.blue,
+                      Consumer(
+                        builder: (context, ref, child) {
+                          final biometricEnabled =
+                              ref.watch(biometricEnabledProvider);
+
+                          if (!biometricEnabled) return const SizedBox.shrink();
+
+                          return Column(
+                            children: [
+                              Card(
+                                elevation: 0,
+                                color: Colors.grey.withValues(alpha: 0.2),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16),
                                 ),
-                                const SizedBox(height: 16),
-                                const Text(
-                                  'Entrar com Biometria',
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                                const SizedBox(height: 8),
-                                const Text(
-                                  'Toque no botão para acessar com sua biometria',
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    color: Colors.white70,
-                                  ),
-                                ),
-                                const SizedBox(height: 16),
-                                LoadingButton(
-                                  onPressed: () {
-                                    _handleBiometricLogin();
-                                  },
-                                  isLoading: false,
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
+                                child: Padding(
+                                  padding: const EdgeInsets.all(24.0),
+                                  child: Column(
                                     children: [
-                                      const Icon(Icons.fingerprint, size: 20),
-                                      const SizedBox(width: 8),
+                                      const Icon(
+                                        Icons.fingerprint,
+                                        size: 48,
+                                        color: Colors.blue,
+                                      ),
+                                      const SizedBox(height: 16),
                                       const Text(
-                                        'Usar Biometria',
+                                        'Entrar com Biometria',
                                         style: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold,
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      const Text(
+                                        'Toque no botão para acessar com sua biometria',
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                          color: Colors.white70,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 16),
+                                      LoadingButton(
+                                        onPressed: () {
+                                          _handleBiometricLogin();
+                                        },
+                                        isLoading: false,
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            const Icon(Icons.fingerprint,
+                                                size: 20),
+                                            const SizedBox(width: 8),
+                                            const Text(
+                                              'Usar Biometria',
+                                              style: TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ],
                                         ),
                                       ),
                                     ],
                                   ),
                                 ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 24),
-                        const Row(
-                          children: [
-                            Expanded(child: Divider(color: Colors.white54)),
-                            Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 16),
-                              child: Text(
-                                'ou',
-                                style: TextStyle(color: Colors.white54),
                               ),
-                            ),
-                            Expanded(child: Divider(color: Colors.white54)),
-                          ],
-                        ),
-                        const SizedBox(height: 24),
-                      ],
-
-                      // Botão para mostrar/ocultar login tradicional quando biometria estiver ativa
-                      if (_biometricEnabled && !_showLoginCard) ...[
-                        TextButton.icon(
-                          onPressed: _toggleLoginCard,
-                          icon: const Icon(Icons.login, color: Colors.white54),
-                          label: const Text(
-                            'Usar login tradicional',
-                            style: TextStyle(color: Colors.white54),
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                      ],
-
-                      // Login Form (condicional)
-                      if (_showLoginCard) ...[
-                        Card(
-                          elevation: 0,
-                          color: Colors.grey.withValues(alpha: 0.2),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(24.0),
-                            child: FormBuilder(
-                              key: _formKey,
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                              const SizedBox(height: 24),
+                              const Row(
                                 children: [
-                                  Text(
-                                    'Faça login na sua conta',
-                                    style: const TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white,
-                                    ),
-                                    textAlign: TextAlign.center,
-                                  ),
-
-                                  const SizedBox(height: 8),
-
-                                  Text(
-                                    'Digite suas credenciais para acessar',
-                                    style: const TextStyle(
-                                      fontSize: 14,
-                                      color: Colors.white,
-                                    ),
-                                    textAlign: TextAlign.center,
-                                  ),
-
-                                  const SizedBox(height: 32),
-
-                                  // CPF Field
-                                  AppTextField(
-                                    name: 'cpf',
-                                    label: 'CPF',
-                                    keyboardType: TextInputType.number,
-                                    inputFormatters: [
-                                      AppFormatters.cpfFormatter
-                                    ],
-                                    validator: AppValidators.validateCPF,
-                                    prefixIcon: const Icon(Icons.person),
-                                    fillColor: Colors.white.withAlpha(100),
-                                  ),
-
-                                  const SizedBox(height: 16),
-
-                                  // Password Field
-                                  AppTextField(
-                                    name: 'password',
-                                    label: 'Senha',
-                                    obscureText: true,
-                                    validator: AppValidators.validatePassword,
-                                    prefixIcon: const Icon(Icons.lock),
-                                    fillColor: Colors.white.withAlpha(100),
-                                  ),
-
-                                  const SizedBox(height: 24),
-
-                                  // Login Button
-                                  LoadingButton(
-                                    onPressed: _handleLogin,
-                                    isLoading: authState.isLoading,
-                                    child: const Text(
-                                      'Entrar',
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                      ),
+                                  Expanded(
+                                      child: Divider(color: Colors.white54)),
+                                  Padding(
+                                    padding:
+                                        EdgeInsets.symmetric(horizontal: 16),
+                                    child: Text(
+                                      'ou',
+                                      style: TextStyle(color: Colors.white54),
                                     ),
                                   ),
-
-                                  const SizedBox(height: 16),
-
-                                  // Register Link
-                                  TextButton(
-                                    onPressed: () {
-                                      Navigator.of(context).push(
-                                        MaterialPageRoute(
-                                          builder: (context) =>
-                                              const RegisterScreen(),
-                                        ),
-                                      );
-                                    },
-                                    child: RichText(
-                                      text: TextSpan(
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .bodyMedium,
-                                        children: [
-                                          const TextSpan(
-                                            text: 'Não tem uma conta? ',
-                                            style: TextStyle(
-                                                color: Colors.white60),
-                                          ),
-                                          TextSpan(
-                                            text: 'Cadastre-se',
-                                            style: TextStyle(
-                                              color: Theme.of(context)
-                                                  .primaryColor,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
+                                  Expanded(
+                                      child: Divider(color: Colors.white54)),
                                 ],
                               ),
-                            ),
-                          ),
-                        ),
+                              const SizedBox(height: 24),
+                            ],
+                          );
+                        },
+                      ),
 
-                        const SizedBox(height: 24),
+                      // Botão para mostrar/ocultar login tradicional quando biometria estiver ativa
+                      Consumer(
+                        builder: (context, ref, child) {
+                          final biometricEnabled =
+                              ref.watch(biometricEnabledProvider);
+                          final showLoginCard =
+                              ref.watch(showLoginCardProvider);
 
-                        // Forgot Password Link
-                        TextButton(
-                          onPressed: () {
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (context) => ForgotPasswordScreen(),
+                          if (!biometricEnabled || showLoginCard)
+                            return const SizedBox.shrink();
+
+                          return Column(
+                            children: [
+                              TextButton.icon(
+                                onPressed: () {
+                                  ref
+                                      .read(loginScreenProvider.notifier)
+                                      .toggleLoginCard();
+                                },
+                                icon: const Icon(Icons.login,
+                                    color: Colors.white54),
+                                label: const Text(
+                                  'Usar login tradicional',
+                                  style: TextStyle(color: Colors.white54),
+                                ),
                               ),
-                            );
-                          },
-                          child: const Text(
-                            'Esqueceu sua senha?',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
-                            ),
-                          ),
-                        ),
+                              const SizedBox(height: 16),
+                            ],
+                          );
+                        },
+                      ),
 
-                        // Botão para ocultar login quando biometria estiver ativa
-                        if (_biometricEnabled) ...[
-                          const SizedBox(height: 16),
-                          TextButton.icon(
-                            onPressed: _toggleLoginCard,
-                            icon: const Icon(Icons.fingerprint,
-                                color: Colors.white54),
-                            label: const Text(
-                              'Usar apenas biometria',
-                              style: TextStyle(color: Colors.white54),
-                            ),
-                          ),
-                        ],
-                      ],
+                      // Login Form (condicional)
+                      Consumer(
+                        builder: (context, ref, child) {
+                          final showLoginCard =
+                              ref.watch(showLoginCardProvider);
+
+                          if (!showLoginCard) return const SizedBox.shrink();
+
+                          return Column(
+                            children: [
+                              Card(
+                                elevation: 0,
+                                color: Colors.grey.withValues(alpha: 0.2),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(24.0),
+                                  child: FormBuilder(
+                                    key: _formKey,
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.stretch,
+                                      children: [
+                                        Text(
+                                          'Faça login na sua conta',
+                                          style: const TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.white,
+                                          ),
+                                          textAlign: TextAlign.center,
+                                        ),
+
+                                        const SizedBox(height: 8),
+
+                                        Text(
+                                          'Digite suas credenciais para acessar',
+                                          style: const TextStyle(
+                                            fontSize: 14,
+                                            color: Colors.white,
+                                          ),
+                                          textAlign: TextAlign.center,
+                                        ),
+
+                                        const SizedBox(height: 32),
+
+                                        // CPF Field
+                                        AppTextField(
+                                          name: 'cpf',
+                                          label: 'CPF',
+                                          keyboardType: TextInputType.number,
+                                          inputFormatters: [
+                                            AppFormatters.cpfFormatter
+                                          ],
+                                          validator: AppValidators.validateCPF,
+                                          prefixIcon: const Icon(Icons.person),
+                                          fillColor:
+                                              Colors.white.withAlpha(100),
+                                        ),
+
+                                        const SizedBox(height: 16),
+
+                                        // Password Field
+                                        AppTextField(
+                                          name: 'password',
+                                          label: 'Senha',
+                                          obscureText: true,
+                                          validator:
+                                              AppValidators.validatePassword,
+                                          prefixIcon: const Icon(Icons.lock),
+                                          fillColor:
+                                              Colors.white.withAlpha(100),
+                                        ),
+
+                                        const SizedBox(height: 24),
+
+                                        // Login Button
+                                        Consumer(
+                                          builder: (context, ref, child) {
+                                            final authState =
+                                                ref.watch(authProvider);
+                                            return LoadingButton(
+                                              onPressed: _handleLogin,
+                                              isLoading: authState.isLoading,
+                                              child: const Text(
+                                                'Entrar',
+                                                style: TextStyle(
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            );
+                                          },
+                                        ),
+
+                                        const SizedBox(height: 16),
+
+                                        // Register Link
+                                        TextButton(
+                                          onPressed: () {
+                                            Navigator.of(context).push(
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    const RegisterScreen(),
+                                              ),
+                                            );
+                                          },
+                                          child: RichText(
+                                            text: TextSpan(
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .bodyMedium,
+                                              children: [
+                                                const TextSpan(
+                                                  text: 'Não tem uma conta? ',
+                                                  style: TextStyle(
+                                                      color: Colors.white60),
+                                                ),
+                                                TextSpan(
+                                                  text: 'Cadastre-se',
+                                                  style: TextStyle(
+                                                    color: Theme.of(context)
+                                                        .primaryColor,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+
+                              const SizedBox(height: 24),
+
+                              // Forgot Password Link
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          ForgotPasswordScreen(),
+                                    ),
+                                  );
+                                },
+                                child: const Text(
+                                  'Esqueceu sua senha?',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ),
+
+                              // Botão para ocultar login quando biometria estiver ativa
+                              Consumer(
+                                builder: (context, ref, child) {
+                                  final biometricEnabled =
+                                      ref.watch(biometricEnabledProvider);
+
+                                  if (!biometricEnabled)
+                                    return const SizedBox.shrink();
+
+                                  return Column(
+                                    children: [
+                                      const SizedBox(height: 16),
+                                      TextButton.icon(
+                                        onPressed: () {
+                                          ref
+                                              .read(
+                                                  loginScreenProvider.notifier)
+                                              .toggleLoginCard();
+                                        },
+                                        icon: const Icon(Icons.fingerprint,
+                                            color: Colors.white54),
+                                        label: const Text(
+                                          'Usar apenas biometria',
+                                          style:
+                                              TextStyle(color: Colors.white54),
+                                        ),
+                                      ),
+                                    ],
+                                  );
+                                },
+                              ),
+                            ],
+                          );
+                        },
+                      ),
                     ],
                   ),
                 ),
