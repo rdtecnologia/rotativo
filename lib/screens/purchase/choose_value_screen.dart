@@ -48,7 +48,9 @@ class _ChooseValueScreenState extends ConsumerState<ChooseValueScreen> {
     final chooseValueState = ref.read(chooseValueProvider);
 
     if (!chooseValueState.isCustomValueValid ||
-        chooseValueState.customValue == null) return;
+        chooseValueState.customValue == null) {
+      return;
+    }
 
     try {
       // Carregar a configuração de compra da cidade para obter a relação preço/crédito

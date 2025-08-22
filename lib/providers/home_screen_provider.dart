@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/active_activations_provider.dart';
 import '../providers/balance_provider.dart';
@@ -73,6 +74,14 @@ class HomeScreenNotifier extends StateNotifier<HomeScreenState> {
 
   /// Força refresh completo
   Future<void> refresh() async {
+    await loadAllData();
+  }
+
+  /// Recarrega dados quando a tela home é reaberta
+  /// Este método é chamado sempre que a tela home volta ao foco
+  /// Garante que os dados estejam sempre atualizados quando o usuário retorna à tela
+  Future<void> reloadOnScreenFocus() async {
+    debugPrint('🔄 HomeScreen: Recarregando dados ao focar na tela');
     await loadAllData();
   }
 }

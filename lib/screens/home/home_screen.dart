@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rotativo/debug_page.dart';
@@ -32,15 +34,30 @@ class _HomePageState extends ConsumerState<HomePage>
     super.initState();
     debugPrint('🅿️ Main - initState: Iniciando tela principal');
     _focusNode = FocusNode();
-    _loadData();
-    debugPrint('🅿️ Main - initState: _loadData chamado');
 
     // Adiciona listener para detectar quando a tela recebe foco
+    // Isso garante que os dados sejam recarregados sempre que a tela voltar ao foco
     _focusNode.addListener(() {
       if (_focusNode.hasFocus) {
         debugPrint('🅿️ Main - FocusNode: Tela recebeu foco');
+        // Recarrega dados quando a tela recebe foco (retornando de outras telas)
+        _reloadDataOnFocus();
       }
     });
+
+    // Garante que loadData seja executado após a tela ser montada
+    // Isso cobre o caso da primeira vez que a tela é aberta
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadData();
+      debugPrint(
+          '🅿️ Main - PostFrameCallback: _loadData chamado após montagem');
+    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Não é mais necessário o código do RouteAware
   }
 
   @override
@@ -60,9 +77,17 @@ class _HomePageState extends ConsumerState<HomePage>
     }
   }
 
+  // Remove todos os métodos RouteAware que não são mais necessários
+
   Future<void> _loadData() async {
     // Usa o provider otimizado para carregar todos os dados
     await ref.read(homeScreenProvider.notifier).loadAllData();
+  }
+
+  /// Recarrega dados quando a tela recebe foco
+  Future<void> _reloadDataOnFocus() async {
+    debugPrint('🔄 HomeScreen: Recarregando dados ao focar na tela');
+    await ref.read(homeScreenProvider.notifier).reloadOnScreenFocus();
   }
 
   Future<void> _refreshData() async {
@@ -99,9 +124,9 @@ class _HomePageState extends ConsumerState<HomePage>
 
   void _onBalanceTap() {
     // TODO: Navigate to balance details screen
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Navegar para detalhes do saldo')),
-    );
+    // ScaffoldMessenger.of(context).showSnackBar(
+    //   const SnackBar(content: Text('Navegar para detalhes do saldo')),
+    // );
   }
 
   void _onHistoryTap() async {
@@ -117,6 +142,7 @@ class _HomePageState extends ConsumerState<HomePage>
 
   @override
   Widget build(BuildContext context) {
+    inspect('build');
     return Scaffold(
       key: _scaffoldKey,
       drawer: const CustomDrawer(),
