@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../models/purchase_models.dart';
 import '../../providers/purchase_provider.dart';
+import '../../providers/choose_value_provider.dart';
 import '../../utils/formatters.dart';
 import '../../config/dynamic_app_config.dart';
+import '../../widgets/custom_value_section.dart';
 import 'payment_method_screen.dart';
 
 class ChooseValueScreen extends ConsumerStatefulWidget {
@@ -21,46 +22,11 @@ class ChooseValueScreen extends ConsumerStatefulWidget {
 }
 
 class _ChooseValueScreenState extends ConsumerState<ChooseValueScreen> {
-  final TextEditingController _customValueController = TextEditingController();
-  final FocusNode _customValueFocusNode = FocusNode();
-  bool _isCustomValueValid = false;
-  double? _customValue;
-
-  @override
-  void initState() {
-    super.initState();
-    _customValueController.addListener(_validateCustomValue);
-  }
-
   @override
   void dispose() {
-    _customValueController.dispose();
-    _customValueFocusNode.dispose();
+    // Reset do provider quando a tela for descartada
+    ref.read(chooseValueProvider.notifier).reset();
     super.dispose();
-  }
-
-  void _validateCustomValue() {
-    final text = _customValueController.text;
-    if (text.isEmpty) {
-      setState(() {
-        _isCustomValueValid = false;
-        _customValue = null;
-      });
-      return;
-    }
-
-    final value = int.tryParse(text);
-    if (value != null && value >= 1 && value <= 100) {
-      setState(() {
-        _isCustomValueValid = true;
-        _customValue = value.toDouble();
-      });
-    } else {
-      setState(() {
-        _isCustomValueValid = false;
-        _customValue = null;
-      });
-    }
   }
 
   void _selectProduct(
@@ -79,7 +45,10 @@ class _ChooseValueScreenState extends ConsumerState<ChooseValueScreen> {
   }
 
   void _purchaseCustomValue(BuildContext context, WidgetRef ref) async {
-    if (!_isCustomValueValid || _customValue == null) return;
+    final chooseValueState = ref.read(chooseValueProvider);
+
+    if (!chooseValueState.isCustomValueValid ||
+        chooseValueState.customValue == null) return;
 
     try {
       // Carregar a configuração de compra da cidade para obter a relação preço/crédito
@@ -104,11 +73,12 @@ class _ChooseValueScreenState extends ConsumerState<ChooseValueScreen> {
       const double pricePerCredit = 0.50; // R$ 0,50 por crédito
 
       // Calcular quantos créditos o usuário deve receber pelo valor digitado
-      final calculatedCredits = (_customValue! / pricePerCredit).round();
+      final calculatedCredits =
+          (chooseValueState.customValue! / pricePerCredit).round();
 
       if (kDebugMode) {
         print('🔍 DEBUG - Cálculo de créditos customizados:');
-        print('🔍 Valor digitado: R\$ $_customValue');
+        print('🔍 Valor digitado: R\$ ${chooseValueState.customValue}');
         print('🔍 Preço por crédito: R\$ ${pricePerCredit.toStringAsFixed(2)}');
         print('🔍 Créditos calculados: $calculatedCredits');
         print('🔍 Tipo de veículo: ${widget.vehicleType}');
@@ -117,20 +87,20 @@ class _ChooseValueScreenState extends ConsumerState<ChooseValueScreen> {
       // Criar um ProductOption customizado com os créditos calculados
       final customProduct = ProductOption(
         credits: calculatedCredits,
-        price: _customValue!,
+        price: chooseValueState.customValue!,
       );
 
       ref.read(purchaseProvider.notifier).selectProduct(customProduct);
 
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => PaymentMethodScreen(
-            vehicleType: widget.vehicleType,
-            product: customProduct,
-          ),
-        ),
-      );
+      // Verificar se o contexto ainda é válido antes de navegar
+      if (!mounted) return;
+
+      // Navegar para a próxima tela usando um callback
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          _navigateToPaymentMethod(context, customProduct);
+        }
+      });
     } catch (e) {
       if (kDebugMode) {
         print('🔍 ERRO ao calcular créditos customizados: $e');
@@ -138,202 +108,30 @@ class _ChooseValueScreenState extends ConsumerState<ChooseValueScreen> {
 
       // Fallback: usar 1 crédito por real (assumindo valor padrão)
       final customProduct = ProductOption(
-        credits: _customValue!.round(),
-        price: _customValue!,
+        credits: chooseValueState.customValue!.round(),
+        price: chooseValueState.customValue!,
       );
 
       ref.read(purchaseProvider.notifier).selectProduct(customProduct);
 
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => PaymentMethodScreen(
-            vehicleType: widget.vehicleType,
-            product: customProduct,
-          ),
-        ),
-      );
+      // Verificar se o contexto ainda é válido antes de navegar
+      if (!mounted) return;
+
+      // Navegar para a próxima tela usando um callback
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          _navigateToPaymentMethod(context, customProduct);
+        }
+      });
     }
   }
 
-  Widget _buildCustomValueSection() {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 24),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.green.shade50,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.green.shade200),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Row(
-          //   children: [
-          //     Icon(
-          //       Icons.edit,
-          //       color: Colors.green.shade700,
-          //       size: 24,
-          //     ),
-          //     const SizedBox(width: 8),
-          //     Text(
-          //       'Digite um valor ',
-          //       style: TextStyle(
-          //         fontSize: 18,
-          //         fontWeight: FontWeight.bold,
-          //         color: Colors.green.shade800,
-          //       ),
-          //     ),
-          //   ],
-          // ),
-          //const SizedBox(height: 12),
-          Text(
-            'Digite um valor personalizado para compra (apenas valores inteiros, máximo R\$ 100,00)',
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.green.shade700,
-            ),
-          ),
-          const SizedBox(height: 16),
-
-          // Campo de valor e botão de compra
-          Row(
-            children: [
-              Expanded(
-                child: TextFormField(
-                  controller: _customValueController,
-                  focusNode: _customValueFocusNode,
-                  keyboardType: TextInputType.number,
-                  inputFormatters: [
-                    FilteringTextInputFormatter.allow(RegExp(r'^\d+$')),
-                  ],
-                  decoration: InputDecoration(
-                    hintText: '0',
-                    prefixText: 'R\$ ',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(
-                        color: _isCustomValueValid
-                            ? Colors.green
-                            : Colors.grey.shade400,
-                      ),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(
-                        color: _isCustomValueValid
-                            ? Colors.green
-                            : Theme.of(context).primaryColor,
-                        width: 2,
-                      ),
-                    ),
-                    errorBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: const BorderSide(color: Colors.red, width: 2),
-                    ),
-                    focusedErrorBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: const BorderSide(color: Colors.red, width: 2),
-                    ),
-                    filled: true,
-                    fillColor: Colors.white,
-                    contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 16),
-                  ),
-                  onChanged: (value) {
-                    _validateCustomValue();
-                  },
-                ),
-              ),
-              const SizedBox(width: 12),
-              ElevatedButton(
-                onPressed: _isCustomValueValid
-                    ? () => _purchaseCustomValue(context, ref)
-                    : null,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green,
-                  foregroundColor: Colors.white,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  elevation: _isCustomValueValid ? 2 : 0,
-                ),
-                child: const Text(
-                  'COMPRAR',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                  ),
-                ),
-              ),
-            ],
-          ),
-
-          // Mensagem de validação
-          if (_customValueController.text.isNotEmpty) ...[
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                Icon(
-                  _isCustomValueValid ? Icons.check_circle : Icons.error,
-                  color: _isCustomValueValid ? Colors.green : Colors.red,
-                  size: 16,
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    _isCustomValueValid
-                        ? 'Valor válido! Clique em COMPRAR para continuar.'
-                        : 'Valor deve ser um número inteiro entre R\$ 1,00 e R\$ 100,00',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: _isCustomValueValid ? Colors.green : Colors.red,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-
-  Widget _buildProductCard(
-    BuildContext context,
-    WidgetRef ref,
-    ProductOption product,
-    Map<String, List<ParkingRule>>? parkingRules,
-  ) {
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(8),
-        onTap: () => _selectProduct(context, ref, product),
-        child: Container(
-          height: 80, // Aumentando a altura do card
-          padding: const EdgeInsets.all(12),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              // Price (apenas valor monetário)
-              Text(
-                'R\$ ${AppFormatters.formatCurrency(product.price)}',
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87,
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ],
-          ),
+  void _navigateToPaymentMethod(BuildContext context, ProductOption product) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => PaymentMethodScreen(
+          vehicleType: widget.vehicleType,
+          product: product,
         ),
       ),
     );
@@ -343,16 +141,10 @@ class _ChooseValueScreenState extends ConsumerState<ChooseValueScreen> {
     final carRules = parkingRules?['1'] ?? []; // Carro
     final motorcycleRules = parkingRules?['2'] ?? []; // Moto
 
-    //print('🔍 ChooseValueScreen - Building parking rules info');
-    //print('🔍 ChooseValueScreen - Car rules: ${carRules.length}');
-    //print('🔍 ChooseValueScreen - Motorcycle rules: ${motorcycleRules.length}');
-
     if (carRules.isEmpty && motorcycleRules.isEmpty) {
-      //print('🔍 ChooseValueScreen - No parking rules found, returning SizedBox.shrink');
       return const SizedBox.shrink();
     }
 
-    //print('🔍 ChooseValueScreen - Building Row with parking rules');
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(16),
@@ -426,6 +218,44 @@ class _ChooseValueScreenState extends ConsumerState<ChooseValueScreen> {
     );
   }
 
+  Widget _buildProductCard(
+    BuildContext context,
+    WidgetRef ref,
+    ProductOption product,
+    Map<String, List<ParkingRule>>? parkingRules,
+  ) {
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(8),
+        onTap: () => _selectProduct(context, ref, product),
+        child: Container(
+          height: 80, // Aumentando a altura do card
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              // Price (apenas valor monetário)
+              Text(
+                'R\$ ${AppFormatters.formatCurrency(product.price)}',
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final cityConfigAsync = ref.watch(cityConfigProvider);
@@ -486,8 +316,10 @@ class _ChooseValueScreenState extends ConsumerState<ChooseValueScreen> {
 
               const SizedBox(height: 8),
 
-              // Seção de valor customizado
-              _buildCustomValueSection(),
+              // Seção de valor customizado usando o widget separado
+              CustomValueSection(
+                onPurchase: () => _purchaseCustomValue(context, ref),
+              ),
 
               const Text(
                 'ou selecione o valor a adquirir',
@@ -572,8 +404,6 @@ class _ChooseValueScreenState extends ConsumerState<ChooseValueScreen> {
                     spacing: 12,
                     runSpacing: 12,
                     children: products.map((product) {
-                      print(
-                          '🔍 ChooseValueScreen - Building card for product: ${product.credits} créditos, R\$ ${product.price}');
                       return SizedBox(
                         width: (MediaQuery.of(context).size.width - 48) / 2,
                         child: _buildProductCard(context, ref, product, null),
