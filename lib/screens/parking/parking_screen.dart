@@ -1,11 +1,13 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:geolocator/geolocator.dart';
 import '../../models/vehicle_models.dart';
 import '../../providers/parking_provider.dart';
 import '../../providers/vehicle_provider.dart';
 import '../../providers/balance_provider.dart';
+import '../../providers/location_provider.dart';
 import '../../config/dynamic_app_config.dart';
 import '../../utils/formatters.dart';
 import 'widgets/parking_time_card.dart';
@@ -24,22 +26,19 @@ class ParkingScreen extends ConsumerStatefulWidget {
 }
 
 class _ParkingScreenState extends ConsumerState<ParkingScreen> {
-  Position? _currentPosition;
-  bool _isGettingLocation = false;
-  Vehicle? _previousVehicle;
-
   @override
   void initState() {
     super.initState();
-    _getCurrentLocation();
-    _previousVehicle = widget.vehicle;
 
     // Always clear any previous selection when entering the screen
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         ref.read(parkingProvider.notifier).forceClear();
+        // Iniciar obtenção de localização após o primeiro frame
+        _getCurrentLocation();
         if (kDebugMode) {
-          print('🔄 ParkingScreen.initState - Force cleared all state');
+          print(
+              '🔄 ParkingScreen.initState - Force cleared all state and started location');
         }
       }
     });
@@ -61,52 +60,15 @@ class _ParkingScreenState extends ConsumerState<ParkingScreen> {
 
       // Clear state only on vehicle change
       ref.read(parkingProvider.notifier).forceClear();
-      _previousVehicle = widget.vehicle;
     }
   }
 
   Future<void> _getCurrentLocation() async {
-    setState(() {
-      _isGettingLocation = true;
-    });
-
-    try {
-      // Check location permissions
-      LocationPermission permission = await Geolocator.checkPermission();
-      if (permission == LocationPermission.denied) {
-        permission = await Geolocator.requestPermission();
-        if (permission == LocationPermission.denied) {
-          throw Exception('Permissão de localização negada');
-        }
-      }
-
-      if (permission == LocationPermission.deniedForever) {
-        throw Exception('Permissão de localização negada permanentemente');
-      }
-
-      // Get current position
-      final position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
-      );
-
-      setState(() {
-        _currentPosition = position;
-        _isGettingLocation = false;
-      });
-    } catch (e) {
-      setState(() {
-        _isGettingLocation = false;
-      });
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Erro ao obter localização: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
+    if (kDebugMode) {
+      print('🔄 ParkingScreen._getCurrentLocation - Iniciando...');
     }
+
+    await ref.read(locationProvider.notifier).getCurrentLocation();
   }
 
   String _formatLicensePlate(String plate) {
@@ -130,24 +92,34 @@ class _ParkingScreenState extends ConsumerState<ParkingScreen> {
   Future<void> _submitParking() async {
     final selectedTime = ref.read(selectedParkingTimeProvider);
     final selectedCredits = ref.read(selectedCreditsProvider);
+    final currentPosition = ref.read(currentPositionProvider);
+
+    // Capture context before async operations
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+    final navigator = Navigator.of(context);
+    final currentContext = context;
 
     if (selectedTime == null || selectedCredits == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Selecione o tempo de estacionamento'),
-          backgroundColor: Colors.orange,
-        ),
-      );
+      if (mounted) {
+        scaffoldMessenger.showSnackBar(
+          const SnackBar(
+            content: Text('Selecione o tempo de estacionamento'),
+            backgroundColor: Colors.orange,
+          ),
+        );
+      }
       return;
     }
 
-    if (_currentPosition == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Aguarde a obtenção da localização atual'),
-          backgroundColor: Colors.orange,
-        ),
-      );
+    if (currentPosition == null) {
+      if (mounted) {
+        scaffoldMessenger.showSnackBar(
+          const SnackBar(
+            content: Text('Aguarde a obtenção da localização atual'),
+            backgroundColor: Colors.orange,
+          ),
+        );
+      }
       return;
     }
 
@@ -158,18 +130,20 @@ class _ParkingScreenState extends ConsumerState<ParkingScreen> {
         final requiredCredits = selectedCredits;
         final availableCredits = currentBalance?.credits ?? 0;
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'Créditos insuficientes!\n'
-              'Você possui: ${availableCredits.toStringAsFixed(1)} créditos\n'
-              'Necessário: ${requiredCredits.toStringAsFixed(1)} créditos\n'
-              'Faça uma compra de créditos para continuar.',
+        if (mounted) {
+          scaffoldMessenger.showSnackBar(
+            SnackBar(
+              content: Text(
+                'Créditos insuficientes!\n'
+                'Você possui: ${availableCredits.toStringAsFixed(1)} créditos\n'
+                'Necessário: ${requiredCredits.toStringAsFixed(1)} créditos\n'
+                'Faça uma compra de créditos para continuar.',
+              ),
+              backgroundColor: Colors.red,
+              duration: const Duration(seconds: 5),
             ),
-            backgroundColor: Colors.red,
-            duration: const Duration(seconds: 5),
-          ),
-        );
+          );
+        }
         return;
       }
 
@@ -184,25 +158,27 @@ class _ParkingScreenState extends ConsumerState<ParkingScreen> {
       if (possibleParking.tickets.isEmpty ||
           possibleParking.tickets[0].tickets.isEmpty ||
           possibleParking.tickets[0].tickets.length < selectedCredits) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'Créditos insuficientes para estacionar!\n'
-              'Você possui: ${currentBalance.credits.toStringAsFixed(1)} créditos\n'
-              'Necessário: ${selectedCredits.toStringAsFixed(1)} créditos\n'
-              'Faça uma compra de créditos para continuar.',
+        if (mounted) {
+          scaffoldMessenger.showSnackBar(
+            SnackBar(
+              content: Text(
+                'Créditos insuficientes para estacionar!\n'
+                'Você possui: ${currentBalance.credits.toStringAsFixed(1)} créditos\n'
+                'Necessário: ${selectedCredits.toStringAsFixed(1)} créditos\n'
+                'Faça uma compra de créditos para continuar.',
+              ),
+              backgroundColor: Colors.red,
+              duration: const Duration(seconds: 5),
             ),
-            backgroundColor: Colors.red,
-            duration: const Duration(seconds: 5),
-          ),
-        );
+          );
+        }
         return;
       }
 
       // Show confirmation dialog
       final confirmed = await showDialog<bool>(
-        context: context,
-        builder: (context) => AlertDialog(
+        context: currentContext,
+        builder: (dialogContext) => AlertDialog(
           title: const Text('Confirmação'),
           content: Text(
             possibleParking.message ??
@@ -210,11 +186,11 @@ class _ParkingScreenState extends ConsumerState<ParkingScreen> {
           ),
           actions: [
             TextButton(
-              onPressed: () => Navigator.of(context).pop(false),
+              onPressed: () => Navigator.of(dialogContext).pop(false),
               child: const Text('Cancelar'),
             ),
             TextButton(
-              onPressed: () => Navigator.of(context).pop(true),
+              onPressed: () => Navigator.of(dialogContext).pop(true),
               style: TextButton.styleFrom(
                 foregroundColor: Colors.red,
               ),
@@ -222,7 +198,7 @@ class _ParkingScreenState extends ConsumerState<ParkingScreen> {
             ),
           ],
         ),
-      );
+      ).then((value) => value ?? false);
 
       if (confirmed != true) return;
 
@@ -240,7 +216,7 @@ class _ParkingScreenState extends ConsumerState<ParkingScreen> {
       ]);
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
+        scaffoldMessenger.showSnackBar(
           SnackBar(
             content: Text(
               'Estacionamento ativado com sucesso!\nID: ${parkingResponse.id}',
@@ -257,7 +233,7 @@ class _ParkingScreenState extends ConsumerState<ParkingScreen> {
         }
 
         // Return to home
-        Navigator.of(context).popUntil((route) => route.isFirst);
+        navigator.popUntil((route) => route.isFirst);
       }
     } catch (e) {
       if (mounted) {
@@ -278,7 +254,7 @@ class _ParkingScreenState extends ConsumerState<ParkingScreen> {
               '${e.toString().replaceAll('Exception: ', '')}';
         }
 
-        ScaffoldMessenger.of(context).showSnackBar(
+        scaffoldMessenger.showSnackBar(
           SnackBar(
             content: Text(errorMessage),
             backgroundColor: Colors.red,
@@ -296,24 +272,70 @@ class _ParkingScreenState extends ConsumerState<ParkingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    inspect('build');
+
+    // Apenas observar o que é realmente necessário para o build principal
     final selectedTime = ref.watch(selectedParkingTimeProvider);
-    final isLoading = ref.watch(parkingLoadingProvider);
+
+    // Debug: apenas mostrar se há posição
+    if (kDebugMode) {
+      print('🔄 ParkingScreen.build - Build principal executado');
+    }
 
     return Scaffold(
       appBar: AppBar(
         title: Text(_formatLicensePlate(widget.vehicle.licensePlate)),
         backgroundColor: Theme.of(context).primaryColor,
         foregroundColor: Colors.white,
+        actions: [
+          if (kDebugMode)
+            IconButton(
+              icon: const Icon(Icons.location_on),
+              onPressed: () {
+                if (kDebugMode) {
+                  print('🔄 ParkingScreen - Botão de teste clicado');
+                  print('  - Estado atual do provider:');
+                  print('    - Position: ${ref.read(currentPositionProvider)}');
+                  print(
+                      '    - IsGetting: ${ref.read(isGettingLocationProvider)}');
+                  print('    - Error: ${ref.read(locationErrorProvider)}');
+                }
+                _getCurrentLocation();
+              },
+            ),
+        ],
       ),
       body: Column(
         children: [
           // Map section
           Expanded(
             flex: 2,
-            child: ParkingMap(
-              currentPosition: _currentPosition,
-              isGettingLocation: _isGettingLocation,
-              onRetryLocation: _getCurrentLocation,
+            child: Consumer(
+              builder: (context, ref, child) {
+                final currentPosition = ref.watch(currentPositionProvider);
+                final isGettingLocation = ref.watch(isGettingLocationProvider);
+                final locationError = ref.watch(locationErrorProvider);
+
+                // Mostrar erro de localização se houver
+                if (locationError != null && mounted) {
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content:
+                            Text('Erro ao obter localização: $locationError'),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                    ref.read(locationProvider.notifier).clearError();
+                  });
+                }
+
+                return ParkingMap(
+                  currentPosition: currentPosition,
+                  isGettingLocation: isGettingLocation,
+                  onRetryLocation: _getCurrentLocation,
+                );
+              },
             ),
           ),
 
@@ -340,7 +362,10 @@ class _ParkingScreenState extends ConsumerState<ParkingScreen> {
                     child: RefreshIndicator(
                       onRefresh: () async {
                         // Refresh parking rules and reload data
-                        setState(() {});
+                        await ref
+                            .read(locationProvider.notifier)
+                            .getCurrentLocation();
+                        await ref.read(balanceProvider.notifier).loadBalance();
                       },
                       child: FutureBuilder<Map<String, dynamic>>(
                         future: DynamicAppConfig.parkingRules,
@@ -454,37 +479,43 @@ class _ParkingScreenState extends ConsumerState<ParkingScreen> {
                   ],
 
                   // Parking button
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: isLoading ? null : _submitParking,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      child: isLoading
-                          ? const SizedBox(
-                              height: 20,
-                              width: 20,
-                              child: CircularProgressIndicator(
-                                color: Colors.white,
-                                strokeWidth: 2,
-                              ),
-                            )
-                          : Text(
-                              selectedTime != null
-                                  ? 'ESTACIONAR: ${_formatParkingTime(selectedTime)}'
-                                  : 'ESTACIONAR',
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
+                  Consumer(
+                    builder: (context, ref, child) {
+                      final isLoading = ref.watch(parkingLoadingProvider);
+
+                      return SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: isLoading ? null : _submitParking,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.green,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
                             ),
-                    ),
+                          ),
+                          child: isLoading
+                              ? const SizedBox(
+                                  height: 20,
+                                  width: 20,
+                                  child: CircularProgressIndicator(
+                                    color: Colors.white,
+                                    strokeWidth: 2,
+                                  ),
+                                )
+                              : Text(
+                                  selectedTime != null
+                                      ? 'ESTACIONAR: ${_formatParkingTime(selectedTime)}'
+                                      : 'ESTACIONAR',
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                        ),
+                      );
+                    },
                   ),
                 ],
               ),
