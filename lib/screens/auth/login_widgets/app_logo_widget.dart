@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import '../../../config/dynamic_app_config.dart';
 
 class AppLogoWidget extends StatelessWidget {
@@ -26,10 +27,26 @@ class AppLogoWidget extends StatelessWidget {
                   ),
                 ],
               ),
-              child: const Icon(
-                Icons.local_parking,
-                size: 60,
-                color: Colors.blue,
+              child: Center(
+                child: SvgPicture.asset(
+                  'assets/images/svg/logo.svg',
+                  width: 120,
+                  height: 120,
+                  fit: BoxFit.contain,
+                  placeholderBuilder: (context) => Container(
+                    width: 60,
+                    height: 60,
+                    decoration: BoxDecoration(
+                      color: Colors.blue,
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    child: const Icon(
+                      Icons.local_parking,
+                      size: 40,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
               ),
             ),
             const SizedBox(height: 16),
