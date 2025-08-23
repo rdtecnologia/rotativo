@@ -14,10 +14,10 @@ class AppLogoWidget extends StatelessWidget {
         return Column(
           children: [
             Container(
-              width: 120,
-              height: 120,
+              width: 100,
+              height: 100,
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: Colors.transparent,
                 borderRadius: BorderRadius.circular(60),
                 boxShadow: [
                   BoxShadow(
@@ -30,8 +30,8 @@ class AppLogoWidget extends StatelessWidget {
               child: Center(
                 child: SvgPicture.asset(
                   'assets/images/svg/logo.svg',
-                  width: 120,
-                  height: 120,
+                  width: 100,
+                  height: 100,
                   fit: BoxFit.contain,
                   placeholderBuilder: (context) => Container(
                     width: 60,
