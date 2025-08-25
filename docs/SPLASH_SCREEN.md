@@ -12,6 +12,7 @@ O Splash Screen é a tela inicial do aplicativo Rotativo Digital que exibe a log
 - **Escala**: Efeito de escala elástica para dar mais dinamismo
 - **Fundo Gradiente**: Utiliza as cores primárias do app em um gradiente vertical
 - **Container Decorativo**: A logo é exibida dentro de um container com bordas arredondadas e transparência
+- **Design Consistente**: Loader segue o mesmo padrão visual da splash screen
 
 ## Funcionalidades
 
@@ -78,6 +79,7 @@ O Splash Screen é a tela inicial do aplicativo Rotativo Digital que exibe a log
 3. **Tempo Mínimo**: Garante UX consistente (800ms-1200ms)
 4. **Cache Local**: Carrega dados locais primeiro
 5. **Fallback Rápido**: Evita validação desnecessária
+6. **Design Consistente**: Loader com mesmo padrão visual da splash
 
 ## Integração
 
