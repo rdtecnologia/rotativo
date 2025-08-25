@@ -32,6 +32,12 @@ class Environment {
       transaciona: 'https://transaciona.timob.com.br',
       voucher: 'https://voucher.timob.com.br',
     ),
+    'offline': ApiConfig(
+      register: 'http://localhost:8080',
+      autentica: 'http://localhost:8081',
+      transaciona: 'http://localhost:8082',
+      voucher: 'http://localhost:8083',
+    ),
   };
 
   /// Gets the current environment (dev/prod)

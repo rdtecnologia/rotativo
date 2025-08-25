@@ -55,22 +55,43 @@ class AuthNotifier extends StateNotifier<AuthState> {
           isLoading: false,
         );
       } catch (e) {
-        // Token inválido ou timeout - limpar dados
+        // Token inválido, timeout ou erro de conexão - limpar dados
         if (kDebugMode) {
           print('Token validation failed: $e');
         }
 
-        await AuthService.logout();
+        // Se for erro de conexão, não limpar dados automaticamente
+        if (e.toString().contains('connection') ||
+            e.toString().contains('host lookup') ||
+            e.toString().contains('Failed host lookup')) {
+          if (kDebugMode) {
+            print('Connection error detected - keeping stored data');
+          }
 
-        // Garantir tempo mínimo de carregamento para UX
-        await _ensureMinimumLoadingTime(
-            startTime, const Duration(milliseconds: 1000));
+          // Garantir tempo mínimo de carregamento para UX
+          await _ensureMinimumLoadingTime(
+              startTime, const Duration(milliseconds: 1000));
 
-        state = state.copyWith(
-          user: null,
-          biometricEnabled: false,
-          isLoading: false,
-        );
+          state = state.copyWith(
+            user: user, // Manter usuário armazenado
+            biometricEnabled: biometricEnabled,
+            isLoading: false,
+            error: 'Erro de conexão. Verifique sua internet.',
+          );
+        } else {
+          // Outros erros - limpar dados
+          await AuthService.logout();
+
+          // Garantir tempo mínimo de carregamento para UX
+          await _ensureMinimumLoadingTime(
+              startTime, const Duration(milliseconds: 1000));
+
+          state = state.copyWith(
+            user: null,
+            biometricEnabled: false,
+            isLoading: false,
+          );
+        }
       }
     } catch (e) {
       if (kDebugMode) {
