@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Launch background for demo flavor (v21) -->
-<layer-list xmlns:android="http://schemas/android/apk/res/android">
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
     <!-- Background gradient similar to our Flutter splash screen -->
     <item>
         <shape android:shape="rectangle">

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:rotativo/debug_page.dart';
 
 import '../../../providers/city_config_provider.dart';
@@ -70,22 +72,37 @@ class HomeTopBar extends ConsumerWidget {
             ),
           ),
 
-          // Debug button
-          IconButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const DebugPage(),
+          // Debug button (only in debug mode) or Logo (in release mode)
+          if (kDebugMode)
+            IconButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const DebugPage(),
+                  ),
+                );
+              },
+              icon: const Icon(
+                Icons.bug_report,
+                color: Colors.white,
+                size: 24,
+              ),
+            )
+          else
+            // Show logo.svg in release mode (non-clickable)
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: SvgPicture.asset(
+                'assets/images/svg/logo.svg',
+                width: 32,
+                height: 32,
+                colorFilter: const ColorFilter.mode(
+                  Colors.white,
+                  BlendMode.srcIn,
                 ),
-              );
-            },
-            icon: const Icon(
-              Icons.bug_report,
-              color: Colors.white,
-              size: 24,
+              ),
             ),
-          ),
         ],
       ),
     );
