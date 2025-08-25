@@ -37,6 +37,7 @@ class _VehicleCarouselState extends State<VehicleCarousel> {
 
   @override
   Widget build(BuildContext context) {
+    // Se não tem veículos, mostra o widget de "sem veículos"
     if (widget.vehicles.isEmpty) {
       return const NoVehiclesWidget();
     }

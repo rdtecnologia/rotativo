@@ -6,23 +6,27 @@ import '../services/vehicle_service.dart';
 class VehicleState {
   final List<Vehicle> vehicles;
   final bool isLoading;
+  final bool hasInitialized; // Novo campo para controlar se já foi inicializado
   final String? error;
 
   const VehicleState({
     this.vehicles = const [],
     this.isLoading = false,
+    this.hasInitialized = false,
     this.error,
   });
 
   VehicleState copyWith({
     List<Vehicle>? vehicles,
     bool? isLoading,
+    bool? hasInitialized,
     String? error,
     bool clearError = false,
   }) {
     return VehicleState(
       vehicles: vehicles ?? this.vehicles,
       isLoading: isLoading ?? this.isLoading,
+      hasInitialized: hasInitialized ?? this.hasInitialized,
       error: clearError ? null : (error ?? this.error),
     );
   }
@@ -39,10 +43,13 @@ class VehicleNotifier extends StateNotifier<VehicleState> {
       state = state.copyWith(
         vehicles: vehicles,
         isLoading: false,
+        hasInitialized:
+            true, // Marca como inicializado após o primeiro carregamento
       );
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
+        hasInitialized: true, // Marca como inicializado mesmo em caso de erro
         error: e.toString(),
       );
     }
@@ -66,10 +73,12 @@ class VehicleNotifier extends StateNotifier<VehicleState> {
     }
   }
 
-  Future<void> updateVehicle(String licensePlate, VehicleUpdateRequest request) async {
+  Future<void> updateVehicle(
+      String licensePlate, VehicleUpdateRequest request) async {
     try {
       state = state.copyWith(isLoading: true, clearError: true);
-      final updatedVehicle = await VehicleService.updateVehicle(licensePlate, request);
+      final updatedVehicle =
+          await VehicleService.updateVehicle(licensePlate, request);
       final updatedVehicles = state.vehicles.map((vehicle) {
         return vehicle.licensePlate == licensePlate ? updatedVehicle : vehicle;
       }).toList();
@@ -90,9 +99,11 @@ class VehicleNotifier extends StateNotifier<VehicleState> {
     try {
       state = state.copyWith(isLoading: true, clearError: true);
       await VehicleService.deleteVehicle(licensePlate);
-      final updatedVehicles = state.vehicles.where(
-        (vehicle) => vehicle.licensePlate != licensePlate,
-      ).toList();
+      final updatedVehicles = state.vehicles
+          .where(
+            (vehicle) => vehicle.licensePlate != licensePlate,
+          )
+          .toList();
       state = state.copyWith(
         vehicles: updatedVehicles,
         isLoading: false,
@@ -116,7 +127,8 @@ class VehicleNotifier extends StateNotifier<VehicleState> {
 }
 
 // Providers
-final vehicleProvider = StateNotifierProvider<VehicleNotifier, VehicleState>((ref) {
+final vehicleProvider =
+    StateNotifierProvider<VehicleNotifier, VehicleState>((ref) {
   return VehicleNotifier();
 });
 

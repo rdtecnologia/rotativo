@@ -27,7 +27,7 @@ void main() {
 /// Change Environment.setEnvironment('dev') to switch to development
 void _initializeApp() {
   // 🔧 CONFIGURE ENVIRONMENT HERE:
-  // Environment.setEnvironment('dev'); // Use development APIs
+  //Environment.setEnvironment('dev'); // Use development APIs
   Environment.setEnvironment('prod'); // Use production APIs (default)
 
   // Print current configuration for debugging

@@ -28,13 +28,19 @@ class VehicleSection extends ConsumerWidget {
             builder: (context, ref, child) {
               final vehicles = ref.watch(vehicleListProvider);
               final isLoading = ref.watch(vehicleLoadingProvider);
+              final hasInitialized = ref.watch(vehicleProvider).hasInitialized;
 
-              if (isLoading) {
-                return const CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                );
+              // Mostra loading enquanto está carregando E não tem dados iniciais
+              if (isLoading && !hasInitialized) {
+                return const VehicleLoadingWidget();
               }
 
+              // Se não está carregando E não tem veículos E já foi inicializado, mostra card de "sem veículos"
+              if (!isLoading && vehicles.isEmpty && hasInitialized) {
+                return const NoVehiclesWidget();
+              }
+
+              // Mostra o carrossel se tiver veículos OU ainda está carregando com dados existentes
               return VehicleCarousel(
                 vehicles: vehicles,
                 onVehicleTap: onVehicleTap,
@@ -43,6 +49,38 @@ class VehicleSection extends ConsumerWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// Widget de loading elegante para a seção de veículos
+class VehicleLoadingWidget extends StatelessWidget {
+  const VehicleLoadingWidget({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        SizedBox(
+          width: 48,
+          height: 48,
+          child: CircularProgressIndicator(
+            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+            strokeWidth: 3,
+          ),
+        ),
+        const SizedBox(height: 16),
+        Text(
+          'Carregando veículos...',
+          style: TextStyle(
+            fontSize: 16,
+            color: Colors.white.withValues(alpha: 0.8),
+            fontWeight: FontWeight.w500,
+          ),
+          textAlign: TextAlign.center,
+        ),
+      ],
     );
   }
 }
