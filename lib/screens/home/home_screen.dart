@@ -116,6 +116,7 @@ class _HomePageState extends ConsumerState<HomePage>
   @override
   Widget build(BuildContext context) {
     inspect('build');
+
     return Scaffold(
       key: _scaffoldKey,
       drawer: const CustomDrawer(),

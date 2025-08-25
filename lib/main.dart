@@ -9,6 +9,9 @@ import 'config/environment.dart';
 // Providers
 import 'providers/auth_provider.dart';
 
+// Services
+import 'services/notification_service.dart';
+
 // Screens
 import 'screens/splash_screen.dart';
 import 'screens/auth/login_screen.dart';
@@ -88,7 +91,10 @@ class AuthWrapper extends ConsumerWidget {
     }
 
     if (authState.isAuthenticated) {
-      return const HomePage();
+      // Envolve a HomePage com o monitor de notificações
+      return const ActivationNotificationMonitor(
+        child: HomePage(),
+      );
     } else {
       return const LoginScreen();
     }

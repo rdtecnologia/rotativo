@@ -19,11 +19,13 @@ class ParkingTimer extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final activeActivation = ref.watch(vehicleActiveActivationProvider(vehicle));
-    //final activeActivationsState = ref.watch(activeActivationsProvider);
-    
+    final activeActivation =
+        ref.watch(vehicleActiveActivationProvider(vehicle));
+    // Observa mudanças no tempo global para forçar rebuild quando necessário
+    ref.watch(timeUpdateProvider);
+
     //debugPrint('🅿️ ParkingTimer - Estado completo das ativações: ${activeActivationsState.keys.join(', ')}');
-    
+
     if (activeActivation == null) {
       //debugPrint('🅿️ ParkingTimer - Nenhuma ativação ativa para ${vehicle.licensePlate}');
       return const SizedBox.shrink(); // Não mostra nada se não há ativação
@@ -32,13 +34,14 @@ class ParkingTimer extends ConsumerWidget {
     // SEMPRE mostra a ativação se ela existir, independentemente do status
     final isActive = activeActivation.isActive;
     //final isRecent = DateTime.now().difference(activeActivation.activatedAt).inHours < 24;
-    
+
     // DEBUG DETALHADO para entender o problema
     if (kDebugMode) {
       final now = DateTime.now();
-      final expirationTime = activeActivation.expiresAt ?? 
-          activeActivation.activatedAt.add(Duration(minutes: activeActivation.parkingTime));
-      
+      final expirationTime = activeActivation.expiresAt ??
+          activeActivation.activatedAt
+              .add(Duration(minutes: activeActivation.parkingTime));
+
       debugPrint('🅿️ ParkingTimer DEBUG para ${vehicle.licensePlate}:');
       debugPrint('  - ID: ${activeActivation.id}');
       debugPrint('  - Status: ${activeActivation.status}');
@@ -49,19 +52,20 @@ class ParkingTimer extends ConsumerWidget {
       debugPrint('  - Now: $now');
       debugPrint('  - IsActive: $isActive');
       debugPrint('  - RemainingMinutes: ${activeActivation.remainingMinutes}');
-      debugPrint('  - Time difference: ${expirationTime.difference(now).inMinutes} minutos');
+      debugPrint(
+          '  - Time difference: ${expirationTime.difference(now).inMinutes} minutos');
     }
-    
+
     //debugPrint('🅿️ ParkingTimer - Mostrando timer para ${vehicle.licensePlate}: ${activeActivation.remainingMinutes}min restantes, isActive=$isActive, isRecent=$isRecent');
 
     final remainingMinutes = activeActivation.remainingMinutes;
     final totalMinutes = activeActivation.parkingTime;
     final progress = remainingMinutes / totalMinutes;
-    
+
     // Calcula a hora de expiração
-    final expirationTime = activeActivation.expiresAt ?? 
+    final expirationTime = activeActivation.expiresAt ??
         activeActivation.activatedAt.add(Duration(minutes: totalMinutes));
-    
+
     // Formata o tempo restante
     final hours = remainingMinutes ~/ 60;
     final minutes = remainingMinutes % 60;
@@ -74,7 +78,7 @@ class ParkingTimer extends ConsumerWidget {
 
     // Define a cor baseada no status da ativação
     Color timerColor;
-    
+
     if (!isActive) {
       // Ativação expirada mas recente (últimas 24h)
       timerColor = Colors.grey;
@@ -93,7 +97,8 @@ class ParkingTimer extends ConsumerWidget {
         minHeight: 70, // Reduzido de 90 para 70
         maxHeight: 90, // Reduzido de 120 para 90
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6), // Reduzido vertical de 8 para 6
+      padding: const EdgeInsets.symmetric(
+          horizontal: 12, vertical: 6), // Reduzido vertical de 8 para 6
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.30),
         borderRadius: BorderRadius.circular(12),
@@ -131,7 +136,7 @@ class ParkingTimer extends ConsumerWidget {
               ),
             ],
           ),
-          
+
           // Barra de progresso
           SizedBox(
             width: double.infinity,
@@ -142,12 +147,12 @@ class ParkingTimer extends ConsumerWidget {
               minHeight: 4, // Reduzido de 5 para 4
             ),
           ),
-          
+
           // Status e hora de expiração
           Text(
-            !isActive 
-              ? 'Ativado às ${AppFormatters.formatTime(activeActivation.activatedAt)}'
-              : 'Expira às ${AppFormatters.formatTime(expirationTime)}',
+            !isActive
+                ? 'Ativado às ${AppFormatters.formatTime(activeActivation.activatedAt)}'
+                : 'Expira às ${AppFormatters.formatTime(expirationTime)}',
             style: TextStyle(
               color: Colors.white.withValues(alpha: 0.8),
               fontSize: 10, // Reduzido de 11 para 10
@@ -157,7 +162,7 @@ class ParkingTimer extends ConsumerWidget {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
-          
+
           // Status adicional para ativações expiradas
           if (!isActive) ...[
             const SizedBox(height: 2),
@@ -190,14 +195,15 @@ class CompactParkingTimer extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final activeActivation = ref.watch(vehicleActiveActivationProvider(vehicle));
-    
+    final activeActivation =
+        ref.watch(vehicleActiveActivationProvider(vehicle));
+
     if (activeActivation == null || !activeActivation.isActive) {
       return const SizedBox.shrink();
     }
 
     final remainingMinutes = activeActivation.remainingMinutes;
-    
+
     // Define a cor baseada no tempo restante
     Color timerColor;
     if (remainingMinutes <= 5) {

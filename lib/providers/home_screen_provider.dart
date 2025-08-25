@@ -6,9 +6,24 @@ import '../providers/vehicle_provider.dart';
 
 /// Provider para gerenciar o estado da tela home
 class HomeScreenNotifier extends StateNotifier<HomeScreenState> {
-  HomeScreenNotifier(this.ref) : super(HomeScreenState.initial());
+  HomeScreenNotifier(this.ref) : super(HomeScreenState.initial()) {
+    // Adiciona listener para mudanças nas ativações ativas
+    _setupActivationsListener();
+  }
 
   final Ref ref;
+
+  /// Configura o listener para mudanças nas ativações ativas
+  void _setupActivationsListener() {
+    // Observa mudanças nas ativações ativas para atualizar o estado
+    ref.listen(activeActivationsProvider, (previous, next) {
+      if (previous != next) {
+        debugPrint('🔄 HomeScreen: Mudança detectada nas ativações ativas');
+        // Atualiza o timestamp da última atualização
+        state = state.copyWith(lastUpdated: DateTime.now());
+      }
+    });
+  }
 
   /// Carrega todos os dados necessários para a tela home
   Future<void> loadAllData() async {
