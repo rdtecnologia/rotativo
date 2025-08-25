@@ -10,6 +10,7 @@ import 'config/environment.dart';
 import 'providers/auth_provider.dart';
 
 // Screens
+import 'screens/splash_screen.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/home/home_screen.dart';
 import 'screens/cards/cards_screen.dart';
@@ -60,12 +61,14 @@ class RotativoApp extends ConsumerWidget {
 
             useMaterial3: true,
           ),
-          home: const AuthWrapper(),
+          home: const SplashScreen(),
           routes: {
+            '/splash': (context) => const SplashScreen(),
             '/home': (context) => const HomePage(),
             '/login': (context) => const LoginScreen(),
             '/cards': (context) => const CardsScreen(),
             '/biometric-settings': (context) => const BiometricSettingsScreen(),
+            '/auth': (context) => const AuthWrapper(),
           },
         );
       },
@@ -81,7 +84,7 @@ class AuthWrapper extends ConsumerWidget {
     final authState = ref.watch(authProvider);
 
     if (authState.isLoading) {
-      LoaderWiget();
+      return const LoaderWidget();
     }
 
     if (authState.isAuthenticated) {

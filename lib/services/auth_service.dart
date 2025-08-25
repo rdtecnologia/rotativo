@@ -256,6 +256,37 @@ class AuthService {
     }
   }
 
+  // Get current user data with timeout - OPTIMIZED
+  static Future<User?> getCurrentUserWithTimeout({Duration? timeout}) async {
+    try {
+      final dio = _createAuthenticatedDio('REGISTER');
+
+      // Aplicar timeout se especificado
+      if (timeout != null) {
+        dio.options.connectTimeout = timeout;
+        dio.options.receiveTimeout = timeout;
+      }
+
+      final response = await dio.get('/driver');
+
+      return User.fromJson(response.data);
+    } on DioException catch (e) {
+      if (e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.receiveTimeout) {
+        throw Exception('Timeout: Verificação do usuário demorou muito');
+      }
+
+      if (e.response?.statusCode == 401) {
+        // Token expired or invalid, clear stored data
+        await logout();
+        return null;
+      }
+      throw _handleDioError(e);
+    } catch (e) {
+      throw Exception('Erro ao obter dados do usuário: $e');
+    }
+  }
+
   // Change password
   static Future<void> changePassword(
       String oldPassword, String newPassword) async {

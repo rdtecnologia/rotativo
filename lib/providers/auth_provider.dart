@@ -15,44 +15,86 @@ class AuthNotifier extends StateNotifier<AuthState> {
     _loadStoredUser();
   }
 
-  // Load stored user and biometric status on app start
+  // Load stored user and biometric status on app start - OPTIMIZED
   Future<void> _loadStoredUser() async {
+    final startTime = DateTime.now();
+
     try {
       state = state.copyWith(isLoading: true);
-      final user = await AuthService.getStoredUser();
 
-      // Carrega o status da biometria
+      // Carregar dados locais primeiro (muito rápido)
+      final user = await AuthService.getStoredUser();
       final biometricEnabled = await AuthService.isBiometricEnabled();
 
-      if (user != null && user.token != null) {
-        // Verify if token is still valid by fetching current user
-        try {
-          final currentUser = await AuthService.getCurrentUser();
-          state = state.copyWith(
-            user: currentUser,
-            biometricEnabled: biometricEnabled,
-            isLoading: false,
-          );
-        } catch (e) {
-          // Token invalid, clear stored data
-          await AuthService.logout();
-          state = state.copyWith(
-            user: null,
-            biometricEnabled: false,
-            isLoading: false,
-          );
-        }
-      } else {
+      // Se não há usuário, não precisa validar token
+      if (user == null || user.token == null) {
+        // Garantir tempo mínimo de carregamento para UX
+        await _ensureMinimumLoadingTime(
+            startTime, const Duration(milliseconds: 800));
+
         state = state.copyWith(
           biometricEnabled: biometricEnabled,
           isLoading: false,
         );
+        return;
+      }
+
+      // Validar token com timeout para não travar o app
+      try {
+        final currentUser = await AuthService.getCurrentUserWithTimeout(
+          timeout: const Duration(seconds: 3),
+        );
+
+        // Garantir tempo mínimo de carregamento para UX
+        await _ensureMinimumLoadingTime(
+            startTime, const Duration(milliseconds: 1200));
+
+        state = state.copyWith(
+          user: currentUser,
+          biometricEnabled: biometricEnabled,
+          isLoading: false,
+        );
+      } catch (e) {
+        // Token inválido ou timeout - limpar dados
+        if (kDebugMode) {
+          print('Token validation failed: $e');
+        }
+
+        await AuthService.logout();
+
+        // Garantir tempo mínimo de carregamento para UX
+        await _ensureMinimumLoadingTime(
+            startTime, const Duration(milliseconds: 1000));
+
+        state = state.copyWith(
+          user: null,
+          biometricEnabled: false,
+          isLoading: false,
+        );
       }
     } catch (e) {
+      if (kDebugMode) {
+        print('Error loading stored user: $e');
+      }
+
+      // Garantir tempo mínimo de carregamento para UX
+      await _ensureMinimumLoadingTime(
+          startTime, const Duration(milliseconds: 800));
+
       state = state.copyWith(
         isLoading: false,
         error: e.toString(),
       );
+    }
+  }
+
+  // Garantir tempo mínimo de carregamento para melhor UX
+  Future<void> _ensureMinimumLoadingTime(
+      DateTime startTime, Duration minimumTime) async {
+    final elapsed = DateTime.now().difference(startTime);
+    if (elapsed < minimumTime) {
+      final remaining = minimumTime - elapsed;
+      await Future.delayed(remaining);
     }
   }
 
