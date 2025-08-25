@@ -8,18 +8,12 @@ import '../utils/logger.dart';
 import 'auth_service.dart';
 
 class BalanceService {
-  static Dio? _dio;
-
-  static void _clearDioInstance() {
-    _dio = null;
-  }
-
   static Future<Dio> _getDio() async {
-    if (_dio != null) return _dio!;
-
+    // Always get the current environment URL to ensure it's up to date
     final baseUrl = Environment.transacionaApi;
 
-    _dio = Dio(BaseOptions(
+    // Create new Dio instance each time to ensure environment changes are applied
+    final dio = Dio(BaseOptions(
       baseUrl: baseUrl,
       connectTimeout: const Duration(seconds: 30),
       receiveTimeout: const Duration(seconds: 30),
@@ -30,7 +24,7 @@ class BalanceService {
     ));
 
     // Add Domain header
-    _dio!.interceptors.add(InterceptorsWrapper(
+    dio.interceptors.add(InterceptorsWrapper(
       onRequest: (options, handler) async {
         final domain = await DynamicAppConfig.domain;
         options.headers['Domain'] = domain;
@@ -47,7 +41,7 @@ class BalanceService {
 
     // Add logging only in debug mode
     if (kDebugMode) {
-      _dio!.interceptors.add(PrettyDioLogger(
+      dio.interceptors.add(PrettyDioLogger(
         requestHeader: true,
         requestBody: true,
         responseBody: true,
@@ -57,13 +51,12 @@ class BalanceService {
       ));
     }
 
-    return _dio!;
+    return dio;
   }
 
   /// Get user balance
   static Future<Balance> getBalance() async {
     try {
-      _clearDioInstance(); // Force clear cached Dio to use new PROD URL
       final dio = await _getDio();
       final response = await dio.get('/ticket/balance');
 
@@ -131,7 +124,6 @@ class BalanceService {
   /// Get balance details
   static Future<BalanceDetail> getBalanceDetails() async {
     try {
-      _clearDioInstance(); // Force clear cached Dio to use new PROD URL
       final dio = await _getDio();
       final response = await dio.get('/ticket/balance/details');
 

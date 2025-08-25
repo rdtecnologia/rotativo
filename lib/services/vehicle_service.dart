@@ -7,14 +7,12 @@ import '../models/vehicle_models.dart';
 import 'auth_service.dart';
 
 class VehicleService {
-  static Dio? _dio;
-
   static Future<Dio> _getDio() async {
-    if (_dio != null) return _dio!;
-
+    // Always get the current environment URL to ensure it's up to date
     final baseUrl = Environment.registerApi;
-    
-    _dio = Dio(BaseOptions(
+
+    // Create new Dio instance each time to ensure environment changes are applied
+    final dio = Dio(BaseOptions(
       baseUrl: baseUrl,
       connectTimeout: const Duration(seconds: 30),
       receiveTimeout: const Duration(seconds: 30),
@@ -25,24 +23,24 @@ class VehicleService {
     ));
 
     // Add Domain header
-    _dio!.interceptors.add(InterceptorsWrapper(
+    dio.interceptors.add(InterceptorsWrapper(
       onRequest: (options, handler) async {
         final domain = await DynamicAppConfig.domain;
         options.headers['Domain'] = domain;
-        
+
         // Add auth token if available
         final token = await AuthService.getStoredToken();
         if (token != null) {
           options.headers['Authorization'] = 'Jwt $token';
         }
-        
+
         handler.next(options);
       },
     ));
 
     // Add logging only in debug mode
     if (kDebugMode) {
-      _dio!.interceptors.add(PrettyDioLogger(
+      dio.interceptors.add(PrettyDioLogger(
         requestHeader: true,
         requestBody: true,
         responseBody: true,
@@ -52,20 +50,20 @@ class VehicleService {
       ));
     }
 
-    return _dio!;
+    return dio;
   }
-
-
 
   /// Get user vehicles
   static Future<List<Vehicle>> getVehicles() async {
     try {
       final dio = await _getDio();
       final response = await dio.get('/driver/vehicle');
-      
+
       if (response.statusCode == 200) {
         final data = response.data;
-        if (data != null && data['driver'] != null && data['driver']['vehicles'] != null) {
+        if (data != null &&
+            data['driver'] != null &&
+            data['driver']['vehicles'] != null) {
           final vehiclesList = data['driver']['vehicles'] as List;
           return vehiclesList.map((json) => Vehicle.fromJson(json)).toList();
         }
@@ -82,45 +80,51 @@ class VehicleService {
   static Future<Vehicle> createVehicle(VehicleCreateRequest request) async {
     int retryCount = 0;
     const maxRetries = 3;
-    
+
     while (retryCount < maxRetries) {
       try {
         final dio = await _getDio();
-        final response = await dio.post('/driver/vehicle', data: request.toJson());
-        
+        final response =
+            await dio.post('/driver/vehicle', data: request.toJson());
+
         if (response.statusCode == 200 || response.statusCode == 201) {
           return Vehicle.fromJson(response.data);
         } else {
-          throw Exception('Erro ao cadastrar veículo: ${response.statusMessage}');
+          throw Exception(
+              'Erro ao cadastrar veículo: ${response.statusMessage}');
         }
       } catch (e) {
         retryCount++;
-        
+
         // Se for erro 503 (Service Unavailable) e ainda há tentativas, tenta novamente
         if (e.toString().contains('503') && retryCount < maxRetries) {
-          debugPrint('🔄 Tentativa $retryCount falhou com erro 503. Tentando novamente em 2 segundos...');
+          debugPrint(
+              '🔄 Tentativa $retryCount falhou com erro 503. Tentando novamente em 2 segundos...');
           await Future.delayed(const Duration(seconds: 2));
           continue;
         }
-        
+
         // Se não for erro 503 ou acabaram as tentativas, lança a exceção
         if (e.toString().contains('503')) {
-          throw Exception('Servidor temporariamente indisponível. Tente novamente em alguns minutos.');
+          throw Exception(
+              'Servidor temporariamente indisponível. Tente novamente em alguns minutos.');
         } else {
           throw Exception('Erro ao cadastrar veículo: $e');
         }
       }
     }
-    
+
     throw Exception('Falha ao cadastrar veículo após $maxRetries tentativas');
   }
 
   /// Update a vehicle
-  static Future<Vehicle> updateVehicle(String licensePlate, VehicleUpdateRequest request) async {
+  static Future<Vehicle> updateVehicle(
+      String licensePlate, VehicleUpdateRequest request) async {
     try {
       final dio = await _getDio();
-      final response = await dio.put('/driver/vehicle/$licensePlate', data: request.toJson());
-      
+      final response = await dio.put('/driver/vehicle/$licensePlate',
+          data: request.toJson());
+
       if (response.statusCode == 200) {
         return Vehicle.fromJson(response.data);
       } else {
@@ -136,7 +140,7 @@ class VehicleService {
     try {
       final dio = await _getDio();
       final response = await dio.delete('/driver/vehicle/$licensePlate');
-      
+
       if (response.statusCode != 200 && response.statusCode != 204) {
         throw Exception('Erro ao excluir veículo: ${response.statusMessage}');
       }
