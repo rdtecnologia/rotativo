@@ -436,30 +436,6 @@ class MainDetailsSection extends StatelessWidget {
           ),
         ],
 
-        // Payment method with icon
-        if (kDebugMode && payment != null) ...[
-          Container(
-            padding: const EdgeInsets.all(8),
-            margin: const EdgeInsets.only(bottom: 8),
-            decoration: BoxDecoration(
-              color: Colors.blue.shade100,
-              borderRadius: BorderRadius.circular(4),
-              border: Border.all(color: Colors.blue.shade300),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('DEBUG - Payment Method:',
-                    style:
-                        TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-                Text('Raw Method: ${payment.method}',
-                    style: TextStyle(fontSize: 10)),
-                Text('Mapped Method: ${_getPaymentMethodText(payment.method)}',
-                    style: TextStyle(fontSize: 10)),
-              ],
-            ),
-          ),
-        ],
         Row(
           children: [
             Expanded(
@@ -591,31 +567,6 @@ class MainDetailsSection extends StatelessWidget {
 
         // Billet details
         if (payment?.billet != null) ...[
-          if (kDebugMode) ...[
-            Container(
-              padding: const EdgeInsets.all(8),
-              margin: const EdgeInsets.only(bottom: 8),
-              decoration: BoxDecoration(
-                color: Colors.grey.shade100,
-                borderRadius: BorderRadius.circular(4),
-                border: Border.all(color: Colors.grey.shade300),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('DEBUG - Billet Data:',
-                      style:
-                          TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-                  Text('URL: ${payment?.billet?.url ?? "null"}',
-                      style: TextStyle(fontSize: 10)),
-                  Text('Status: ${payment?.status ?? "null"}',
-                      style: TextStyle(fontSize: 10)),
-                  Text('Method: ${payment?.method ?? "null"}',
-                      style: TextStyle(fontSize: 10)),
-                ],
-              ),
-            ),
-          ],
           const SizedBox(height: 16),
 
           // Container atrativo para Boleto
