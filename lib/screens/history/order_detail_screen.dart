@@ -185,6 +185,9 @@ class MainDetailsSection extends StatelessWidget {
       case 'pix':
         return 'PIX';
       case 'billet':
+      case 'boleto':
+      case 'boleto bancário':
+      case 'boleto bancario':
         return 'Boleto';
       case 'credit_card':
       case 'creditcard':
@@ -237,6 +240,35 @@ class MainDetailsSection extends StatelessWidget {
       default:
         return Colors.grey.shade700;
     }
+  }
+
+  // Helper method to get boleto data from payments
+  String? _getBoletoUrl() {
+    if (order.payments.isEmpty) return null;
+
+    if (kDebugMode) {
+      print('🔍 DEBUG - Payments count: ${order.payments.length}');
+      for (int i = 0; i < order.payments.length; i++) {
+        final payment = order.payments[i];
+        print(
+            '🔍 DEBUG - Payment $i: method=${payment.method}, status=${payment.status}, billet=${payment.billet?.url ?? "null"}');
+      }
+    }
+
+    // Try to find boleto payment
+    final boletoPayment = order.payments.firstWhere(
+      (p) =>
+          p.method.toLowerCase().contains('boleto') ||
+          p.method.toLowerCase().contains('billet'),
+      orElse: () => order.payments.first,
+    );
+
+    if (kDebugMode) {
+      print(
+          '🔍 DEBUG - Selected payment: method=${boletoPayment.method}, billet=${boletoPayment.billet?.url ?? "null"}');
+    }
+
+    return boletoPayment.billet?.url;
   }
 
   Widget _buildDetailBox({
@@ -405,6 +437,29 @@ class MainDetailsSection extends StatelessWidget {
         ],
 
         // Payment method with icon
+        if (kDebugMode && payment != null) ...[
+          Container(
+            padding: const EdgeInsets.all(8),
+            margin: const EdgeInsets.only(bottom: 8),
+            decoration: BoxDecoration(
+              color: Colors.blue.shade100,
+              borderRadius: BorderRadius.circular(4),
+              border: Border.all(color: Colors.blue.shade300),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('DEBUG - Payment Method:',
+                    style:
+                        TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                Text('Raw Method: ${payment.method}',
+                    style: TextStyle(fontSize: 10)),
+                Text('Mapped Method: ${_getPaymentMethodText(payment.method)}',
+                    style: TextStyle(fontSize: 10)),
+              ],
+            ),
+          ),
+        ],
         Row(
           children: [
             Expanded(
@@ -536,6 +591,31 @@ class MainDetailsSection extends StatelessWidget {
 
         // Billet details
         if (payment?.billet != null) ...[
+          if (kDebugMode) ...[
+            Container(
+              padding: const EdgeInsets.all(8),
+              margin: const EdgeInsets.only(bottom: 8),
+              decoration: BoxDecoration(
+                color: Colors.grey.shade100,
+                borderRadius: BorderRadius.circular(4),
+                border: Border.all(color: Colors.grey.shade300),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('DEBUG - Billet Data:',
+                      style:
+                          TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                  Text('URL: ${payment?.billet?.url ?? "null"}',
+                      style: TextStyle(fontSize: 10)),
+                  Text('Status: ${payment?.status ?? "null"}',
+                      style: TextStyle(fontSize: 10)),
+                  Text('Method: ${payment?.method ?? "null"}',
+                      style: TextStyle(fontSize: 10)),
+                ],
+              ),
+            ),
+          ],
           const SizedBox(height: 16),
 
           // Container atrativo para Boleto
@@ -625,11 +705,11 @@ class MainDetailsSection extends StatelessWidget {
                 const SizedBox(height: 16),
 
                 // Botão de visualizar boleto
-                if (payment.status == 'Aguardando Pagamento') ...[
+                if (_getBoletoUrl() != null && _getBoletoUrl()!.isNotEmpty) ...[
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton.icon(
-                      onPressed: () => onShowPDF(payment.billet!.url),
+                      onPressed: () => onShowPDF(_getBoletoUrl()!),
                       icon: const Icon(Icons.picture_as_pdf),
                       label: const Text('Visualizar Boleto'),
                       style: ElevatedButton.styleFrom(
@@ -982,6 +1062,16 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
   }
 
   void _showPDFPopup(String pdfUrl) {
+    if (pdfUrl.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('URL do boleto não disponível'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
     if (kDebugMode) {
       print('📄 PDF Viewer - Tentando abrir URL: $pdfUrl');
     }
