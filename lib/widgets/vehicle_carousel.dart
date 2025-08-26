@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/vehicle_models.dart';
-import '../screens/vehicles/register_vehicle_screen.dart';
+import '../providers/active_activations_provider.dart';
+import 'no_vehicles.dart';
+import 'parking_no_timer.dart';
 import 'parking_timer.dart';
 
 class VehicleCarousel extends StatefulWidget {
@@ -97,7 +100,7 @@ class _VehicleCarouselState extends State<VehicleCarousel> {
   }
 }
 
-class VehicleCard extends StatelessWidget {
+class VehicleCard extends ConsumerWidget {
   final Vehicle vehicle;
   final VoidCallback onTap;
 
@@ -135,7 +138,7 @@ class VehicleCard extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -244,7 +247,7 @@ class VehicleCard extends StatelessWidget {
                   style: TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
-                    fontSize: 12,
+                    fontSize: 16,
                   ),
                 ),
               ),
@@ -252,103 +255,41 @@ class VehicleCard extends StatelessWidget {
               // ESPAÇO FLEXÍVEL NO MEIO - Se adapta à resolução
               const Expanded(child: SizedBox()),
 
-              // PARTE INFERIOR: Timer
+              // PARTE INFERIOR: Timer ou mensagem de sem estacionamento
               Column(
                 children: [
-                  // Parking timer (se houver estacionamento ativo)
+                  // Parking timer (se houver estacionamento ativo) ou mensagem fixa
                   SizedBox(
                     width: double.infinity,
-                    height: 80,
-                    child: ParkingTimer(
-                      vehicle: vehicle,
-                      width: double.infinity,
-                      height: 80,
+                    height: 90,
+                    child: Consumer(
+                      builder: (context, ref, child) {
+                        final activeActivation =
+                            ref.watch(vehicleActiveActivationProvider(vehicle));
+
+                        // Se não há ativação ou a ativação não está ativa, mostra mensagem fixa
+                        if (activeActivation == null ||
+                            !activeActivation.isActive) {
+                          return ParkingNoTimer();
+                        }
+
+                        // Se há estacionamento ativo, mostra o timer
+                        return ParkingTimer(
+                          vehicle: vehicle,
+                          width: double.infinity,
+                          height: 80,
+                        );
+                      },
                     ),
                   ),
 
                   // ESPAÇO INFERIOR - Afasta elementos da borda inferior
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 4),
                 ],
               ),
             ],
           ),
         ),
-      ),
-    );
-  }
-}
-
-class NoVehiclesWidget extends StatelessWidget {
-  const NoVehiclesWidget({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.all(20),
-      padding: const EdgeInsets.all(40),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.9),
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
-            blurRadius: 8,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.directions_car_outlined,
-            size: 64,
-            color: Colors.grey.shade400,
-          ),
-          const SizedBox(height: 16),
-          Text(
-            'Nenhum veículo cadastrado',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Colors.grey.shade600,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Cadastre seus veículos para começar a usar o app',
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey.shade500,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 24),
-          ElevatedButton.icon(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const RegisterVehicleScreen(),
-                ),
-              );
-            },
-            icon: const Icon(Icons.add),
-            label: const Text('Cadastrar Veículo'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Theme.of(context).primaryColor,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(
-                horizontal: 24,
-                vertical: 12,
-              ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(25),
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }

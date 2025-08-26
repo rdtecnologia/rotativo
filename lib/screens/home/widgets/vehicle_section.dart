@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:rotativo/widgets/no_vehicles.dart';
 
 import '../../../models/vehicle_models.dart';
 import '../../../providers/vehicle_provider.dart';
