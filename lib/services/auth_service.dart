@@ -386,12 +386,21 @@ class AuthService {
         // para tentar restaurar as credenciais
         final user = await getStoredUser();
         if (user != null && user.cpf != null) {
-          // Tenta restaurar credenciais do usuário logado
-          // Nota: A senha não pode ser restaurada, então o usuário precisará
-          // fazer login novamente para reabilitar a biometria
+          // Usuário logado mas sem credenciais biométricas
+          // Isso pode acontecer se o usuário fez login antes da implementação da biometria
+          // ou se as credenciais foram limpas
+          debugPrint(
+              'Usuário logado mas sem credenciais biométricas armazenadas');
           return false;
         }
         // Nenhuma credencial armazenada para habilitar biometria
+        debugPrint('Nenhuma credencial biométrica encontrada');
+        return false;
+      }
+
+      // Verifica se as credenciais são válidas (têm CPF e senha)
+      if (credentials['cpf'] == null || credentials['password'] == null) {
+        debugPrint('Credenciais biométricas incompletas');
         return false;
       }
 
@@ -401,10 +410,10 @@ class AuthService {
         value: 'true',
       );
 
-      // Biometria habilitada com sucesso
+      debugPrint('Biometria habilitada com sucesso');
       return true;
     } catch (e) {
-      // Erro ao habilitar biometria: $e
+      debugPrint('Erro ao habilitar biometria: $e');
       return false;
     }
   }
@@ -449,15 +458,43 @@ class AuthService {
 
   /// Verifica se a biometria está habilitada
   static Future<bool> isBiometricEnabled() async {
-    // Verificando se biometria está habilitada...
     try {
       final enabled = await _storage.read(key: _biometricEnabledKey);
-      // Valor da chave biometric_enabled: $enabled
       final result = enabled == 'true';
-      // Biometria habilitada: $result
+
+      // Se a biometria está marcada como habilitada, verifica se há credenciais válidas
+      if (result) {
+        final credentials = await getStoredCredentials();
+        if (credentials == null ||
+            credentials['cpf'] == null ||
+            credentials['password'] == null) {
+          // Se não há credenciais válidas, desabilita automaticamente a biometria
+          debugPrint(
+              'Biometria marcada como habilitada mas sem credenciais válidas - desabilitando automaticamente');
+          await _storage.write(key: _biometricEnabledKey, value: 'false');
+          return false;
+        }
+      }
+
       return result;
     } catch (e) {
-      // Erro ao verificar biometria habilitada: $e
+      debugPrint('Erro ao verificar biometria habilitada: $e');
+      return false;
+    }
+  }
+
+  /// Verifica se há credenciais biométricas válidas disponíveis
+  static Future<bool> hasValidBiometricCredentials() async {
+    try {
+      final credentials = await getStoredCredentials();
+      if (credentials == null) return false;
+
+      return credentials['cpf'] != null &&
+          credentials['password'] != null &&
+          credentials['cpf'].toString().isNotEmpty &&
+          credentials['password'].toString().isNotEmpty;
+    } catch (e) {
+      debugPrint('Erro ao verificar credenciais biométricas válidas: $e');
       return false;
     }
   }

@@ -3,11 +3,27 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/biometric_settings_provider.dart';
 
-class BiometricSettingsScreen extends ConsumerWidget {
+class BiometricSettingsScreen extends ConsumerStatefulWidget {
   const BiometricSettingsScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<BiometricSettingsScreen> createState() =>
+      _BiometricSettingsScreenState();
+}
+
+class _BiometricSettingsScreenState
+    extends ConsumerState<BiometricSettingsScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // Sincronizar o status biométrico quando a tela for carregada
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(authProvider.notifier).syncBiometricStatus();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Configurações Biométricas'),
@@ -167,14 +183,59 @@ class _BiometricConfigurationCard extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Configuração',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    color: Colors.black87,
-                    fontWeight: FontWeight.bold,
-                  ),
+            Row(
+              children: [
+                Text(
+                  'Configuração',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        color: Colors.black87,
+                        fontWeight: FontWeight.bold,
+                      ),
+                ),
+                const Spacer(),
+                IconButton(
+                  onPressed: () {
+                    ref
+                        .read(biometricSettingsProvider.notifier)
+                        .refreshBiometricStatus();
+                    ref.read(authProvider.notifier).syncBiometricStatus();
+                  },
+                  icon: const Icon(Icons.refresh),
+                  tooltip: 'Atualizar status',
+                ),
+              ],
             ),
             const SizedBox(height: 16),
+
+            // Status das credenciais
+            Row(
+              children: [
+                Icon(
+                  biometricState.hasStoredCredentials
+                      ? Icons.check_circle
+                      : Icons.warning,
+                  color: biometricState.hasStoredCredentials
+                      ? Colors.green
+                      : Colors.orange,
+                  size: 24,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    biometricState.hasStoredCredentials
+                        ? 'Credenciais biométricas disponíveis'
+                        : 'Credenciais biométricas não encontradas',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: Colors.black87,
+                        ),
+                  ),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 16),
+
+            // Status da biometria
             Row(
               children: [
                 Icon(
@@ -199,25 +260,63 @@ class _BiometricConfigurationCard extends ConsumerWidget {
                 ),
               ],
             ),
+
             const SizedBox(height: 20),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor:
-                      authState.biometricEnabled ? Colors.red : Colors.green,
-                  foregroundColor: Colors.white,
-                ),
-                onPressed: authState.biometricEnabled
-                    ? () => _disableBiometric(context, ref)
-                    : () => _enableBiometric(context, ref),
-                child: Text(
-                  authState.biometricEnabled
-                      ? 'Desabilitar Biometria'
-                      : 'Habilitar Biometria',
+
+            // Botões de ação
+            if (biometricState.hasStoredCredentials) ...[
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor:
+                        authState.biometricEnabled ? Colors.red : Colors.green,
+                    foregroundColor: Colors.white,
+                  ),
+                  onPressed: authState.biometricEnabled
+                      ? () => _disableBiometric(context, ref)
+                      : () => _enableBiometric(context, ref),
+                  child: Text(
+                    authState.biometricEnabled
+                        ? 'Desabilitar Biometria'
+                        : 'Habilitar Biometria',
+                  ),
                 ),
               ),
-            ),
+            ] else ...[
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.orange.shade50,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.orange.shade200),
+                ),
+                child: Column(
+                  children: [
+                    Text(
+                      'Para habilitar a biometria, você precisa fazer login primeiro',
+                      style: TextStyle(
+                        color: Colors.orange.shade800,
+                        fontSize: 14,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 12),
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.of(context).pushReplacementNamed('/login');
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.orange.shade600,
+                        foregroundColor: Colors.white,
+                      ),
+                      child: const Text('Fazer Login'),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ],
         ),
       ),

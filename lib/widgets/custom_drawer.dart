@@ -6,6 +6,7 @@ import '../screens/settings/settings_screen.dart';
 import '../screens/settings/biometric_settings_screen.dart';
 import '../screens/history/history_screen.dart';
 import '../screens/vehicles/register_vehicle_screen.dart';
+import '../screens/cards/cards_screen.dart';
 
 import '../screens/purchase/choose_value_screen.dart';
 import '../services/biometric_service.dart';
@@ -56,22 +57,6 @@ class CustomDrawer extends ConsumerWidget {
                 ),
               ),
             ),
-            otherAccountsPictures: [
-              IconButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => const SettingsScreen(),
-                    ),
-                  );
-                },
-                icon: const Icon(
-                  Icons.settings,
-                  color: Colors.white,
-                ),
-              ),
-            ],
           ),
 
           // Main menu items
@@ -128,7 +113,26 @@ class CustomDrawer extends ConsumerWidget {
                   title: 'Cartões de crédito',
                   onTap: () {
                     Navigator.pop(context);
-                    // TODO: Navigate to credit cards screen
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const CardsScreen(),
+                      ),
+                    );
+                  },
+                ),
+                _buildMenuItem(
+                  context,
+                  icon: Icons.settings,
+                  title: 'Configurações',
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const SettingsScreen(),
+                      ),
+                    );
                   },
                 ),
                 // Biometric settings - only show if biometrics are available

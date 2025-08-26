@@ -298,11 +298,24 @@ class AuthNotifier extends StateNotifier<AuthState> {
   /// Sincroniza o estado da biometria com o storage
   Future<void> syncBiometricStatus() async {
     try {
+      // Força uma verificação completa do status biométrico
       final biometricEnabled = await AuthService.isBiometricEnabled();
-      state = state.copyWith(biometricEnabled: biometricEnabled);
-      // Log removed
+
+      // Atualiza o estado apenas se houver mudança
+      if (state.biometricEnabled != biometricEnabled) {
+        state = state.copyWith(biometricEnabled: biometricEnabled);
+        if (kDebugMode) {
+          print('Biometric status synced: $biometricEnabled');
+        }
+      }
     } catch (e) {
-      // Log removed
+      if (kDebugMode) {
+        print('Error syncing biometric status: $e');
+      }
+      // Em caso de erro, assume que a biometria está desabilitada
+      if (state.biometricEnabled) {
+        state = state.copyWith(biometricEnabled: false);
+      }
     }
   }
 
