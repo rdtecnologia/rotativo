@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rotativo/screens/widgets/loader.dart';
 
@@ -22,10 +23,33 @@ import 'screens/cards/cards_screen.dart';
 import 'screens/settings/biometric_settings_screen.dart';
 
 void main() {
+  // Configurar tratamento de erros para eventos de ponteiro
+  _configureErrorHandling();
+
   // Initialize app environment configuration
   _initializeApp();
 
   runApp(const ProviderScope(child: RotativoApp()));
+}
+
+/// Configure error handling for pointer events
+void _configureErrorHandling() {
+  // Configurar tratamento de erros para eventos de ponteiro
+  FlutterError.onError = (FlutterErrorDetails details) {
+    // Filtrar erros relacionados ao MouseTracker
+    if (details.exception.toString().contains('MouseTracker') ||
+        details.exception.toString().contains('PointerAddedEvent') ||
+        details.exception.toString().contains('PointerRemovedEvent')) {
+      // Log do erro mas não quebrar o app
+      debugPrint('Pointer event error handled: ${details.exception}');
+      return;
+    }
+
+    // Para outros erros, usar o handler padrão
+    FlutterError.presentError(details);
+  };
+
+  // Configurar tratamento de erros assíncronos
 }
 
 /// Initialize app configuration
