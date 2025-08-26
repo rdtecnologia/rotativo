@@ -7,6 +7,10 @@ class AlarmSettings {
   final bool promotions;
   final bool systemUpdates;
   final int reminderMinutes;
+  final bool localNotificationsEnabled;
+  final bool soundEnabled;
+  final bool vibrationEnabled;
+  final bool lightsEnabled;
 
   const AlarmSettings({
     this.parkingExpiration = true,
@@ -14,6 +18,10 @@ class AlarmSettings {
     this.promotions = false,
     this.systemUpdates = true,
     this.reminderMinutes = 15,
+    this.localNotificationsEnabled = true,
+    this.soundEnabled = true,
+    this.vibrationEnabled = true,
+    this.lightsEnabled = true,
   });
 
   AlarmSettings copyWith({
@@ -22,6 +30,10 @@ class AlarmSettings {
     bool? promotions,
     bool? systemUpdates,
     int? reminderMinutes,
+    bool? localNotificationsEnabled,
+    bool? soundEnabled,
+    bool? vibrationEnabled,
+    bool? lightsEnabled,
   }) {
     return AlarmSettings(
       parkingExpiration: parkingExpiration ?? this.parkingExpiration,
@@ -29,6 +41,11 @@ class AlarmSettings {
       promotions: promotions ?? this.promotions,
       systemUpdates: systemUpdates ?? this.systemUpdates,
       reminderMinutes: reminderMinutes ?? this.reminderMinutes,
+      localNotificationsEnabled:
+          localNotificationsEnabled ?? this.localNotificationsEnabled,
+      soundEnabled: soundEnabled ?? this.soundEnabled,
+      vibrationEnabled: vibrationEnabled ?? this.vibrationEnabled,
+      lightsEnabled: lightsEnabled ?? this.lightsEnabled,
     );
   }
 }
@@ -65,6 +82,26 @@ class AlarmSettingsNotifier extends StateNotifier<AlarmSettings> {
   // Atualiza o tempo de antecedência
   void updateReminderMinutes(int minutes) {
     state = state.copyWith(reminderMinutes: minutes);
+  }
+
+  // Atualiza a configuração de notificações locais
+  void updateLocalNotificationsEnabled(bool value) {
+    state = state.copyWith(localNotificationsEnabled: value);
+  }
+
+  // Atualiza a configuração de som
+  void updateSoundEnabled(bool value) {
+    state = state.copyWith(soundEnabled: value);
+  }
+
+  // Atualiza a configuração de vibração
+  void updateVibrationEnabled(bool value) {
+    state = state.copyWith(vibrationEnabled: value);
+  }
+
+  // Atualiza a configuração de luzes
+  void updateLightsEnabled(bool value) {
+    state = state.copyWith(lightsEnabled: value);
   }
 
   // Reseta todas as configurações para os valores padrão

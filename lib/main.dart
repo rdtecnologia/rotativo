@@ -11,6 +11,7 @@ import 'providers/auth_provider.dart';
 
 // Services
 import 'services/notification_service.dart';
+import 'services/parking_notification_service.dart';
 
 // Screens
 import 'screens/splash_screen.dart';
@@ -91,9 +92,11 @@ class AuthWrapper extends ConsumerWidget {
     }
 
     if (authState.isAuthenticated) {
-      // Envolve a HomePage com o monitor de notificações
-      return const ActivationNotificationMonitor(
-        child: HomePage(),
+      // Envolve a HomePage com os monitores de notificações
+      return ParkingNotificationMonitor(
+        child: ActivationNotificationMonitor(
+          child: HomePage(),
+        ),
       );
     } else {
       return const LoginScreen();

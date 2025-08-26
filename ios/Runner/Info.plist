@@ -56,5 +56,16 @@
 	
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 	<string>Este aplicativo precisa da sua localização para registrar o local do estacionamento e fornecer serviços baseados em localização</string>
+	
+	<!-- Permissões para notificações -->
+	<key>NSUserNotificationUsageDescription</key>
+	<string>Este aplicativo precisa de permissão para enviar notificações sobre vencimento de estacionamento</string>
+	
+	<!-- Configurações para notificações em segundo plano -->
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>remote-notification</string>
+		<string>background-processing</string>
+	</array>
 </dict>
 </plist>

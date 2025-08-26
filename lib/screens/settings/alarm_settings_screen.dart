@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/alarm_settings_provider.dart';
+import '../../services/local_notification_service.dart';
+import 'dart:io' show Platform;
 
 class AlarmSettingsScreen extends ConsumerWidget {
   const AlarmSettingsScreen({super.key});
@@ -9,6 +11,8 @@ class AlarmSettingsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     // Usar ref.read para obter o notifier apenas uma vez
     final alarmNotifier = ref.read(alarmSettingsProvider.notifier);
+    final localNotificationService = ref.read(localNotificationServiceProvider);
+    final alarmSettings = ref.watch(alarmSettingsProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -61,6 +65,28 @@ class AlarmSettingsScreen extends ConsumerWidget {
               ),
             ),
 
+            // Configurações gerais de notificações
+            _buildSettingsCard(
+              context,
+              'Configurações Gerais',
+              [
+                _buildSwitchTile(
+                  context,
+                  title: 'Notificações locais',
+                  subtitle: 'Receber notificações mesmo com o app fechado',
+                  value: false,
+                  onChanged: (value) {
+                    alarmNotifier.updateLocalNotificationsEnabled(value);
+                  },
+                  icon: Icons.notifications,
+                  isConsumer: true,
+                  consumerKey: 'localNotifications',
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 16),
+
             // Notification settings
             _buildSettingsCard(
               context,
@@ -68,68 +94,17 @@ class AlarmSettingsScreen extends ConsumerWidget {
               [
                 _buildSwitchTile(
                   context,
-                  title: 'Vencimento do estacionamento',
-                  subtitle: 'Aviso antes do tempo expirar',
-                  value: false,
+                  title: 'Vencimento de estacionamento',
+                  subtitle: 'Aviso antes do vencimento',
+                  value: alarmSettings.parkingExpiration,
                   onChanged: (value) {
                     alarmNotifier.updateParkingExpiration(value);
                   },
                   icon: Icons.timer,
                   isConsumer: true,
+                  consumerKey: 'parkingExpiration',
                 ),
                 _buildReminderTimeSection(context, alarmNotifier),
-              ],
-            ),
-
-            const SizedBox(height: 16),
-
-            _buildSettingsCard(
-              context,
-              'Notificações de Pagamento',
-              [
-                _buildSwitchTile(
-                  context,
-                  title: 'Lembrete de pagamento',
-                  subtitle: 'Aviso sobre pagamentos pendentes',
-                  value: false,
-                  onChanged: (value) {
-                    alarmNotifier.updatePaymentReminders(value);
-                  },
-                  icon: Icons.payment,
-                  isConsumer: true,
-                ),
-              ],
-            ),
-
-            const SizedBox(height: 16),
-
-            _buildSettingsCard(
-              context,
-              'Outras Notificações',
-              [
-                _buildSwitchTile(
-                  context,
-                  title: 'Promoções e ofertas',
-                  subtitle: 'Receber ofertas especiais',
-                  value: false,
-                  onChanged: (value) {
-                    alarmNotifier.updatePromotions(value);
-                  },
-                  icon: Icons.local_offer,
-                  isConsumer: true,
-                ),
-                const Divider(),
-                _buildSwitchTile(
-                  context,
-                  title: 'Atualizações do sistema',
-                  subtitle: 'Notificações importantes do app',
-                  value: false,
-                  onChanged: (value) {
-                    alarmNotifier.updateSystemUpdates(value);
-                  },
-                  icon: Icons.system_update,
-                  isConsumer: true,
-                ),
               ],
             ),
 
@@ -172,22 +147,73 @@ class AlarmSettingsScreen extends ConsumerWidget {
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 16),
-                  ElevatedButton.icon(
-                    onPressed: () => _sendTestNotification(context),
-                    icon: const Icon(Icons.send),
-                    label: const Text('Enviar notificação de teste'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Theme.of(context).primaryColor,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 24,
-                        vertical: 12,
+                  Row(
+                    children: [
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          onPressed: () => _sendTestNotification(
+                              context, localNotificationService),
+                          icon: const Icon(Icons.send),
+                          label: const Text('Notificação imediata'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Theme.of(context).primaryColor,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 12,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(25),
+                            ),
+                          ),
+                        ),
                       ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(25),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          onPressed: () => _scheduleTestNotification(
+                              context, localNotificationService),
+                          icon: const Icon(Icons.schedule),
+                          label: const Text('Agendar teste'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.orange,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 12,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(25),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  // ✅ Botão específico para iOS
+                  if (Platform.isIOS) ...[
+                    const SizedBox(height: 12),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        onPressed: () => _testIOSNotification(
+                            context, localNotificationService),
+                        icon: const Icon(Icons.apple),
+                        label: const Text('🍎 Teste Específico iOS'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.black,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 12,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(25),
+                          ),
+                        ),
                       ),
                     ),
-                  ),
+                  ],
                 ],
               ),
             ),
@@ -239,26 +265,48 @@ class AlarmSettingsScreen extends ConsumerWidget {
     required ValueChanged<bool> onChanged,
     required IconData icon,
     bool isConsumer = false,
+    String? consumerKey,
   }) {
     if (isConsumer) {
       return Consumer(
         builder: (context, ref, child) {
-          // Determinar qual valor observar baseado no título
+          // Determinar qual valor observar baseado na chave do consumer
           bool currentValue;
-          if (title.contains('Vencimento')) {
-            currentValue = ref.watch(alarmSettingsProvider
-                .select((settings) => settings.parkingExpiration));
-          } else if (title.contains('pagamento')) {
-            currentValue = ref.watch(alarmSettingsProvider
-                .select((settings) => settings.paymentReminders));
-          } else if (title.contains('Promoções')) {
-            currentValue = ref.watch(alarmSettingsProvider
-                .select((settings) => settings.promotions));
-          } else if (title.contains('sistema')) {
-            currentValue = ref.watch(alarmSettingsProvider
-                .select((settings) => settings.systemUpdates));
-          } else {
-            currentValue = value;
+          switch (consumerKey) {
+            case 'localNotifications':
+              currentValue = ref.watch(alarmSettingsProvider
+                  .select((settings) => settings.localNotificationsEnabled));
+              break;
+            case 'parkingExpiration':
+              currentValue = ref.watch(alarmSettingsProvider
+                  .select((settings) => settings.parkingExpiration));
+              break;
+            case 'paymentReminders':
+              currentValue = ref.watch(alarmSettingsProvider
+                  .select((settings) => settings.paymentReminders));
+              break;
+            case 'promotions':
+              currentValue = ref.watch(alarmSettingsProvider
+                  .select((settings) => settings.promotions));
+              break;
+            case 'systemUpdates':
+              currentValue = ref.watch(alarmSettingsProvider
+                  .select((settings) => settings.systemUpdates));
+              break;
+            case 'sound':
+              currentValue = ref.watch(alarmSettingsProvider
+                  .select((settings) => settings.soundEnabled));
+              break;
+            case 'vibration':
+              currentValue = ref.watch(alarmSettingsProvider
+                  .select((settings) => settings.vibrationEnabled));
+              break;
+            case 'lights':
+              currentValue = ref.watch(alarmSettingsProvider
+                  .select((settings) => settings.lightsEnabled));
+              break;
+            default:
+              currentValue = value;
           }
 
           return ListTile(
@@ -406,26 +454,179 @@ class AlarmSettingsScreen extends ConsumerWidget {
     );
   }
 
-  void _sendTestNotification(BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: const Row(
-          children: [
-            Icon(Icons.check_circle, color: Colors.white),
-            SizedBox(width: 12),
-            Text('Notificação de teste enviada!'),
-          ],
-        ),
-        backgroundColor: Colors.green,
-        duration: const Duration(seconds: 3),
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
-      ),
-    );
+  void _sendTestNotification(
+      BuildContext context, LocalNotificationService service) async {
+    try {
+      // Obtém as configurações atuais
+      final ref = ProviderScope.containerOf(context);
+      final alarmSettings = ref.read(alarmSettingsProvider);
 
-    // TODO: Implement actual test notification
-    // NotificationService.sendTestNotification();
+      await service.showImmediateNotification(
+        title: 'Teste de Notificação',
+        body:
+            'Esta é uma notificação de teste para verificar se o sistema está funcionando',
+        soundEnabled: alarmSettings.soundEnabled,
+        vibrationEnabled: alarmSettings.vibrationEnabled,
+        lightsEnabled: alarmSettings.lightsEnabled,
+      );
+
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.check_circle, color: Colors.white),
+                const SizedBox(width: 12),
+                Expanded(
+                    child: Text(
+                        'Notificação de teste enviada!')), // ✅ Texto mais conciso
+              ],
+            ),
+            backgroundColor: Colors.green,
+            duration: const Duration(seconds: 3),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.error, color: Colors.white),
+                const SizedBox(width: 12),
+                Expanded(child: Text('Erro ao enviar notificação: $e')),
+              ],
+            ),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 5),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+        );
+      }
+    }
+  }
+
+  void _scheduleTestNotification(
+      BuildContext context, LocalNotificationService service) async {
+    try {
+      // Obtém as configurações atuais
+      final ref = ProviderScope.containerOf(context);
+      final alarmSettings = ref.read(alarmSettingsProvider);
+
+      await service.scheduleTestNotification(
+        soundEnabled: alarmSettings.soundEnabled,
+        vibrationEnabled: alarmSettings.vibrationEnabled,
+        lightsEnabled: alarmSettings.lightsEnabled,
+      );
+
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.check_circle, color: Colors.white),
+                const SizedBox(width: 12),
+                Expanded(
+                    child: Text(
+                        'Notificação de teste agendada!')), // ✅ Texto mais conciso
+              ],
+            ),
+            backgroundColor: Colors.blue,
+            duration: const Duration(seconds: 3),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.error, color: Colors.white),
+                const SizedBox(width: 12),
+                Expanded(child: Text('Erro ao agendar notificação: $e')),
+              ],
+            ),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 5),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+        );
+      }
+    }
+  }
+
+  void _testIOSNotification(
+      BuildContext context, LocalNotificationService service) async {
+    try {
+      // Obtém as configurações atuais
+      final ref = ProviderScope.containerOf(context);
+      final alarmSettings = ref.read(alarmSettingsProvider);
+
+      await service.showImmediateNotification(
+        title: 'Teste de Notificação iOS',
+        body: 'Esta é uma notificação de teste específica para iOS.',
+        soundEnabled: alarmSettings.soundEnabled,
+        vibrationEnabled: alarmSettings.vibrationEnabled,
+        lightsEnabled: alarmSettings.lightsEnabled,
+      );
+
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.check_circle, color: Colors.white),
+                const SizedBox(width: 12),
+                Expanded(
+                    child: Text(
+                        'Notificação de teste iOS enviada!')), // ✅ Texto mais conciso
+              ],
+            ),
+            backgroundColor: Colors.purple,
+            duration: const Duration(seconds: 3),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.error, color: Colors.white),
+                const SizedBox(width: 12),
+                Expanded(child: Text('Erro ao enviar notificação iOS: $e')),
+              ],
+            ),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 5),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+        );
+      }
+    }
   }
 }
