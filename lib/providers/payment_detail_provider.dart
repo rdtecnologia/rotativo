@@ -43,6 +43,7 @@ class PaymentDetailNotifier extends StateNotifier<PaymentDetailState> {
     state = state.copyWith(
       orderResponse: orderResponse,
       isProcessing: false,
+      error: null, // IMPORTANTE: Limpar o erro ao definir resposta de sucesso
     );
   }
 
@@ -51,6 +52,7 @@ class PaymentDetailNotifier extends StateNotifier<PaymentDetailState> {
     state = state.copyWith(
       error: error,
       isProcessing: false,
+      orderResponse: null, // IMPORTANTE: Limpar resposta ao definir erro
     );
   }
 

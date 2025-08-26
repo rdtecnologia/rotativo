@@ -135,17 +135,7 @@ class _PaymentDetailScreenState extends ConsumerState<PaymentDetailScreen> {
       final response =
           await ref.read(purchaseProvider.notifier).createOrder(order);
 
-      // Debug: Log dos valores para investigar a discrepância
-      if (kDebugMode) {
-        print('🔍 DEBUG - Valores do pedido:');
-        print('🔍 Product price: ${widget.product.price}');
-        print('🔍 Product credits: ${widget.product.credits}');
-        print('🔍 Order response value: ${response.value}');
-        print('🔍 PurchaseProduct quantity: ${purchaseProduct.quantity}');
-        print('🔍 Order totalValue: ${order.totalValue}');
-        print('🔍 Order totalValue: ${order.totalValue}');
-      }
-
+      // Definir a resposta do pedido (isso automaticamente limpa o erro)
       paymentDetailNotifier.setOrderResponse(response);
     } catch (e) {
       paymentDetailNotifier.setError(e.toString());
@@ -310,6 +300,13 @@ class _PaymentDetailScreenState extends ConsumerState<PaymentDetailScreen> {
     return Consumer(
       builder: (context, ref, child) {
         final error = ref.watch(errorProvider);
+        final orderResponse = ref.watch(orderResponseProvider);
+
+        // Só exibir erro se não houver resposta de sucesso
+        if (orderResponse != null) {
+          return const SizedBox.shrink();
+        }
+
         return Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -337,7 +334,11 @@ class _PaymentDetailScreenState extends ConsumerState<PaymentDetailScreen> {
             ),
             const SizedBox(height: 24),
             ElevatedButton(
-              onPressed: _processOrder,
+              onPressed: () {
+                // Limpar erro antes de tentar novamente
+                ref.read(paymentDetailProvider.notifier).reset();
+                _processOrder();
+              },
               child: const Text('Tentar Novamente'),
             ),
           ],
@@ -777,9 +778,11 @@ class _PaymentDetailScreenState extends ConsumerState<PaymentDetailScreen> {
 
                   if (isProcessing) {
                     return _buildProcessingView();
-                  } else if (error != null) {
+                  } else if (error != null && orderResponse == null) {
+                    // Só exibir erro se não houver resposta de sucesso
                     return _buildErrorView();
                   } else if (orderResponse != null) {
+                    // Exibir sucesso
                     return _buildSuccessView(orderResponse);
                   } else if (widget.paymentMethod ==
                       PaymentMethodType.creditCard) {
