@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'dart:convert';
-import 'dart:typed_data';
 
 /// Script para gerar ícones do app baseados no logo.svg
 ///
@@ -11,17 +10,12 @@ import 'dart:typed_data';
 /// 4. Aplica as cores do tema do app
 
 void main() async {
-  print('🎨 Gerando ícones do app baseados no logo.svg...');
-
   try {
     // Verificar se o logo.svg existe
     final logoFile = File('assets/images/svg/logo.svg');
     if (!await logoFile.exists()) {
-      print('❌ Arquivo logo.svg não encontrado em assets/images/svg/');
       return;
     }
-
-    print('✅ Logo.svg encontrado');
 
     // Criar diretórios se não existirem
     await _createDirectories();
@@ -31,12 +25,8 @@ void main() async {
 
     // Gerar ícones para iOS
     await _generateIOSIcons();
-
-    print('🎉 Ícones gerados com sucesso!');
-    print('📱 Android: android/app/src/main/res/mipmap-*');
-    print('🍎 iOS: ios/Runner/Assets.xcassets/AppIcon.appiconset/');
   } catch (e) {
-    print('❌ Erro ao gerar ícones: $e');
+    //
   }
 }
 
@@ -60,8 +50,6 @@ Future<void> _createDirectories() async {
 }
 
 Future<void> _generateAndroidIcons() async {
-  print('🤖 Gerando ícones para Android...');
-
   // Tamanhos dos ícones para Android
   final androidSizes = {
     'mipmap-mdpi': 48,
@@ -75,8 +63,6 @@ Future<void> _generateAndroidIcons() async {
     final dir = entry.key;
     final size = entry.value;
 
-    print('  📱 Gerando $dir (${size}x${size})...');
-
     // Aqui você pode usar uma biblioteca como flutter_launcher_icons
     // ou criar manualmente os ícones baseados no logo.svg
     await _createIconFile(dir, size);
@@ -84,8 +70,6 @@ Future<void> _generateAndroidIcons() async {
 }
 
 Future<void> _generateIOSIcons() async {
-  print('🍎 Gerando ícones para iOS...');
-
   // Tamanhos dos ícones para iOS
   final iosSizes = {
     'Icon-App-20x20@1x.png': 20,
@@ -131,10 +115,7 @@ Future<void> _createIconFile(String dir, int size) async {
       File('android/app/src/main/res/mipmap-hdpi/ic_launcher.png');
   if (await sourceIcon.exists()) {
     await sourceIcon.copy(iconPath);
-    print('    ✅ $iconPath criado');
-  } else {
-    print('    ⚠️ $iconPath não pôde ser criado (ícone fonte não encontrado)');
-  }
+  } else {}
 }
 
 Future<void> _createIOSIconFile(String filename, int size) async {
@@ -145,12 +126,9 @@ Future<void> _createIOSIconFile(String filename, int size) async {
   // Por enquanto, vamos criar um arquivo vazio
   final file = File(iconPath);
   await file.create(recursive: true);
-  print('    ✅ $iconPath criado');
 }
 
 Future<void> _generateIOSContentsJson() async {
-  print('  📝 Gerando Contents.json para iOS...');
-
   final contentsJson = {
     "images": [
       {
@@ -250,6 +228,4 @@ Future<void> _generateIOSContentsJson() async {
   final contentsFile =
       File('ios/Runner/Assets.xcassets/AppIcon.appiconset/Contents.json');
   await contentsFile.writeAsString(jsonEncode(contentsJson));
-
-  print('    ✅ Contents.json criado');
 }

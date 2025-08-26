@@ -87,14 +87,5 @@ class Environment {
   static List<String> get availableEnvironments => _apiConfigs.keys.toList();
 
   /// Debug method to print current configuration
-  static void printCurrentConfig() {
-    print('🌐 Environment Configuration:');
-    print('  Current: $_currentEnvironment');
-    print('  Register: ${registerApi}');
-    print('  Autentica: ${autenticaApi}');
-    print('  Transaciona: ${transacionaApi}');
-    print('  Voucher: ${voucherApi}');
-    print('  City: $cityName');
-    print('  Flavor: $flavor');
-  }
+  static void printCurrentConfig() {}
 }
