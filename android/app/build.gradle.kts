@@ -1,3 +1,6 @@
+import java.util.Properties
+import java.io.FileInputStream
+
 plugins {
     id("com.android.application")
     id("kotlin-android")
@@ -5,13 +8,16 @@ plugins {
     id("dev.flutter.flutter-gradle-plugin")
 }
 
+val keystoreProperties = Properties()
+val keystorePropertiesFile = rootProject.file("keystore.properties")
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(FileInputStream(keystorePropertiesFile))
+}
+
 android {
     namespace = "com.example.rotativo"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = "27.0.12077973"
-
-
-
 
 
     compileOptions {
@@ -97,17 +103,17 @@ android {
 
      signingConfigs {
         create("release") {
-            keyAlias = "release-key"
-            keyPassword = "sua_senha_da_chave"
+            keyAlias = "my-key-alias"
+            keyPassword = keystoreProperties["keyPassword"] as String? ?: "sua_senha_da_chave"
             storeFile = file("../keys/release-key.keystore")
-            storePassword = "sua_senha_do_keystore"
+            storePassword = keystoreProperties["storePassword"] as String? ?: "sua_senha_do_keystore"
         }
     }   
 
     buildTypes {
         release {
             signingConfig = signingConfigs.getByName("release")
-            minifyEnabled = true
+            isMinifyEnabled = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
 
             // TODO: Add your own signing config for the release build.
