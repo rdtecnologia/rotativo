@@ -21,9 +21,9 @@ class _SplashScreenState extends State<SplashScreen>
   void initState() {
     super.initState();
 
-    // Configurar o controlador de animação
+    // Configurar o controlador de animação - reduzido para 2 segundos
     _rotationController = AnimationController(
-      duration: const Duration(milliseconds: 2500),
+      duration: const Duration(milliseconds: 2000),
       vsync: this,
     );
 
@@ -57,8 +57,8 @@ class _SplashScreenState extends State<SplashScreen>
     // Iniciar a animação
     _rotationController.forward();
 
-    // Navegar para a próxima tela após a animação
-    _navigationTimer = Timer(const Duration(seconds: 3), () {
+    // Navegar para a próxima tela após a animação - reduzido para 2 segundos
+    _navigationTimer = Timer(const Duration(seconds: 2), () {
       if (mounted) {
         Navigator.of(context).pushReplacementNamed('/auth');
       }

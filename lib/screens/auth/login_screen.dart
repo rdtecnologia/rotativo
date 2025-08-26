@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -18,16 +19,42 @@ class LoginScreen extends ConsumerStatefulWidget {
 
 class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _formKey = GlobalKey<FormBuilderState>();
+  bool _isInitialized = false;
 
   @override
   void initState() {
     super.initState();
 
-    // Clear any previous errors and initialize login screen state
+    // Inicializar imediatamente para evitar delay
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(authProvider.notifier).clearError();
-      ref.read(loginScreenProvider.notifier).initialize();
+      _initializeLoginScreen();
     });
+  }
+
+  Future<void> _initializeLoginScreen() async {
+    if (_isInitialized) return;
+
+    try {
+      // Clear any previous errors and initialize login screen state
+      ref.read(authProvider.notifier).clearError();
+      await ref.read(loginScreenProvider.notifier).initialize();
+
+      if (mounted) {
+        setState(() {
+          _isInitialized = true;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        Fluttertoast.showToast(
+          msg: 'Erro ao inicializar: $e',
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.BOTTOM,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+        );
+      }
+    }
   }
 
   Future<void> _handleLogin() async {
@@ -60,41 +87,78 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    inspect('build');
-    return Scaffold(
-      body: Stack(
-        children: [
-          // Main content
-          ParkingBackground(
-            primaryColor: Theme.of(context).primaryColor,
-            opacity: 0.25,
-            child: SafeArea(
-              child: Center(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(24.0),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      // Logo and City Name
-                      const AppLogoWidget(),
-                      const SizedBox(height: 48),
+    // Cor base azul para combinar com a imagem de fundo
+    final baseColor = const Color.fromARGB(255, 90, 123, 151);
 
-                      // Biometric Section
-                      const BiometricSectionWidget(),
+    // Adicionar tratamento de erro para eventos de ponteiro
+    return GestureDetector(
+      onTap: () {
+        // Fechar teclado ao tocar fora dos campos
+        FocusScope.of(context).unfocus();
+      },
+      child: Scaffold(
+        // Aplicar cor de fundo base para evitar tela branca
+        backgroundColor: baseColor,
+        body: Stack(
+          children: [
+            // Main content
+            ParkingBackground(
+              primaryColor: baseColor,
+              opacity: 0.25,
+              child: SafeArea(
+                child: Center(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.all(24.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        // Logo and City Name
+                        const AppLogoWidget(),
+                        const SizedBox(height: 48),
 
-                      // Login Form Section
-                      LoginFormSectionWidget(
-                        formKey: _formKey,
-                        onLogin: _handleLogin,
-                      ),
-                    ],
+                        // Biometric Section - só mostrar se inicializado
+                        if (_isInitialized) const BiometricSectionWidget(),
+
+                        // Login Form Section - só mostrar se inicializado
+                        if (_isInitialized)
+                          LoginFormSectionWidget(
+                            formKey: _formKey,
+                            onLogin: _handleLogin,
+                          ),
+
+                        // Mostrar conteúdo gradualmente para evitar flash
+                        if (!_isInitialized)
+                          AnimatedOpacity(
+                            opacity: _isInitialized ? 1.0 : 0.0,
+                            duration: const Duration(milliseconds: 300),
+                            child: const SizedBox(
+                              height: 100,
+                              child: Center(
+                                child: Text(
+                                  'Carregando...',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    // Limpar recursos ao sair da tela
+    super.dispose();
   }
 }

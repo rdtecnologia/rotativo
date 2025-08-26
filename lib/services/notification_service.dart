@@ -71,26 +71,27 @@ class ActivationNotificationMonitor extends ConsumerWidget {
     // Monitora ativações que expiraram recentemente
     final recentlyExpired = ref.watch(recentlyExpiredActivationsProvider);
 
+    // NOTIFICAÇÕES TOAST DESABILITADAS - mantendo apenas notificações locais
     // Mostra notificações para ativações próximas de expirar
-    for (final activation in expiringSoon) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        NotificationService().showExpiringSoonNotification(
-          context,
-          activation.licensePlate,
-          activation.remainingMinutes,
-        );
-      });
-    }
+    // for (final activation in expiringSoon) {
+    //   WidgetsBinding.instance.addPostFrameCallback((_) {
+    //     NotificationService().showExpiringSoonNotification(
+    //       context,
+    //       activation.licensePlate,
+    //       activation.remainingMinutes,
+    //     );
+    //   });
+    // }
 
     // Mostra notificações para ativações que expiraram
-    for (final activation in recentlyExpired) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        NotificationService().showExpiredNotification(
-          context,
-          activation.licensePlate,
-        );
-      });
-    }
+    // for (final activation in recentlyExpired) {
+    //   WidgetsBinding.instance.addPostFrameCallback((_) {
+    //     NotificationService().showExpiredNotification(
+    //       context,
+    //       activation.licensePlate,
+    //     );
+    //   });
+    // }
 
     return child;
   }
@@ -98,13 +99,17 @@ class ActivationNotificationMonitor extends ConsumerWidget {
 
 /// Hook para usar em qualquer tela que queira monitorar ativações
 class UseActivationNotifications {
+  // NOTIFICAÇÕES TOAST DESABILITADAS - mantendo apenas notificações locais
   static void showExpiringSoon(
       BuildContext context, String licensePlate, int remainingMinutes) {
-    NotificationService()
-        .showExpiringSoonNotification(context, licensePlate, remainingMinutes);
+    // NotificationService()
+    //     .showExpiringSoonNotification(context, licensePlate, remainingMinutes);
+    print(
+        'Notificação toast de expiração desabilitada para: $licensePlate em $remainingMinutes minutos');
   }
 
   static void showExpired(BuildContext context, String licensePlate) {
-    NotificationService().showExpiredNotification(context, licensePlate);
+    // NotificationService().showExpiredNotification(context, licensePlate);
+    print('Notificação toast de expiração desabilitada para: $licensePlate');
   }
 }

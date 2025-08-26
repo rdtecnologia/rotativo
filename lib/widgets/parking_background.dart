@@ -18,6 +18,10 @@ class ParkingBackground extends StatelessWidget {
 
     return Stack(
       children: [
+        // Background color base para evitar tela branca
+        Container(
+          color: color,
+        ),
         // Background image
         Container(
           decoration: BoxDecoration(

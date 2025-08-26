@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import '../../../providers/auth_provider.dart';
@@ -54,25 +55,37 @@ class LoginFormWidget extends ConsumerWidget {
               const SizedBox(height: 32),
 
               // CPF Field
-              AppTextField(
-                name: 'cpf',
-                label: 'CPF',
-                keyboardType: TextInputType.number,
-                inputFormatters: [AppFormatters.cpfFormatter],
-                validator: AppValidators.validateCPF,
-                prefixIcon: const Icon(Icons.person),
-                fillColor: Colors.white.withAlpha(100),
+              GestureDetector(
+                onTap: () {
+                  // Feedback tátil ao tocar no campo
+                  HapticFeedback.lightImpact();
+                },
+                child: AppTextField(
+                  name: 'cpf',
+                  label: 'CPF',
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [AppFormatters.cpfFormatter],
+                  validator: AppValidators.validateCPF,
+                  prefixIcon: const Icon(Icons.person),
+                  fillColor: Colors.white.withAlpha(100),
+                ),
               ),
               const SizedBox(height: 16),
 
               // Password Field
-              AppTextField(
-                name: 'password',
-                label: 'Senha',
-                obscureText: true,
-                validator: AppValidators.validatePassword,
-                prefixIcon: const Icon(Icons.lock),
-                fillColor: Colors.white.withAlpha(100),
+              GestureDetector(
+                onTap: () {
+                  // Feedback tátil ao tocar no campo
+                  HapticFeedback.lightImpact();
+                },
+                child: AppTextField(
+                  name: 'password',
+                  label: 'Senha',
+                  obscureText: true,
+                  validator: AppValidators.validatePassword,
+                  prefixIcon: const Icon(Icons.lock),
+                  fillColor: Colors.white.withAlpha(100),
+                ),
               ),
               const SizedBox(height: 24),
 
@@ -80,14 +93,21 @@ class LoginFormWidget extends ConsumerWidget {
               Consumer(
                 builder: (context, ref, child) {
                   final authState = ref.watch(authProvider);
-                  return LoadingButton(
-                    onPressed: onLogin,
-                    isLoading: authState.isLoading,
-                    child: const Text(
-                      'Entrar',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
+                  return GestureDetector(
+                    onTap: () {
+                      // Feedback tátil ao tocar no botão
+                      HapticFeedback.mediumImpact();
+                      onLogin();
+                    },
+                    child: LoadingButton(
+                      onPressed: onLogin,
+                      isLoading: authState.isLoading,
+                      child: const Text(
+                        'Entrar',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   );
@@ -96,30 +116,41 @@ class LoginFormWidget extends ConsumerWidget {
               const SizedBox(height: 16),
 
               // Register Link
-              TextButton(
-                onPressed: () {
+              GestureDetector(
+                onTap: () {
+                  // Feedback tátil ao tocar no link
+                  HapticFeedback.lightImpact();
                   Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: (context) => const RegisterScreen(),
                     ),
                   );
                 },
-                child: RichText(
-                  text: TextSpan(
-                    style: Theme.of(context).textTheme.bodyMedium,
-                    children: [
-                      const TextSpan(
-                        text: 'Não tem uma conta? ',
-                        style: TextStyle(color: Colors.white60),
+                child: TextButton(
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => const RegisterScreen(),
                       ),
-                      TextSpan(
-                        text: 'Cadastre-se',
-                        style: TextStyle(
-                          color: Theme.of(context).primaryColor,
-                          fontWeight: FontWeight.bold,
+                    );
+                  },
+                  child: RichText(
+                    text: TextSpan(
+                      style: Theme.of(context).textTheme.bodyMedium,
+                      children: [
+                        const TextSpan(
+                          text: 'Não tem uma conta? ',
+                          style: TextStyle(color: Colors.white60),
                         ),
-                      ),
-                    ],
+                        TextSpan(
+                          text: 'Cadastre-se',
+                          style: TextStyle(
+                            color: Theme.of(context).primaryColor,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),

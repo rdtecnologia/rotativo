@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import '../../../providers/auth_provider.dart';
@@ -9,24 +10,30 @@ class BiometricLoginWidget extends ConsumerWidget {
   const BiometricLoginWidget({super.key});
 
   Future<void> _handleBiometricLogin(WidgetRef ref, BuildContext context) async {
-    // Primeiro verifica se há credenciais armazenadas
-    final credentials = await AuthService.getStoredCredentials();
-    if (credentials == null) {
-      Fluttertoast.showToast(
-        msg:
-            'Primeiro faça login tradicional e configure a biometria nas configurações',
-        toastLength: Toast.LENGTH_LONG,
-        gravity: ToastGravity.BOTTOM,
-        backgroundColor: Colors.orange,
-      );
-      return;
-    }
-
+    // Adicionar feedback tátil
+    HapticFeedback.lightImpact();
+    
     try {
+      // Primeiro verifica se há credenciais armazenadas
+      final credentials = await AuthService.getStoredCredentials();
+      if (credentials == null) {
+        Fluttertoast.showToast(
+          msg:
+              'Primeiro faça login tradicional e configure a biometria nas configurações',
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.BOTTOM,
+          backgroundColor: Colors.orange,
+        );
+        return;
+      }
+
       final success =
           await ref.read(authProvider.notifier).loginWithBiometrics();
 
       if (success) {
+        // Feedback de sucesso
+        HapticFeedback.mediumImpact();
+        
         Fluttertoast.showToast(
           msg: 'Login realizado com sucesso!',
           toastLength: Toast.LENGTH_SHORT,
@@ -38,6 +45,9 @@ class BiometricLoginWidget extends ConsumerWidget {
           Navigator.of(context).pushReplacementNamed('/home');
         }
       } else {
+        // Feedback de erro
+        HapticFeedback.heavyImpact();
+        
         final error = ref.read(authProvider).error;
         if (error != null) {
           Fluttertoast.showToast(
@@ -49,6 +59,9 @@ class BiometricLoginWidget extends ConsumerWidget {
         }
       }
     } catch (e) {
+      // Feedback de erro
+      HapticFeedback.heavyImpact();
+      
       Fluttertoast.showToast(
         msg: 'Erro ao fazer login biométrico: $e',
         toastLength: Toast.LENGTH_LONG,
@@ -93,24 +106,30 @@ class BiometricLoginWidget extends ConsumerWidget {
               ),
             ),
             const SizedBox(height: 16),
-            LoadingButton(
-              onPressed: () {
+            // Usar GestureDetector para melhor controle de eventos
+            GestureDetector(
+              onTap: () {
                 _handleBiometricLogin(ref, context);
               },
-              isLoading: false,
-              child: const Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.fingerprint, size: 20),
-                  SizedBox(width: 8),
-                  Text(
-                    'Usar Biometria',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
+              child: LoadingButton(
+                onPressed: () {
+                  _handleBiometricLogin(ref, context);
+                },
+                isLoading: false,
+                child: const Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.fingerprint, size: 20),
+                    SizedBox(width: 8),
+                    Text(
+                      'Usar Biometria',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ],
