@@ -1,7 +1,4 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -112,38 +109,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        // Logo and City Name
-                        const AppLogoWidget(),
-                        const SizedBox(height: 48),
-
-                        // Biometric Section - só mostrar se inicializado
-                        if (_isInitialized) const BiometricSectionWidget(),
-
-                        // Login Form Section - só mostrar se inicializado
-                        if (_isInitialized)
+                        if (_isInitialized) ...[
+                          const AppLogoWidget(),
+                          const SizedBox(height: 48),
+                          const BiometricSectionWidget(),
                           LoginFormSectionWidget(
                             formKey: _formKey,
                             onLogin: _handleLogin,
                           ),
-
-                        // Mostrar conteúdo gradualmente para evitar flash
-                        if (!_isInitialized)
-                          AnimatedOpacity(
-                            opacity: _isInitialized ? 1.0 : 0.0,
-                            duration: const Duration(milliseconds: 300),
-                            child: const SizedBox(
-                              height: 100,
-                              child: Center(
-                                child: Text(
-                                  'Carregando...',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 16,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
+                        ],
                       ],
                     ),
                   ),
