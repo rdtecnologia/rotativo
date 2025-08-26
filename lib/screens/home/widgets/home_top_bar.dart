@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:rotativo/debug_page.dart';
+import 'package:rotativo/widgets/environment_indicator.dart';
 
 import '../../../providers/city_config_provider.dart';
 
@@ -71,6 +72,12 @@ class HomeTopBar extends ConsumerWidget {
               ),
             ),
           ),
+
+          // Environment indicator (only in debug mode)
+          if (kDebugMode) ...[
+            const EnvironmentIndicator(),
+            const SizedBox(width: 8),
+          ],
 
           // Debug button (only in debug mode) or Logo (in release mode)
           if (kDebugMode)

@@ -8,6 +8,7 @@ import 'config/environment.dart';
 
 // Providers
 import 'providers/auth_provider.dart';
+import 'providers/environment_provider.dart';
 
 // Services
 import 'services/notification_service.dart';
@@ -31,8 +32,8 @@ void main() {
 /// Change Environment.setEnvironment('dev') to switch to development
 void _initializeApp() {
   // 🔧 CONFIGURE ENVIRONMENT HERE:
-  //Environment.setEnvironment('dev'); // Use development APIs
-  Environment.setEnvironment('prod'); // Use production APIs (default)
+  Environment.setEnvironment('dev'); // Use development APIs (default)
+  //Environment.setEnvironment('prod'); // Use production APIs
 
   // Print current configuration for debugging
   Environment.printCurrentConfig();
@@ -43,6 +44,11 @@ class RotativoApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // Inicializa o provider do ambiente
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(environmentProvider.notifier).initialize();
+    });
+
     return FutureBuilder<String>(
       future: DynamicAppConfig.displayName,
       builder: (context, snapshot) {

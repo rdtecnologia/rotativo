@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'config/dynamic_app_config.dart';
 import 'config/environment.dart';
 import 'providers/auth_provider.dart';
+import 'providers/environment_provider.dart';
 
 class DebugPage extends ConsumerWidget {
   const DebugPage({super.key});
@@ -75,80 +76,122 @@ class DebugPage extends ConsumerWidget {
                 const SizedBox(height: 16),
 
                 // API Environment Debug Info
-                _buildSection('🌐 Ambiente API', [
-                  'Ambiente Atual: ${Environment.currentEnvironment}',
-                  'Register API: ${Environment.registerApi}',
-                  'Autentica API: ${Environment.autenticaApi}',
-                  'Transaciona API: ${Environment.transacionaApi}',
-                  'Voucher API: ${Environment.voucherApi}',
-                ]),
+                Consumer(
+                  builder: (context, ref, child) {
+                    final envState = ref.watch(environmentProvider);
+                    return _buildSection('🌐 Ambiente API', [
+                      'Ambiente Atual: ${envState.currentEnvironment}',
+                      'Register API: ${Environment.registerApi}',
+                      'Autentica API: ${Environment.autenticaApi}',
+                      'Transaciona API: ${Environment.transacionaApi}',
+                      'Voucher API: ${Environment.voucherApi}',
+                    ]);
+                  },
+                ),
                 const SizedBox(height: 16),
 
                 // Environment Switcher
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          '🔧 Trocar Ambiente',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        Row(
+                Consumer(
+                  builder: (context, ref, child) {
+                    final envState = ref.watch(environmentProvider);
+                    final envNotifier = ref.read(environmentProvider.notifier);
+
+                    return Card(
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Expanded(
-                              child: ElevatedButton(
-                                onPressed: () {
-                                  Environment.setEnvironment('dev');
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text(
-                                          'Ambiente alterado para DEV. Reinicie o app.'),
-                                      backgroundColor: Colors.orange,
-                                    ),
-                                  );
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor:
-                                      Environment.currentEnvironment == 'dev'
-                                          ? Colors.orange
-                                          : Colors.grey,
-                                ),
-                                child: const Text('DEV'),
+                            const Text(
+                              '🔧 Trocar Ambiente',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
                               ),
                             ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: ElevatedButton(
-                                onPressed: () {
-                                  Environment.setEnvironment('prod');
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text(
-                                          'Ambiente alterado para PROD. Reinicie o app.'),
-                                      backgroundColor: Colors.green,
+                            const SizedBox(height: 12),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: ElevatedButton(
+                                    onPressed: () {
+                                      envNotifier.setEnvironment('dev');
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        const SnackBar(
+                                          content: Text(
+                                              'Ambiente alterado para DEV. Reinicie o app.'),
+                                          backgroundColor: Colors.orange,
+                                        ),
+                                      );
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor:
+                                          envState.currentEnvironment == 'dev'
+                                              ? Colors.orange
+                                              : Colors.grey,
                                     ),
-                                  );
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor:
-                                      Environment.currentEnvironment == 'prod'
-                                          ? Colors.green
-                                          : Colors.grey,
+                                    child: const Text('DEV'),
+                                  ),
                                 ),
-                                child: const Text('PROD'),
-                              ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: ElevatedButton(
+                                    onPressed: () {
+                                      envNotifier.setEnvironment('prod');
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        const SnackBar(
+                                          content: Text(
+                                              'Ambiente alterado para PROD. Reinicie o app.'),
+                                          backgroundColor: Colors.green,
+                                        ),
+                                      );
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor:
+                                          envState.currentEnvironment == 'prod'
+                                              ? Colors.green
+                                              : Colors.grey,
+                                    ),
+                                    child: const Text('PROD'),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: ElevatedButton(
+                                    onPressed: () {
+                                      envNotifier.setEnvironment('offline');
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        const SnackBar(
+                                          content: Text(
+                                              'Ambiente alterado para OFFLINE. Reinicie o app.'),
+                                          backgroundColor: Colors.grey,
+                                        ),
+                                      );
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor:
+                                          envState.currentEnvironment ==
+                                                  'offline'
+                                              ? Colors.grey
+                                              : Colors.grey.shade400,
+                                    ),
+                                    child: const Text('OFFLINE'),
+                                  ),
+                                ),
+                              ],
                             ),
                           ],
                         ),
-                      ],
-                    ),
-                  ),
+                      ),
+                    );
+                  },
                 ),
                 const SizedBox(height: 16),
 
@@ -177,10 +220,15 @@ class DebugPage extends ConsumerWidget {
                   },
                 ),
                 const SizedBox(height: 16),
-                Text(
-                  'Current Environment: ${Environment.currentEnvironment}',
-                  style: const TextStyle(
-                      fontSize: 18, fontWeight: FontWeight.bold),
+                Consumer(
+                  builder: (context, ref, child) {
+                    final envState = ref.watch(environmentProvider);
+                    return Text(
+                      'Current Environment: ${envState.currentEnvironment}',
+                      style: const TextStyle(
+                          fontSize: 18, fontWeight: FontWeight.bold),
+                    );
+                  },
                 ),
               ],
             ),
