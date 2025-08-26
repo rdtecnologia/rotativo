@@ -214,7 +214,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
       state = const AuthState();
 
       if (kDebugMode) {
-        // Log removed
+        // Logs removed
       }
     }
   }

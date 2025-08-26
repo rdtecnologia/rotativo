@@ -5,11 +5,32 @@ import 'biometric_login_widget.dart';
 import 'or_divider_widget.dart';
 import 'login_toggle_button_widget.dart';
 
-class BiometricSectionWidget extends ConsumerWidget {
+class BiometricSectionWidget extends ConsumerStatefulWidget {
   const BiometricSectionWidget({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<BiometricSectionWidget> createState() =>
+      _BiometricSectionWidgetState();
+}
+
+class _BiometricSectionWidgetState
+    extends ConsumerState<BiometricSectionWidget> {
+  bool _hasCheckedBiometric = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Verificar status da biometria apenas uma vez na inicialização
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!_hasCheckedBiometric) {
+        _hasCheckedBiometric = true;
+        ref.read(loginScreenProvider.notifier).refreshBiometricStatus();
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final biometricEnabled = ref.watch(biometricEnabledProvider);
     final showLoginCard = ref.watch(showLoginCardProvider);
 
@@ -22,7 +43,7 @@ class BiometricSectionWidget extends ConsumerWidget {
         const SizedBox(height: 24),
         const OrDividerWidget(),
         const SizedBox(height: 24),
-        
+
         // Botão para mostrar/ocultar login tradicional
         if (!showLoginCard)
           LoginToggleButtonWidget(showingLoginCard: showLoginCard),

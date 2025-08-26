@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/foundation.dart';
 import '../services/biometric_service.dart';
 import '../services/auth_service.dart';
 
@@ -44,6 +45,10 @@ class LoginScreenNotifier extends StateNotifier<LoginScreenState> {
     try {
       state = state.copyWith(isCheckingBiometric: true);
 
+      debugPrint('=== Verificando status biométrico ===');
+      debugPrint(
+          'Estado atual - isInitialized: ${state.isInitialized}, showLoginCard: ${state.showLoginCard}');
+
       // Executar verificações em paralelo para maior velocidade
       final futures = await Future.wait([
         BiometricService.isBiometricAvailable(),
@@ -55,19 +60,36 @@ class LoginScreenNotifier extends StateNotifier<LoginScreenState> {
       final enabled = futures[1] as bool;
       final credentials = futures[2];
 
+      debugPrint('BiometricService.isBiometricAvailable(): $available');
+      debugPrint('AuthService.isBiometricEnabled(): $enabled');
+      debugPrint('AuthService.getStoredCredentials(): ${credentials != null}');
+
       // Só habilita biometria se tiver credenciais armazenadas E biometria estiver habilitada
       final finalEnabled = available && enabled && credentials != null;
 
+      debugPrint(
+          'Resultado final: $finalEnabled (available: $available, enabled: $enabled, credentials: ${credentials != null})');
+
       if (state.isCheckingBiometric) {
         // Verificar se ainda está no estado correto
+        // Sempre usar a mesma lógica: mostrar formulário se não há biometria
+        final newShowLoginCard = !finalEnabled;
+
+        debugPrint(
+            'Definindo showLoginCard: $newShowLoginCard (finalEnabled: $finalEnabled)');
+
         state = state.copyWith(
           biometricEnabled: finalEnabled,
-          showLoginCard: !finalEnabled,
+          showLoginCard: newShowLoginCard,
           isCheckingBiometric: false,
           isInitialized: true,
         );
+
+        debugPrint(
+            'Estado atualizado - biometricEnabled: $finalEnabled, showLoginCard: $newShowLoginCard');
       }
     } catch (e) {
+      debugPrint('Erro ao verificar status biométrico: $e');
       if (state.isCheckingBiometric) {
         // Verificar se ainda está no estado correto
         state = state.copyWith(
@@ -82,16 +104,26 @@ class LoginScreenNotifier extends StateNotifier<LoginScreenState> {
   void toggleLoginCard() {
     if (state.isInitialized) {
       // Só permitir toggle se estiver inicializado
+      final newShowLoginCard = !state.showLoginCard;
+      debugPrint(
+          'Toggle login card: ${state.showLoginCard} -> $newShowLoginCard');
+
       state = state.copyWith(
-        showLoginCard: !state.showLoginCard,
+        showLoginCard: newShowLoginCard,
       );
+    } else {
+      debugPrint('Tentativa de toggle antes da inicialização');
     }
   }
 
   Future<void> refreshBiometricStatus() async {
     if (state.isInitialized) {
       // Só permitir refresh se estiver inicializado
+      debugPrint(
+          'Refresh biométrico solicitado - estado atual: showLoginCard=${state.showLoginCard}');
       await _checkBiometricStatus();
+    } else {
+      debugPrint('Refresh biométrico solicitado antes da inicialização');
     }
   }
 
@@ -100,12 +132,16 @@ class LoginScreenNotifier extends StateNotifier<LoginScreenState> {
     if (!state.isInitialized) {
       // Evitar inicialização múltipla
       // Inicializar imediatamente para evitar delay
+      debugPrint('Inicializando tela de login - resetando estado');
       await _checkBiometricStatus();
+    } else {
+      debugPrint('Tela de login já inicializada');
     }
   }
 
   // Método para resetar o estado
   void reset() {
+    debugPrint('Resetando estado da tela de login');
     state = const LoginScreenState();
   }
 }

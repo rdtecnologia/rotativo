@@ -361,9 +361,12 @@ class AuthService {
       await _storage.delete(key: _userKey);
       // Clear stored token
       await _storage.delete(key: _tokenKey);
+      // NÃO limpar credenciais biométricas - manter biometria ativa
+      // await clearBiometricState();
 
       if (kDebugMode) {
-        AppLogger.auth('User logged out successfully - cleared stored data');
+        AppLogger.auth(
+            'User logged out successfully - cleared stored data but kept biometric credentials');
       }
     } catch (e) {
       if (kDebugMode) {
@@ -373,6 +376,20 @@ class AuthService {
       // so the user can't access the app
       await _storage.delete(key: _userKey);
       await _storage.delete(key: _tokenKey);
+      // NÃO limpar credenciais biométricas mesmo em caso de erro
+      // await clearBiometricState();
+    }
+  }
+
+  /// Limpa completamente o estado biométrico
+  /// Usado durante logout para garantir que não haja resíduos
+  static Future<void> clearBiometricState() async {
+    try {
+      await _storage.delete(key: _storedCredentialsKey);
+      await _storage.write(key: _biometricEnabledKey, value: 'false');
+      debugPrint('Estado biométrico limpo com sucesso');
+    } catch (e) {
+      debugPrint('Erro ao limpar estado biométrico: $e');
     }
   }
 
@@ -462,20 +479,26 @@ class AuthService {
       final enabled = await _storage.read(key: _biometricEnabledKey);
       final result = enabled == 'true';
 
+      debugPrint(
+          'Verificando biometria - enabled flag: $enabled, result: $result');
+
       // Se a biometria está marcada como habilitada, verifica se há credenciais válidas
       if (result) {
         final credentials = await getStoredCredentials();
+        debugPrint('Credenciais encontradas: ${credentials != null}');
+
         if (credentials == null ||
             credentials['cpf'] == null ||
             credentials['password'] == null) {
-          // Se não há credenciais válidas, desabilita automaticamente a biometria
+          // Se não há credenciais válidas, NÃO desabilita automaticamente
+          // Apenas retorna false para esta sessão
           debugPrint(
-              'Biometria marcada como habilitada mas sem credenciais válidas - desabilitando automaticamente');
-          await _storage.write(key: _biometricEnabledKey, value: 'false');
+              'Biometria marcada como habilitada mas sem credenciais válidas - mantendo estado mas retornando false');
           return false;
         }
       }
 
+      debugPrint('Resultado final da verificação de biometria: $result');
       return result;
     } catch (e) {
       debugPrint('Erro ao verificar biometria habilitada: $e');
@@ -504,15 +527,25 @@ class AuthService {
     // Verificando credenciais armazenadas...
     try {
       final credentialsData = await _storage.read(key: _storedCredentialsKey);
-      // Dados brutos das credenciais: $credentialsData
+      debugPrint('Dados brutos das credenciais: $credentialsData');
 
       if (credentialsData != null) {
         final credentials = jsonDecode(credentialsData);
-        // Credenciais decodificadas: $credentials
-        return credentials;
+        debugPrint('Credenciais decodificadas: $credentials');
+
+        // Verificar se as credenciais têm os campos necessários
+        if (credentials['cpf'] != null && credentials['password'] != null) {
+          debugPrint(
+              'Credenciais válidas encontradas - CPF: ${credentials['cpf']}, Senha: ${credentials['password'] != null ? 'presente' : 'ausente'}');
+          return credentials;
+        } else {
+          debugPrint(
+              'Credenciais incompletas - CPF: ${credentials['cpf']}, Senha: ${credentials['password'] != null ? 'presente' : 'ausente'}');
+          return null;
+        }
       }
 
-      // Nenhuma credencial armazenada encontrada
+      debugPrint('Nenhuma credencial armazenada encontrada');
       return null;
     } catch (e) {
       // Erro ao obter credenciais armazenadas: $e
