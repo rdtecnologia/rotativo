@@ -10,6 +10,7 @@ class AlarmSettings {
   final bool systemUpdates;
   final int reminderMinutes;
   final bool localNotificationsEnabled;
+  // Configurações de som, vibração e luzes sempre ativadas por padrão
   final bool soundEnabled;
   final bool vibrationEnabled;
   final bool lightsEnabled;
@@ -21,6 +22,7 @@ class AlarmSettings {
     this.systemUpdates = true,
     this.reminderMinutes = 15,
     this.localNotificationsEnabled = true,
+    // Sempre true - não podem ser alteradas pelo usuário
     this.soundEnabled = true,
     this.vibrationEnabled = true,
     this.lightsEnabled = true,
@@ -33,6 +35,7 @@ class AlarmSettings {
     bool? systemUpdates,
     int? reminderMinutes,
     bool? localNotificationsEnabled,
+    // Não permitir alteração destas configurações
     bool? soundEnabled,
     bool? vibrationEnabled,
     bool? lightsEnabled,
@@ -45,9 +48,10 @@ class AlarmSettings {
       reminderMinutes: reminderMinutes ?? this.reminderMinutes,
       localNotificationsEnabled:
           localNotificationsEnabled ?? this.localNotificationsEnabled,
-      soundEnabled: soundEnabled ?? this.soundEnabled,
-      vibrationEnabled: vibrationEnabled ?? this.vibrationEnabled,
-      lightsEnabled: lightsEnabled ?? this.lightsEnabled,
+      // Sempre mantém como true
+      soundEnabled: true,
+      vibrationEnabled: true,
+      lightsEnabled: true,
     );
   }
 
@@ -75,9 +79,10 @@ class AlarmSettings {
       systemUpdates: json['systemUpdates'] ?? true,
       reminderMinutes: json['reminderMinutes'] ?? 15,
       localNotificationsEnabled: json['localNotificationsEnabled'] ?? true,
-      soundEnabled: json['soundEnabled'] ?? true,
-      vibrationEnabled: json['vibrationEnabled'] ?? true,
-      lightsEnabled: json['lightsEnabled'] ?? true,
+      // Sempre true, independente do valor salvo
+      soundEnabled: true,
+      vibrationEnabled: true,
+      lightsEnabled: true,
     );
   }
 }
@@ -156,23 +161,8 @@ class AlarmSettingsNotifier extends StateNotifier<AlarmSettings> {
     await _saveSettings();
   }
 
-  // Atualiza a configuração de som
-  Future<void> updateSoundEnabled(bool value) async {
-    state = state.copyWith(soundEnabled: value);
-    await _saveSettings();
-  }
-
-  // Atualiza a configuração de vibração
-  Future<void> updateVibrationEnabled(bool value) async {
-    state = state.copyWith(vibrationEnabled: value);
-    await _saveSettings();
-  }
-
-  // Atualiza a configuração de luzes
-  Future<void> updateLightsEnabled(bool value) async {
-    state = state.copyWith(lightsEnabled: value);
-    await _saveSettings();
-  }
+  // Métodos para som, vibração e luzes removidos - sempre true
+  // As configurações são sempre aplicadas automaticamente
 
   // Reseta todas as configurações para os valores padrão
   Future<void> resetToDefaults() async {
