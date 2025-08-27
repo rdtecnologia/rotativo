@@ -148,6 +148,27 @@ class VehicleService {
       throw Exception('Erro ao excluir veículo: $e');
     }
   }
+
+  /// Get vehicle model information by license plate
+  static Future<VehicleModelInfo?> getModelVehicle(String licensePlate) async {
+    try {
+      final dio = await _getDio();
+      final response = await dio.get('/vehicle/$licensePlate');
+
+      if (response.statusCode == 200) {
+        final data = response.data;
+        if (data != null) {
+          return VehicleModelInfo.fromJson(data);
+        }
+        return null;
+      } else {
+        throw Exception(
+            'Erro ao buscar dados do veículo: ${response.statusMessage}');
+      }
+    } catch (e) {
+      throw Exception('Erro ao buscar dados do veículo: $e');
+    }
+  }
 }
 
 class VehicleCreateRequest {

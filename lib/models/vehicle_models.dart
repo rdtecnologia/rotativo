@@ -78,8 +78,9 @@ class Balance {
       credits: (json['credits'] ?? 0).toDouble(),
       realValue: (json['realValue'] ?? 0).toDouble(),
       items: (json['items'] as List<dynamic>?)
-          ?.map((item) => BalanceItem.fromJson(item))
-          .toList() ?? [],
+              ?.map((item) => BalanceItem.fromJson(item))
+              .toList() ??
+          [],
     );
   }
 }
@@ -120,6 +121,62 @@ class Product {
       name: json['description'] ?? '', // API returns 'description' not 'name'
       price: (json['price'] ?? 0).toDouble(),
       duration: json['duration'] ?? 0,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'price': price,
+      'duration': duration,
+    };
+  }
+}
+
+/// Informações do modelo do veículo retornadas pela API de busca por placa
+class VehicleModelInfo {
+  final String? model;
+  final String? color;
+  final String? manufactureYear;
+  final String? modelYear;
+
+  const VehicleModelInfo({
+    this.model,
+    this.color,
+    this.manufactureYear,
+    this.modelYear,
+  });
+
+  factory VehicleModelInfo.fromJson(Map<String, dynamic> json) {
+    return VehicleModelInfo(
+      model: json['model'],
+      color: json['color'],
+      manufactureYear: json['manufactureYear'],
+      modelYear: json['modelYear'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'model': model,
+      'color': color,
+      'manufactureYear': manufactureYear,
+      'modelYear': modelYear,
+    };
+  }
+
+  VehicleModelInfo copyWith({
+    String? model,
+    String? color,
+    String? manufactureYear,
+    String? modelYear,
+  }) {
+    return VehicleModelInfo(
+      model: model ?? this.model,
+      color: color ?? this.color,
+      manufactureYear: manufactureYear ?? this.manufactureYear,
+      modelYear: modelYear ?? this.modelYear,
     );
   }
 }

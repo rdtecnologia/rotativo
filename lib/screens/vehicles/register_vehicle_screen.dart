@@ -93,42 +93,67 @@ class _RegisterVehicleScreenState extends ConsumerState<RegisterVehicleScreen> {
 
   Future<void> _getModelByPlate(String cleanPlate) async {
     try {
-      debugPrint('🔍 Buscando modelo para placa: $cleanPlate');
+      debugPrint('🔍 Buscando dados do veículo para placa: $cleanPlate');
 
-      // Aqui você pode implementar a chamada para buscar o modelo pela placa
-      // Por enquanto, vamos simular com um delay
-      await Future.delayed(const Duration(milliseconds: 500));
+      // Busca dados do veículo pela placa usando a API
+      final vehicleInfo = await VehicleService.getModelVehicle(cleanPlate);
 
-      // Simula busca do modelo (substitua pela chamada real da API)
-      final mockModel = _getMockModelByPlate(cleanPlate);
-      if (mockModel != null) {
-        debugPrint('✅ Modelo encontrado: $mockModel');
-        _formKey.currentState?.fields['model']?.didChange(mockModel);
+      if (vehicleInfo != null && vehicleInfo.model != null) {
+        debugPrint('✅ Dados encontrados: ${vehicleInfo.model}');
+
+        // Preenche automaticamente o campo modelo
+        _formKey.currentState?.fields['model']?.didChange(vehicleInfo.model);
 
         // Mostra toast informativo
         Fluttertoast.showToast(
-          msg: 'Modelo preenchido automaticamente: $mockModel',
+          msg: 'Modelo preenchido automaticamente: ${vehicleInfo.model}',
           backgroundColor: Colors.blue,
           textColor: Colors.white,
           toastLength: Toast.LENGTH_LONG,
         );
+
+        // Se houver informações adicionais, pode mostrar em um snackbar
+        if (vehicleInfo.color != null || vehicleInfo.manufactureYear != null) {
+          String additionalInfo = '';
+          if (vehicleInfo.color != null) {
+            additionalInfo += 'Cor: ${vehicleInfo.color}';
+          }
+          if (vehicleInfo.manufactureYear != null) {
+            if (additionalInfo.isNotEmpty) additionalInfo += ' | ';
+            additionalInfo += 'Ano: ${vehicleInfo.manufactureYear}';
+          }
+
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Informações adicionais: $additionalInfo'),
+                backgroundColor: Colors.green,
+                duration: const Duration(seconds: 3),
+              ),
+            );
+          }
+        }
+      } else {
+        debugPrint('ℹ️ Nenhum dado encontrado para a placa: $cleanPlate');
+        // Opcional: mostrar mensagem de que nenhum dado foi encontrado
+        Fluttertoast.showToast(
+          msg: 'Nenhuma informação encontrada para esta placa',
+          backgroundColor: Colors.orange,
+          textColor: Colors.white,
+          toastLength: Toast.LENGTH_SHORT,
+        );
       }
     } catch (e) {
-      debugPrint('❌ Erro ao buscar modelo: $e');
+      debugPrint('❌ Erro ao buscar dados do veículo: $e');
+
+      // Mostra erro para o usuário
+      Fluttertoast.showToast(
+        msg: 'Erro ao buscar dados do veículo. Tente novamente.',
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+        toastLength: Toast.LENGTH_SHORT,
+      );
     }
-  }
-
-  String? _getMockModelByPlate(String cleanPlate) {
-    // Simula busca de modelo por placa (substitua pela API real)
-    final mockModels = {
-      'AAA1234': 'HONDA CIVIC',
-      'BBB5678': 'TOYOTA COROLLA',
-      'CCC9012': 'VOLKSWAGEN GOLF',
-      'DDD3456': 'FORD FOCUS',
-      'EEE7890': 'CHEVROLET CRUZE',
-    };
-
-    return mockModels[cleanPlate];
   }
 
   Future<void> _handleSubmit() async {
@@ -628,6 +653,21 @@ class _RegisterVehicleScreenState extends ConsumerState<RegisterVehicleScreen> {
                                   },
                                 ]),
                                 onChanged: _onPlateChanged,
+                                onEditingComplete: () async {
+                                  // Busca dados do veículo quando o usuário sair do campo
+                                  final plateValue = _formKey
+                                      .currentState
+                                      ?.fields['licensePlate']
+                                      ?.value as String?;
+                                  if (plateValue != null &&
+                                      plateValue.isNotEmpty) {
+                                    final cleanPlate = plateValue.replaceAll(
+                                        RegExp(r'[^A-Z0-9]'), '');
+                                    if (cleanPlate.length == 7) {
+                                      await _getModelByPlate(cleanPlate);
+                                    }
+                                  }
+                                },
                               );
                             },
                           ),
