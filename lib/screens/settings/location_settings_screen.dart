@@ -41,51 +41,8 @@ class LocationSettingsScreen extends ConsumerWidget {
 
               // Location settings - Consumer específico
               const _LocationSettingsCard(),
-
-              const SizedBox(height: 16),
-
-              // Automatic features - Consumer específico
-              const _AutomaticFeaturesCard(),
-
-              const SizedBox(height: 20),
-
-              // Information card - Widget estático
-              _buildInformationCard(context),
             ],
           ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildInformationCard(BuildContext context) {
-    return Card(
-      elevation: 1,
-      color: Colors.blue.shade50,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: Colors.blue.shade200),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Row(
-          children: [
-            Icon(
-              Icons.info_outline,
-              color: Colors.blue.shade700,
-              size: 24,
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                'A localização é necessária para registrar onde você estacionou e fornecer serviços baseados em localização.',
-                style: TextStyle(
-                  color: Colors.blue.shade700,
-                  fontSize: 14,
-                ),
-              ),
-            ),
-          ],
         ),
       ),
     );
@@ -272,112 +229,7 @@ class _LocationSettingsCard extends ConsumerWidget {
                 },
                 icon: Icons.gps_fixed,
               ),
-              const Divider(),
-              _buildSwitchTile(
-                title: 'Localização em segundo plano',
-                subtitle: 'Continuar rastreando quando o app estiver fechado',
-                value: locationState.backgroundLocation,
-                onChanged: (value) async {
-                  locationNotifier.setBackgroundLocation(value);
-                },
-                icon: Icons.location_history,
-              ),
             ],
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSwitchTile({
-    required String title,
-    required String subtitle,
-    required bool value,
-    required dynamic Function(bool) onChanged,
-    required IconData icon,
-  }) {
-    return Builder(
-      builder: (context) => Row(
-        children: [
-          Icon(
-            icon,
-            color: Theme.of(context).primaryColor,
-            size: 20,
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                Text(
-                  subtitle,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey[600],
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Switch(
-            value: value,
-            onChanged: (value) {
-              final result = onChanged(value);
-              if (result is Future) {
-                // Ignora o resultado se for assíncrono
-              }
-            },
-            activeColor: Theme.of(context).primaryColor,
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// Widget específico para recursos automáticos
-class _AutomaticFeaturesCard extends ConsumerWidget {
-  const _AutomaticFeaturesCard();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final locationState = ref.watch(locationSettingsProvider);
-    final locationNotifier = ref.read(locationSettingsProvider.notifier);
-
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Recursos Automáticos',
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 16),
-            _buildSwitchTile(
-              title: 'Estacionamento automático',
-              subtitle: 'Detectar automaticamente quando você estacionar',
-              value: locationState.automaticParking,
-              onChanged: (value) async {
-                locationNotifier.setAutomaticParking(value);
-              },
-              icon: Icons.directions_car,
-            ),
           ],
         ),
       ),
