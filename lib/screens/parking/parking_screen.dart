@@ -341,7 +341,7 @@ class _ParkingScreenState extends ConsumerState<ParkingScreen> {
 
           // Parking options section
           Expanded(
-            flex: 3,
+            flex: 4,
             child: Container(
               padding: const EdgeInsets.all(16),
               child: Column(
