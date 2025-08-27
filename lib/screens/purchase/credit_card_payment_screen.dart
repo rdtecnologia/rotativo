@@ -584,17 +584,17 @@ class _CreditCardPaymentScreenState
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // Show "ou use um novo cartão" if there's a selected card
-                      if (selectedCard != null) ...[
-                        const Text(
-                          'ou use um novo cartão',
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.grey,
-                            fontStyle: FontStyle.italic,
-                          ),
-                        ),
-                        const SizedBox(height: 20),
-                      ],
+                      selectedCard != null
+                          ? const Text(
+                              'ou use um novo cartão',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.black87,
+                              ),
+                            )
+                          : const SizedBox.shrink(),
+                      const SizedBox(height: 20),
 
                       Row(
                         children: [
@@ -696,7 +696,7 @@ class _CreditCardPaymentScreenState
 
               // Confirm purchase button
               ProcessingButton(
-                onPressed: (isLoading) ? null : _confirmPurchase,
+                onPressed: _confirmPurchase,
                 child: const Text(
                   'COMPRAR AGORA',
                   style: TextStyle(

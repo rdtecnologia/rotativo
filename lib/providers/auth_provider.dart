@@ -11,7 +11,8 @@ final authProvider = StateNotifierProvider<AuthNotifier, AuthState>((ref) {
 });
 
 class AuthNotifier extends StateNotifier<AuthState> {
-  AuthNotifier() : super(const AuthState()) {
+  AuthNotifier() : super(const AuthState(isLoading: true)) {
+    // Inicializar com loading true para evitar mudanças rápidas de estado
     _loadStoredUser();
   }
 
@@ -19,45 +20,77 @@ class AuthNotifier extends StateNotifier<AuthState> {
   Future<void> _loadStoredUser() async {
     final startTime = DateTime.now();
 
+    if (kDebugMode) {
+      print('🔄 AuthProvider: Iniciando carregamento de usuário armazenado');
+    }
+
     try {
+      // Manter loading true durante todo o processo para evitar flash
       state = state.copyWith(isLoading: true);
+
+      if (kDebugMode) {
+        print('🔄 AuthProvider: Estado definido como loading');
+      }
 
       // Carregar dados locais primeiro (muito rápido)
       final user = await AuthService.getStoredUser();
       final biometricEnabled = await AuthService.isBiometricEnabled();
 
-      // Se não há usuário, não precisa validar token
-      if (user == null || user.token == null) {
-        // Garantir tempo mínimo de carregamento para UX
-        await _ensureMinimumLoadingTime(
-            startTime, const Duration(milliseconds: 800));
-
-        state = state.copyWith(
-          biometricEnabled: biometricEnabled,
-          isLoading: false,
-        );
-        return;
+      if (kDebugMode) {
+        print(
+            '🔄 AuthProvider: Dados locais carregados - user: ${user != null}, biometric: $biometricEnabled');
       }
 
-      // Validar token com timeout para não travar o app
-      try {
-        final currentUser = await AuthService.getCurrentUserWithTimeout(
-          timeout: const Duration(seconds: 3),
-        );
+      // Se não há usuário, não precisa validar token
+      if (user == null || user.token == null) {
+        if (kDebugMode) {
+          print(
+              '🔄 AuthProvider: Nenhum usuário encontrado, finalizando sem validação');
+        }
 
         // Garantir tempo mínimo de carregamento para UX
         await _ensureMinimumLoadingTime(
             startTime, const Duration(milliseconds: 1200));
 
         state = state.copyWith(
+          user: null,
+          biometricEnabled: biometricEnabled,
+          isLoading: false,
+        );
+
+        if (kDebugMode) {
+          print('🔄 AuthProvider: Estado finalizado - usuário não autenticado');
+        }
+        return;
+      }
+
+      // Validar token com timeout para não travar o app
+      try {
+        if (kDebugMode) {
+          print('🔄 AuthProvider: Validando token do usuário');
+        }
+
+        final currentUser = await AuthService.getCurrentUserWithTimeout(
+          timeout: const Duration(seconds: 3),
+        );
+
+        // Garantir tempo mínimo de carregamento para UX
+        await _ensureMinimumLoadingTime(
+            startTime, const Duration(milliseconds: 1500));
+
+        state = state.copyWith(
           user: currentUser,
           biometricEnabled: biometricEnabled,
           isLoading: false,
         );
+
+        if (kDebugMode) {
+          print('🔄 AuthProvider: Estado finalizado - usuário autenticado');
+        }
       } catch (e) {
         // Token inválido, timeout ou erro de conexão - limpar dados
         if (kDebugMode) {
-          print('Token validation failed: $e');
+          print('🔄 AuthProvider: Token validation failed: $e');
         }
 
         // Se for erro de conexão, não limpar dados automaticamente
@@ -65,12 +98,13 @@ class AuthNotifier extends StateNotifier<AuthState> {
             e.toString().contains('host lookup') ||
             e.toString().contains('Failed host lookup')) {
           if (kDebugMode) {
-            print('Connection error detected - keeping stored data');
+            print(
+                '🔄 AuthProvider: Connection error detected - keeping stored data');
           }
 
           // Garantir tempo mínimo de carregamento para UX
           await _ensureMinimumLoadingTime(
-              startTime, const Duration(milliseconds: 1000));
+              startTime, const Duration(milliseconds: 1300));
 
           state = state.copyWith(
             user: user, // Manter usuário armazenado
@@ -78,34 +112,52 @@ class AuthNotifier extends StateNotifier<AuthState> {
             isLoading: false,
             error: 'Erro de conexão. Verifique sua internet.',
           );
+
+          if (kDebugMode) {
+            print(
+                '🔄 AuthProvider: Estado finalizado - usuário mantido por erro de conexão');
+          }
         } else {
           // Outros erros - limpar dados
+          if (kDebugMode) {
+            print('🔄 AuthProvider: Limpando dados por erro de validação');
+          }
+
           await AuthService.logout();
 
           // Garantir tempo mínimo de carregamento para UX
           await _ensureMinimumLoadingTime(
-              startTime, const Duration(milliseconds: 1000));
+              startTime, const Duration(milliseconds: 1300));
 
           state = state.copyWith(
             user: null,
             biometricEnabled: false,
             isLoading: false,
           );
+
+          if (kDebugMode) {
+            print('🔄 AuthProvider: Estado finalizado - dados limpos');
+          }
         }
       }
     } catch (e) {
       if (kDebugMode) {
-        print('Error loading stored user: $e');
+        print('🔄 AuthProvider: Error loading stored user: $e');
       }
 
       // Garantir tempo mínimo de carregamento para UX
       await _ensureMinimumLoadingTime(
-          startTime, const Duration(milliseconds: 800));
+          startTime, const Duration(milliseconds: 1200));
 
       state = state.copyWith(
+        user: null,
         isLoading: false,
         error: e.toString(),
       );
+
+      if (kDebugMode) {
+        print('🔄 AuthProvider: Estado finalizado - erro geral');
+      }
     }
   }
 
@@ -115,8 +167,15 @@ class AuthNotifier extends StateNotifier<AuthState> {
     final elapsed = DateTime.now().difference(startTime);
     if (elapsed < minimumTime) {
       final remaining = minimumTime - elapsed;
+      if (kDebugMode) {
+        print(
+            '🔄 AuthProvider: Aguardando tempo mínimo - restante: ${remaining.inMilliseconds}ms');
+      }
       await Future.delayed(remaining);
     }
+
+    // Adicionar delay adicional para garantir estado estável
+    await Future.delayed(const Duration(milliseconds: 200));
   }
 
   // Check CPF (mantido para compatibilidade, mas não usado no novo fluxo)
