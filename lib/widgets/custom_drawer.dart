@@ -3,13 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../providers/auth_provider.dart';
 import '../screens/settings/settings_screen.dart';
-import '../screens/settings/biometric_settings_screen.dart';
 import '../screens/history/history_screen.dart';
 import '../screens/vehicles/register_vehicle_screen.dart';
 import '../screens/cards/cards_screen.dart';
 
 import '../screens/purchase/choose_value_screen.dart';
-import '../services/biometric_service.dart';
 
 class CustomDrawer extends ConsumerWidget {
   const CustomDrawer({super.key});
@@ -136,30 +134,7 @@ class CustomDrawer extends ConsumerWidget {
                   },
                 ),
                 // Biometric settings - only show if biometrics are available
-                FutureBuilder<bool>(
-                  future: BiometricService.isBiometricAvailable(),
-                  builder: (context, snapshot) {
-                    if (snapshot.data == true) {
-                      return _buildMenuItem(
-                        context,
-                        icon: Icons.fingerprint,
-                        title: 'Configurações Biométricas',
-                        onTap: () {
-                          Navigator.pop(context);
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  const BiometricSettingsScreen(),
-                            ),
-                          );
-                        },
-                      );
-                    }
-                    return const SizedBox
-                        .shrink(); // Hide if biometrics not available
-                  },
-                ),
+                // Removed: Now accessible via Settings > Preferences
                 const Divider(),
                 _buildMenuItem(
                   context,

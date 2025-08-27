@@ -7,6 +7,7 @@ import 'change_password_screen.dart';
 import 'alarm_settings_screen.dart';
 import 'location_settings_screen.dart';
 import 'app_version_screen.dart';
+import 'biometric_settings_screen.dart';
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -136,6 +137,18 @@ class SettingsScreen extends ConsumerWidget {
                   Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: (context) => const LocationSettingsScreen(),
+                    ),
+                  );
+                },
+              ),
+              _buildSettingsItem(
+                icon: Icons.fingerprint,
+                title: 'Configurações biométricas',
+                subtitle: 'Configurar autenticação por biometria',
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => const BiometricSettingsScreen(),
                     ),
                   );
                 },
