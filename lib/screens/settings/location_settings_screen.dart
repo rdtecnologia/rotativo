@@ -257,8 +257,8 @@ class _LocationSettingsCard extends ConsumerWidget {
               title: 'Compartilhar localização',
               subtitle: 'Permitir que o app acesse sua localização',
               value: locationState.shareLocation,
-              onChanged: (value) =>
-                  locationNotifier.toggleLocationSharing(value),
+              onChanged: (value) async =>
+                  await locationNotifier.toggleLocationSharing(value),
               icon: Icons.my_location,
             ),
             if (locationState.shareLocation) ...[
@@ -267,7 +267,9 @@ class _LocationSettingsCard extends ConsumerWidget {
                 title: 'Alta precisão',
                 subtitle: 'Usar GPS para maior precisão',
                 value: locationState.highAccuracy,
-                onChanged: (value) => locationNotifier.setHighAccuracy(value),
+                onChanged: (value) async {
+                  locationNotifier.setHighAccuracy(value);
+                },
                 icon: Icons.gps_fixed,
               ),
               const Divider(),
@@ -275,8 +277,9 @@ class _LocationSettingsCard extends ConsumerWidget {
                 title: 'Localização em segundo plano',
                 subtitle: 'Continuar rastreando quando o app estiver fechado',
                 value: locationState.backgroundLocation,
-                onChanged: (value) =>
-                    locationNotifier.setBackgroundLocation(value),
+                onChanged: (value) async {
+                  locationNotifier.setBackgroundLocation(value);
+                },
                 icon: Icons.location_history,
               ),
             ],
@@ -290,7 +293,7 @@ class _LocationSettingsCard extends ConsumerWidget {
     required String title,
     required String subtitle,
     required bool value,
-    required ValueChanged<bool> onChanged,
+    required dynamic Function(bool) onChanged,
     required IconData icon,
   }) {
     return Builder(
@@ -325,7 +328,12 @@ class _LocationSettingsCard extends ConsumerWidget {
           ),
           Switch(
             value: value,
-            onChanged: onChanged,
+            onChanged: (value) {
+              final result = onChanged(value);
+              if (result is Future) {
+                // Ignora o resultado se for assíncrono
+              }
+            },
             activeColor: Theme.of(context).primaryColor,
           ),
         ],
@@ -365,7 +373,9 @@ class _AutomaticFeaturesCard extends ConsumerWidget {
               title: 'Estacionamento automático',
               subtitle: 'Detectar automaticamente quando você estacionar',
               value: locationState.automaticParking,
-              onChanged: (value) => locationNotifier.setAutomaticParking(value),
+              onChanged: (value) async {
+                locationNotifier.setAutomaticParking(value);
+              },
               icon: Icons.directions_car,
             ),
           ],
@@ -378,7 +388,7 @@ class _AutomaticFeaturesCard extends ConsumerWidget {
     required String title,
     required String subtitle,
     required bool value,
-    required ValueChanged<bool> onChanged,
+    required dynamic Function(bool) onChanged,
     required IconData icon,
   }) {
     return Builder(
@@ -413,7 +423,12 @@ class _AutomaticFeaturesCard extends ConsumerWidget {
           ),
           Switch(
             value: value,
-            onChanged: onChanged,
+            onChanged: (value) {
+              final result = onChanged(value);
+              if (result is Future) {
+                // Ignora o resultado se for assíncrono
+              }
+            },
             activeColor: Theme.of(context).primaryColor,
           ),
         ],

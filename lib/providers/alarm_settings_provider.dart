@@ -1,4 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'dart:convert';
 
 // Modelo para as configurações de alarme
 class AlarmSettings {
@@ -48,6 +50,36 @@ class AlarmSettings {
       lightsEnabled: lightsEnabled ?? this.lightsEnabled,
     );
   }
+
+  // Converte para JSON para persistência
+  Map<String, dynamic> toJson() {
+    return {
+      'parkingExpiration': parkingExpiration,
+      'paymentReminders': paymentReminders,
+      'promotions': promotions,
+      'systemUpdates': systemUpdates,
+      'reminderMinutes': reminderMinutes,
+      'localNotificationsEnabled': localNotificationsEnabled,
+      'soundEnabled': soundEnabled,
+      'vibrationEnabled': vibrationEnabled,
+      'lightsEnabled': lightsEnabled,
+    };
+  }
+
+  // Cria a partir de JSON para carregamento
+  factory AlarmSettings.fromJson(Map<String, dynamic> json) {
+    return AlarmSettings(
+      parkingExpiration: json['parkingExpiration'] ?? true,
+      paymentReminders: json['paymentReminders'] ?? true,
+      promotions: json['promotions'] ?? false,
+      systemUpdates: json['systemUpdates'] ?? true,
+      reminderMinutes: json['reminderMinutes'] ?? 15,
+      localNotificationsEnabled: json['localNotificationsEnabled'] ?? true,
+      soundEnabled: json['soundEnabled'] ?? true,
+      vibrationEnabled: json['vibrationEnabled'] ?? true,
+      lightsEnabled: json['lightsEnabled'] ?? true,
+    );
+  }
 }
 
 // Provider para as configurações de alarme
@@ -57,56 +89,95 @@ final alarmSettingsProvider =
 });
 
 class AlarmSettingsNotifier extends StateNotifier<AlarmSettings> {
-  AlarmSettingsNotifier() : super(const AlarmSettings());
+  static const String _storageKey = 'alarm_settings';
+  static const FlutterSecureStorage _storage = FlutterSecureStorage();
+
+  AlarmSettingsNotifier() : super(const AlarmSettings()) {
+    _loadSettings();
+  }
+
+  // Carrega as configurações salvas
+  Future<void> _loadSettings() async {
+    try {
+      final savedSettings = await _storage.read(key: _storageKey);
+      if (savedSettings != null) {
+        final json = jsonDecode(savedSettings);
+        state = AlarmSettings.fromJson(json);
+      }
+    } catch (e) {
+      // Se houver erro ao carregar, mantém as configurações padrão
+      print('Erro ao carregar configurações de alarme: $e');
+    }
+  }
+
+  // Salva as configurações
+  Future<void> _saveSettings() async {
+    try {
+      final json = jsonEncode(state.toJson());
+      await _storage.write(key: _storageKey, value: json);
+    } catch (e) {
+      print('Erro ao salvar configurações de alarme: $e');
+    }
+  }
 
   // Atualiza a configuração de vencimento do estacionamento
-  void updateParkingExpiration(bool value) {
+  Future<void> updateParkingExpiration(bool value) async {
     state = state.copyWith(parkingExpiration: value);
+    await _saveSettings();
   }
 
   // Atualiza a configuração de lembretes de pagamento
-  void updatePaymentReminders(bool value) {
+  Future<void> updatePaymentReminders(bool value) async {
     state = state.copyWith(paymentReminders: value);
+    await _saveSettings();
   }
 
   // Atualiza a configuração de promoções
-  void updatePromotions(bool value) {
+  Future<void> updatePromotions(bool value) async {
     state = state.copyWith(promotions: value);
+    await _saveSettings();
   }
 
   // Atualiza a configuração de atualizações do sistema
-  void updateSystemUpdates(bool value) {
+  Future<void> updateSystemUpdates(bool value) async {
     state = state.copyWith(systemUpdates: value);
+    await _saveSettings();
   }
 
   // Atualiza o tempo de antecedência
-  void updateReminderMinutes(int minutes) {
+  Future<void> updateReminderMinutes(int minutes) async {
     state = state.copyWith(reminderMinutes: minutes);
+    await _saveSettings();
   }
 
   // Atualiza a configuração de notificações locais
-  void updateLocalNotificationsEnabled(bool value) {
+  Future<void> updateLocalNotificationsEnabled(bool value) async {
     state = state.copyWith(localNotificationsEnabled: value);
+    await _saveSettings();
   }
 
   // Atualiza a configuração de som
-  void updateSoundEnabled(bool value) {
+  Future<void> updateSoundEnabled(bool value) async {
     state = state.copyWith(soundEnabled: value);
+    await _saveSettings();
   }
 
   // Atualiza a configuração de vibração
-  void updateVibrationEnabled(bool value) {
+  Future<void> updateVibrationEnabled(bool value) async {
     state = state.copyWith(vibrationEnabled: value);
+    await _saveSettings();
   }
 
   // Atualiza a configuração de luzes
-  void updateLightsEnabled(bool value) {
+  Future<void> updateLightsEnabled(bool value) async {
     state = state.copyWith(lightsEnabled: value);
+    await _saveSettings();
   }
 
   // Reseta todas as configurações para os valores padrão
-  void resetToDefaults() {
+  Future<void> resetToDefaults() async {
     state = const AlarmSettings();
+    await _saveSettings();
   }
 
   // Lista de opções de tempo disponíveis

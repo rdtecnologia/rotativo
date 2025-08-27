@@ -74,9 +74,9 @@ class AlarmSettingsScreen extends ConsumerWidget {
                   context,
                   title: 'Notificações locais',
                   subtitle: 'Receber notificações mesmo com o app fechado',
-                  value: false,
-                  onChanged: (value) {
-                    alarmNotifier.updateLocalNotificationsEnabled(value);
+                  value: alarmSettings.localNotificationsEnabled,
+                  onChanged: (value) async {
+                    await alarmNotifier.updateLocalNotificationsEnabled(value);
                   },
                   icon: Icons.notifications,
                   isConsumer: true,
@@ -97,8 +97,8 @@ class AlarmSettingsScreen extends ConsumerWidget {
                   title: 'Vencimento de estacionamento',
                   subtitle: 'Aviso antes do vencimento',
                   value: alarmSettings.parkingExpiration,
-                  onChanged: (value) {
-                    alarmNotifier.updateParkingExpiration(value);
+                  onChanged: (value) async {
+                    await alarmNotifier.updateParkingExpiration(value);
                   },
                   icon: Icons.timer,
                   isConsumer: true,
@@ -106,6 +106,156 @@ class AlarmSettingsScreen extends ConsumerWidget {
                 ),
                 _buildReminderTimeSection(context, alarmNotifier),
               ],
+            ),
+
+            const SizedBox(height: 16),
+
+            // Configurações de som, vibração e luzes
+            _buildSettingsCard(
+              context,
+              'Configurações de Notificação',
+              [
+                _buildSwitchTile(
+                  context,
+                  title: 'Som',
+                  subtitle: 'Reproduzir som nas notificações',
+                  value: alarmSettings.soundEnabled,
+                  onChanged: (value) async {
+                    await alarmNotifier.updateSoundEnabled(value);
+                  },
+                  icon: Icons.volume_up,
+                  isConsumer: true,
+                  consumerKey: 'sound',
+                ),
+                _buildSwitchTile(
+                  context,
+                  title: 'Vibração',
+                  subtitle: 'Vibrar ao receber notificações',
+                  value: alarmSettings.vibrationEnabled,
+                  onChanged: (value) async {
+                    await alarmNotifier.updateVibrationEnabled(value);
+                  },
+                  icon: Icons.vibration,
+                  isConsumer: true,
+                  consumerKey: 'vibration',
+                ),
+                _buildSwitchTile(
+                  context,
+                  title: 'Luzes',
+                  subtitle: 'Acender luz do LED nas notificações',
+                  value: alarmSettings.lightsEnabled,
+                  onChanged: (value) async {
+                    await alarmNotifier.updateLightsEnabled(value);
+                  },
+                  icon: Icons.lightbulb,
+                  isConsumer: true,
+                  consumerKey: 'lights',
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 16),
+
+            // Outras configurações de notificação
+            _buildSettingsCard(
+              context,
+              'Outras Notificações',
+              [
+                _buildSwitchTile(
+                  context,
+                  title: 'Lembretes de pagamento',
+                  subtitle: 'Notificações sobre pagamentos pendentes',
+                  value: alarmSettings.paymentReminders,
+                  onChanged: (value) async {
+                    await alarmNotifier.updatePaymentReminders(value);
+                  },
+                  icon: Icons.payment,
+                  isConsumer: true,
+                  consumerKey: 'paymentReminders',
+                ),
+                _buildSwitchTile(
+                  context,
+                  title: 'Promoções',
+                  subtitle: 'Receber ofertas e descontos',
+                  value: alarmSettings.promotions,
+                  onChanged: (value) async {
+                    await alarmNotifier.updatePromotions(value);
+                  },
+                  icon: Icons.local_offer,
+                  isConsumer: true,
+                  consumerKey: 'promotions',
+                ),
+                _buildSwitchTile(
+                  context,
+                  title: 'Atualizações do sistema',
+                  subtitle: 'Notificações sobre novas funcionalidades',
+                  value: alarmSettings.systemUpdates,
+                  onChanged: (value) async {
+                    await alarmNotifier.updateSystemUpdates(value);
+                  },
+                  icon: Icons.system_update,
+                  isConsumer: true,
+                  consumerKey: 'systemUpdates',
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 16),
+
+            // Botão para resetar configurações
+            Container(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: () async {
+                  final confirmed = await showDialog<bool>(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: const Text('Resetar Configurações'),
+                      content: const Text(
+                          'Tem certeza que deseja resetar todas as configurações de alarme para os valores padrão?'),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.of(context).pop(false),
+                          child: const Text('Cancelar'),
+                        ),
+                        TextButton(
+                          onPressed: () => Navigator.of(context).pop(true),
+                          child: const Text('Resetar'),
+                          style: TextButton.styleFrom(
+                            foregroundColor: Colors.red,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+
+                  if (confirmed == true) {
+                    await alarmNotifier.resetToDefaults();
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text(
+                              'Configurações resetadas para os valores padrão'),
+                          backgroundColor: Colors.orange,
+                        ),
+                      );
+                    }
+                  }
+                },
+                icon: const Icon(Icons.restore),
+                label: const Text('Resetar para Padrão'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.orange,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(25),
+                  ),
+                ),
+              ),
             ),
 
             const SizedBox(height: 32),
@@ -262,7 +412,7 @@ class AlarmSettingsScreen extends ConsumerWidget {
     required String title,
     required String subtitle,
     required bool value,
-    required ValueChanged<bool> onChanged,
+    required dynamic Function(bool) onChanged,
     required IconData icon,
     bool isConsumer = false,
     String? consumerKey,
@@ -337,7 +487,12 @@ class AlarmSettingsScreen extends ConsumerWidget {
             ),
             trailing: Switch(
               value: currentValue,
-              onChanged: onChanged,
+              onChanged: (value) {
+                final result = onChanged(value);
+                if (result is Future) {
+                  // Ignora o resultado se for assíncrono
+                }
+              },
               activeColor: Theme.of(context).primaryColor,
             ),
           );
@@ -373,7 +528,12 @@ class AlarmSettingsScreen extends ConsumerWidget {
       ),
       trailing: Switch(
         value: value,
-        onChanged: onChanged,
+        onChanged: (value) {
+          final result = onChanged(value);
+          if (result is Future) {
+            // Ignora o resultado se for assíncrono
+          }
+        },
         activeColor: Theme.of(context).primaryColor,
       ),
     );
@@ -396,9 +556,9 @@ class AlarmSettingsScreen extends ConsumerWidget {
               reminderMinutes: ref.watch(alarmSettingsProvider
                   .select((settings) => settings.reminderMinutes)),
               reminderOptions: alarmNotifier.reminderOptions,
-              onChanged: (value) {
+              onChanged: (value) async {
                 if (value != null) {
-                  alarmNotifier.updateReminderMinutes(value);
+                  await alarmNotifier.updateReminderMinutes(value);
                 }
               },
             ),
