@@ -44,9 +44,11 @@ class ParkingTimeCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         side: isSelected
             ? BorderSide(color: Theme.of(context).primaryColor, width: 2)
-            : BorderSide.none,
+            : !hasEnoughCredits
+                ? BorderSide(color: Colors.grey.shade100, width: 2)
+                : BorderSide.none,
       ),
-      color: !hasEnoughCredits ? Colors.grey.shade200 : null,
+      color: !hasEnoughCredits ? Colors.grey[100] : null,
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
         onTap: hasEnoughCredits ? onTap : null,
@@ -71,7 +73,9 @@ class ParkingTimeCard extends StatelessWidget {
                           Icons.schedule,
                           color: isSelected
                               ? Theme.of(context).primaryColor
-                              : Colors.grey[600],
+                              : !hasEnoughCredits
+                                  ? Colors.grey.shade500
+                                  : Colors.grey[600],
                           size: 20,
                         ),
                         const SizedBox(width: 8),
@@ -82,9 +86,31 @@ class ParkingTimeCard extends StatelessWidget {
                             fontWeight: FontWeight.bold,
                             color: isSelected
                                 ? Theme.of(context).primaryColor
-                                : Colors.black87,
+                                : !hasEnoughCredits
+                                    ? Colors.grey.shade500
+                                    : Colors.black87,
                           ),
                         ),
+                        if (!hasEnoughCredits) ...[
+                          const SizedBox(width: 8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: Colors.red.shade50,
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(color: Colors.red.shade200),
+                            ),
+                            child: Text(
+                              'Créditos insuficientes',
+                              style: TextStyle(
+                                fontSize: 10,
+                                color: Colors.red.shade600,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ],
                       ],
                     ),
                     const SizedBox(height: 4),
@@ -92,30 +118,31 @@ class ParkingTimeCard extends StatelessWidget {
                       children: [
                         Icon(
                           Icons.confirmation_number,
-                          color: Colors.grey[600],
+                          color: !hasEnoughCredits
+                              ? Colors.grey.shade500
+                              : Colors.grey[600],
                           size: 16,
                         ),
                         const SizedBox(width: 8),
-                        Text(
-                          '$credits créditos',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: hasEnoughCredits
-                                ? Colors.grey[600]
-                                : Colors.red[600],
-                            fontWeight: hasEnoughCredits
-                                ? FontWeight.normal
-                                : FontWeight.bold,
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                '$credits créditos',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: hasEnoughCredits
+                                      ? Colors.grey[600]
+                                      : Colors.grey.shade500,
+                                  fontWeight: hasEnoughCredits
+                                      ? FontWeight.normal
+                                      : FontWeight.bold,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                        if (!hasEnoughCredits) ...[
-                          const SizedBox(width: 4),
-                          Icon(
-                            Icons.warning_amber_rounded,
-                            color: Colors.red[600],
-                            size: 14,
-                          ),
-                        ],
                       ],
                     ),
                   ],
@@ -133,14 +160,18 @@ class ParkingTimeCard extends StatelessWidget {
                       fontWeight: FontWeight.bold,
                       color: isSelected
                           ? Theme.of(context).primaryColor
-                          : Colors.black87,
+                          : !hasEnoughCredits
+                              ? Colors.grey.shade500
+                              : Colors.black87,
                     ),
                   ),
                   Text(
                     'valor',
                     style: TextStyle(
                       fontSize: 12,
-                      color: Colors.grey[600],
+                      color: !hasEnoughCredits
+                          ? Colors.grey.shade500
+                          : Colors.grey[600],
                     ),
                   ),
                 ],
@@ -157,12 +188,16 @@ class ParkingTimeCard extends StatelessWidget {
                   border: Border.all(
                     color: isSelected
                         ? Theme.of(context).primaryColor
-                        : Colors.grey[400]!,
+                        : !hasEnoughCredits
+                            ? Colors.grey.shade400
+                            : Colors.grey[400]!,
                     width: 2,
                   ),
                   color: isSelected
                       ? Theme.of(context).primaryColor
-                      : Colors.transparent,
+                      : !hasEnoughCredits
+                          ? Colors.grey.shade100
+                          : Colors.transparent,
                 ),
                 child: isSelected
                     ? const Icon(
@@ -170,7 +205,13 @@ class ParkingTimeCard extends StatelessWidget {
                         color: Colors.white,
                         size: 16,
                       )
-                    : null,
+                    : !hasEnoughCredits
+                        ? Icon(
+                            Icons.block,
+                            color: Colors.red.shade600,
+                            size: 16,
+                          )
+                        : null,
               ),
             ],
           ),
