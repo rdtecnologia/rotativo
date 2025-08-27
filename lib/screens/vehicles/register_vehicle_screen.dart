@@ -83,8 +83,8 @@ class _RegisterVehicleScreenState extends ConsumerState<RegisterVehicleScreen> {
               ?.invalidate('Veículo já cadastrado');
         }
 
-        // Se a placa está completa (8 caracteres), busca o modelo automaticamente
-        if (cleanPlate.length == 8 && !isEditing) {
+        // Se a placa está completa (7 ou 8 caracteres), busca o modelo automaticamente
+        if ((cleanPlate.length == 7 || cleanPlate.length == 8) && !isEditing) {
           await _getModelByPlate(cleanPlate);
         }
       }
@@ -561,19 +561,46 @@ class _RegisterVehicleScreenState extends ConsumerState<RegisterVehicleScreen> {
                                 enabled: !isEditing, // Não permite editar placa
                                 decoration: InputDecoration(
                                   labelText: 'Placa do veículo',
-                                  hintText: 'ABC1234 ou ABC1D23',
+                                  hintText: 'ABC1234 ou ABC1D23 (7 caracteres)',
                                   prefixIcon: const Icon(Icons.directions_car),
                                   border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                   helperText:
-                                      'Formato antigo: ABC1234 | Mercosul: ABC1D23',
+                                      'Formato antigo: ABC1234 | Mercosul: ABC1D23 (ambos com 7 caracteres)',
                                 ),
                                 inputFormatters: [
-                                  FilteringTextInputFormatter.allow(
-                                      RegExp(r'[A-Za-z0-9]')),
+                                  // Formatter inteligente que detecta o formato da placa
+                                  TextInputFormatter.withFunction(
+                                      (oldValue, newValue) {
+                                    final text = newValue.text.toUpperCase();
+                                    final cleanText = text.replaceAll(
+                                        RegExp(r'[^A-Z0-9]'), '');
+
+                                    if (cleanText.isEmpty) return newValue;
+
+                                    // Aplica máscara baseada no comprimento
+                                    String formattedText;
+                                    if (cleanText.length <= 3) {
+                                      formattedText = cleanText;
+                                    } else if (cleanText.length <= 7) {
+                                      // Formato antigo: ABC-1234 ou Mercosul: ABC-1D23
+                                      formattedText =
+                                          '${cleanText.substring(0, 3)}-${cleanText.substring(3)}';
+                                    } else {
+                                      // Formato Mercosul com 8 caracteres (se houver)
+                                      formattedText =
+                                          '${cleanText.substring(0, 3)}-${cleanText.substring(3)}';
+                                    }
+
+                                    return TextEditingValue(
+                                      text: formattedText,
+                                      selection: TextSelection.collapsed(
+                                          offset: formattedText.length),
+                                    );
+                                  }),
                                   LengthLimitingTextInputFormatter(
-                                      8), // Limita a 8 caracteres
+                                      9), // 7 caracteres + 1 hífen
                                 ],
                                 textCapitalization:
                                     TextCapitalization.characters,
@@ -588,9 +615,8 @@ class _RegisterVehicleScreenState extends ConsumerState<RegisterVehicleScreen> {
 
                                     final cleanPlate = value.replaceAll(
                                         RegExp(r'[^A-Z0-9]'), '');
-                                    if (cleanPlate.length != 7 &&
-                                        cleanPlate.length != 8) {
-                                      return 'Placa deve ter 7 (antiga) ou 8 (Mercosul) caracteres';
+                                    if (cleanPlate.length != 7) {
+                                      return 'Placa deve ter 7 caracteres (formato antigo: ABC1234 ou Mercosul: ABC1D23)';
                                     }
 
                                     if (!AppFormatters.isValidPlateFormat(

@@ -33,8 +33,12 @@ class AppFormatters {
 
   // Custom Mercosul formatter that allows both letter and number in the second position of second segment
   static final flexibleMercosulPlateFormatter = MaskTextInputFormatter(
-    mask: 'AAA-#A##',
-    filter: {"A": RegExp(r'[A-Z]'), "#": RegExp(r'[0-9]')},
+    mask: 'AAA-#S##',
+    filter: {
+      "A": RegExp(r'[A-Z]'),
+      "#": RegExp(r'[0-9]'),
+      "S": RegExp(r'[A-Z0-9]')
+    },
     type: MaskAutoCompletionType.lazy,
   );
 
@@ -46,27 +50,40 @@ class AppFormatters {
   );
 
   // Formatter universal para placas (antiga e Mercosul)
-  static final universalPlateFormatter = FilteringTextInputFormatter.allow(RegExp(r'[A-Za-z0-9-]'));
+  static final universalPlateFormatter =
+      FilteringTextInputFormatter.allow(RegExp(r'[A-Za-z0-9-]'));
 
   // Formatter personalizado para placas com máscara AAA-9S99 (como no React Native)
-  static final customPlateFormatter = FilteringTextInputFormatter.allow(RegExp(r'[A-Za-z0-9-]'));
+  static final customPlateFormatter =
+      FilteringTextInputFormatter.allow(RegExp(r'[A-Za-z0-9-]'));
 
   // Detect plate format and return appropriate formatter
   static MaskTextInputFormatter getPlateFormatter(String plate) {
     final cleanPlate = plate.replaceAll(RegExp(r'[^A-Z0-9]'), '');
-    
+
     if (cleanPlate.length == 7) {
-      // Old Brazilian format: ABC1234
-      return MaskTextInputFormatter(
-        mask: 'AAA-####',
-        filter: {"A": RegExp(r'[A-Z]'), "#": RegExp(r'[0-9]')},
-        type: MaskAutoCompletionType.lazy,
-      );
+      // Verifica se é formato antigo ou Mercosul
+      final oldPattern = RegExp(r'^[A-Z]{3}[0-9]{4}$');
+      if (oldPattern.hasMatch(cleanPlate)) {
+        // Old Brazilian format: ABC1234
+        return MaskTextInputFormatter(
+          mask: 'AAA-####',
+          filter: {"A": RegExp(r'[A-Z]'), "#": RegExp(r'[0-9]')},
+          type: MaskAutoCompletionType.lazy,
+        );
+      } else {
+        // Mercosul format: ABC1D23 (7 caracteres)
+        return MaskTextInputFormatter(
+          mask: 'AAA-#A##',
+          filter: {"A": RegExp(r'[A-Z]'), "#": RegExp(r'[0-9]')},
+          type: MaskAutoCompletionType.lazy,
+        );
+      }
     } else if (cleanPlate.length == 8) {
-      // Mercosul format: ABC1D23 (allowing letter or number in second position)
+      // Mercosul format com 8 caracteres (se houver)
       return flexibleMercosulPlateFormatter;
     }
-    
+
     // Default to old format
     return plateFormatter;
   }
@@ -74,32 +91,42 @@ class AppFormatters {
   // Valida formato de placa
   static bool isValidPlateFormat(String plate) {
     final cleanPlate = plate.replaceAll(RegExp(r'[^A-Z0-9]'), '');
-    
+
     // Formato antigo: ABC-1234 (7 caracteres)
     if (cleanPlate.length == 7) {
-      final pattern = RegExp(r'^[A-Z]{3}[0-9]{4}$');
-      return pattern.hasMatch(cleanPlate);
+      // Verifica se é formato antigo (ABC1234) ou Mercosul (ABC1D23)
+      final oldPattern = RegExp(r'^[A-Z]{3}[0-9]{4}$');
+      final mercosulPattern = RegExp(r'^[A-Z]{3}[0-9][A-Z0-9][0-9]{2}$');
+
+      return oldPattern.hasMatch(cleanPlate) ||
+          mercosulPattern.hasMatch(cleanPlate);
     }
-    
-    // Formato Mercosul: ABC-1D23 (8 caracteres)
+
+    // Formato Mercosul com 8 caracteres (se houver)
     if (cleanPlate.length == 8) {
-      final pattern = RegExp(r'^[A-Z]{3}[0-9][A-Z][0-9]{2}$');
+      // Padrão mais restritivo para 8 caracteres
+      // Deve seguir o padrão: ABC1D234 onde D é uma letra
+      final pattern = RegExp(r'^[A-Z]{3}[0-9][A-Z][0-9]{3}$');
       return pattern.hasMatch(cleanPlate);
     }
-    
+
     return false;
   }
 
   // Aplica máscara personalizada AAA-9S99
   static String applyCustomPlateMask(String text) {
-    final cleanText = text.replaceAll(RegExp(r'[^A-Za-z0-9]'), '').toUpperCase();
-    
+    final cleanText =
+        text.replaceAll(RegExp(r'[^A-Za-z0-9]'), '').toUpperCase();
+
     if (cleanText.isEmpty) return '';
     if (cleanText.length <= 3) return cleanText;
-    if (cleanText.length <= 4) return '${cleanText.substring(0, 3)}-${cleanText.substring(3)}';
-    if (cleanText.length <= 5) return '${cleanText.substring(0, 3)}-${cleanText.substring(3, 4)}${cleanText.substring(4)}';
-    if (cleanText.length <= 7) return '${cleanText.substring(0, 3)}-${cleanText.substring(3, 4)}${cleanText.substring(4, 5)}${cleanText.substring(5)}';
-    
+    if (cleanText.length <= 4)
+      return '${cleanText.substring(0, 3)}-${cleanText.substring(3)}';
+    if (cleanText.length <= 5)
+      return '${cleanText.substring(0, 3)}-${cleanText.substring(3, 4)}${cleanText.substring(4)}';
+    if (cleanText.length <= 7)
+      return '${cleanText.substring(0, 3)}-${cleanText.substring(3, 4)}${cleanText.substring(4, 5)}${cleanText.substring(5)}';
+
     return '${cleanText.substring(0, 3)}-${cleanText.substring(3, 4)}${cleanText.substring(4, 5)}${cleanText.substring(5, 7)}';
   }
 
@@ -111,15 +138,22 @@ class AppFormatters {
   // Format plate for display
   static String formatPlate(String plate) {
     final cleanPlate = plate.replaceAll(RegExp(r'[^A-Z0-9]'), '').toUpperCase();
-    
+
     if (cleanPlate.length == 7) {
-      // Old Brazilian format: ABC-1234
-      return '${cleanPlate.substring(0, 3)}-${cleanPlate.substring(3)}';
+      // Verifica se é formato antigo ou Mercosul
+      final oldPattern = RegExp(r'^[A-Z]{3}[0-9]{4}$');
+      if (oldPattern.hasMatch(cleanPlate)) {
+        // Old Brazilian format: ABC-1234
+        return '${cleanPlate.substring(0, 3)}-${cleanPlate.substring(3)}';
+      } else {
+        // Mercosul format: ABC-1D23
+        return '${cleanPlate.substring(0, 3)}-${cleanPlate.substring(3)}';
+      }
     } else if (cleanPlate.length == 8) {
-      // Mercosul format: ABC-1D23
+      // Mercosul format com 8 caracteres (se houver)
       return '${cleanPlate.substring(0, 3)}-${cleanPlate.substring(3)}';
     }
-    
+
     return plate;
   }
 
