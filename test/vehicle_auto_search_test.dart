@@ -1,6 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rotativo/models/vehicle_models.dart';
-import 'package:rotativo/services/vehicle_service.dart';
 
 void main() {
   group('Vehicle Auto Search Tests', () {

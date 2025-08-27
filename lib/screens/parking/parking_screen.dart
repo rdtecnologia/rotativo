@@ -448,34 +448,182 @@ class _ParkingScreenState extends ConsumerState<ParkingScreen> {
 
                   // Warning message
                   if (selectedTime != null) ...[
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Colors.orange.shade50,
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: Colors.orange.shade200),
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.warning_amber_rounded,
-                            color: Colors.orange.shade700,
-                            size: 24,
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Text(
-                              'ATENÇÃO: Ao estacionar verifique nas placas de sinalização o tempo máximo permitido para estacionamento nesta vaga. Próximo ao término do tempo válido de estacionamento informado, você receberá um ALERTA!',
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Colors.orange.shade800,
-                              ),
+                    Consumer(
+                      builder: (context, ref, child) {
+                        final isWarningVisible =
+                            ref.watch(warningVisibleProvider);
+
+                        // Se o aviso estiver oculto, mostrar apenas um botão para exibi-lo
+                        if (!isWarningVisible) {
+                          return Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 0),
+                            decoration: BoxDecoration(
+                              color: Colors.orange.shade100,
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(color: Colors.orange.shade300),
                             ),
-                          ),
-                        ],
-                      ),
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.info_outline,
+                                  color: Colors.orange.shade700,
+                                  size: 16,
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  'Aviso de estacionamento',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.orange.shade800,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                const Spacer(),
+                                TextButton(
+                                  onPressed: () {
+                                    ref
+                                        .read(warningVisibleProvider.notifier)
+                                        .show();
+                                  },
+                                  child: Text(
+                                    'Mostrar',
+                                    style: TextStyle(
+                                      fontSize: 10,
+                                      color: Colors.orange.shade700,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        }
+
+                        return LayoutBuilder(
+                          builder: (context, constraints) {
+                            // Em telas menores, usar versão mais compacta
+                            final isSmallScreen = constraints.maxWidth < 400;
+
+                            return Consumer(
+                              builder: (context, ref, child) {
+                                final isWarningExpanded =
+                                    ref.watch(warningExpandedProvider);
+
+                                return Container(
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: isSmallScreen ? 6 : 8,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.orange.shade50,
+                                    borderRadius: BorderRadius.circular(8),
+                                    border: Border.all(
+                                        color: Colors.orange.shade200),
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Icon(
+                                            Icons.warning_amber_rounded,
+                                            color: Colors.orange.shade700,
+                                            size: isSmallScreen ? 16 : 18,
+                                          ),
+                                          SizedBox(
+                                              width: isSmallScreen ? 6 : 8),
+                                          Expanded(
+                                            child: Text(
+                                              isSmallScreen
+                                                  ? 'Verifique o tempo máximo na sinalização'
+                                                  : 'ATENÇÃO: Verifique o tempo máximo na sinalização',
+                                              style: TextStyle(
+                                                fontSize:
+                                                    isSmallScreen ? 12 : 13,
+                                                color: Colors.orange.shade800,
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                            ),
+                                          ),
+                                          // Botão para ocultar o aviso
+                                          IconButton(
+                                            onPressed: () {
+                                              ref
+                                                  .read(warningVisibleProvider
+                                                      .notifier)
+                                                  .hide();
+                                            },
+                                            icon: Icon(
+                                              Icons.close,
+                                              color: Colors.orange.shade600,
+                                              size: 18,
+                                            ),
+                                            padding: EdgeInsets.zero,
+                                            constraints: const BoxConstraints(
+                                              minWidth: 24,
+                                              minHeight: 24,
+                                            ),
+                                          ),
+                                          if (!isSmallScreen) ...[
+                                            IconButton(
+                                              onPressed: () {
+                                                ref
+                                                    .read(
+                                                        warningExpandedProvider
+                                                            .notifier)
+                                                    .toggle();
+                                              },
+                                              icon: Icon(
+                                                isWarningExpanded
+                                                    ? Icons.keyboard_arrow_up
+                                                    : Icons.keyboard_arrow_down,
+                                                color: Colors.orange.shade700,
+                                                size: 20,
+                                              ),
+                                              padding: EdgeInsets.zero,
+                                              constraints: const BoxConstraints(
+                                                minWidth: 24,
+                                                minHeight: 24,
+                                              ),
+                                            ),
+                                          ],
+                                        ],
+                                      ),
+                                      if (isWarningExpanded &&
+                                          !isSmallScreen) ...[
+                                        const SizedBox(height: 8),
+                                        Text(
+                                          'Ao estacionar, verifique nas placas de sinalização o tempo máximo permitido para estacionamento nesta vaga. Próximo ao término do tempo válido de estacionamento informado, você receberá um ALERTA!',
+                                          style: TextStyle(
+                                            fontSize: 11,
+                                            color: Colors.orange.shade800,
+                                            height: 1.3,
+                                          ),
+                                        ),
+                                      ],
+                                      // Em telas pequenas, sempre mostrar texto compacto
+                                      if (isSmallScreen) ...[
+                                        Text(
+                                          'Você receberá um ALERTA próximo ao vencimento conforme configurado.',
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: Colors.orange.shade700,
+                                            height: 1.2,
+                                          ),
+                                        ),
+                                      ],
+                                    ],
+                                  ),
+                                );
+                              },
+                            );
+                          },
+                        );
+                      },
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 12),
                   ],
 
                   // Parking button

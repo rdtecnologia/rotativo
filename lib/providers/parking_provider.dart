@@ -195,11 +195,57 @@ class ParkingNotifier extends StateNotifier<ParkingState> {
   }
 }
 
+/// Notifier para controlar se o aviso de atenção está expandido
+class WarningExpandedNotifier extends StateNotifier<bool> {
+  WarningExpandedNotifier() : super(false);
+
+  void toggle() {
+    state = !state;
+  }
+
+  void expand() {
+    state = true;
+  }
+
+  void minimize() {
+    state = false;
+  }
+}
+
+/// Notifier para controlar se o aviso de atenção deve ser mostrado
+class WarningVisibleNotifier extends StateNotifier<bool> {
+  WarningVisibleNotifier() : super(true);
+
+  void toggle() {
+    state = !state;
+  }
+
+  void show() {
+    state = true;
+  }
+
+  void hide() {
+    state = false;
+  }
+}
+
 // Provider instance
 final parkingProvider =
     StateNotifierProvider<ParkingNotifier, ParkingState>((ref) {
   return ParkingNotifier();
 });
+
+// Provider para controlar se o aviso de atenção está expandido
+final warningExpandedProvider =
+    StateNotifierProvider<WarningExpandedNotifier, bool>(
+  (ref) => WarningExpandedNotifier(),
+);
+
+// Provider para controlar se o aviso de atenção deve ser mostrado
+final warningVisibleProvider =
+    StateNotifierProvider<WarningVisibleNotifier, bool>(
+  (ref) => WarningVisibleNotifier(),
+);
 
 // Convenience providers
 final ticketsAvailableProvider = Provider<PossibleParkingResponse?>((ref) {
