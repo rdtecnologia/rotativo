@@ -65,6 +65,10 @@ dependencies:
   # Permission handling
   permission_handler: ^11.3.0
   timezone: ^0.10.1
+  
+  # App info
+  package_info_plus: ^8.0.2
+  device_info_plus: ^11.5.0
 
 dev_dependencies:
   flutter_test:

@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/app_info_provider.dart';
 import 'edit_profile_screen.dart';
 import 'change_password_screen.dart';
 import 'alarm_settings_screen.dart';
 import 'location_settings_screen.dart';
+import 'app_version_screen.dart';
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -145,12 +147,40 @@ class SettingsScreen extends ConsumerWidget {
             context,
             'Sobre',
             [
-              _buildSettingsItem(
-                icon: Icons.info,
-                title: 'Versão do app',
-                subtitle: '1.0.0',
-                onTap: () {},
-                showArrow: false,
+              Consumer(
+                builder: (context, ref, child) {
+                  final versionAsync = ref.watch(appVersionProvider);
+
+                  return versionAsync.when(
+                    data: (version) => _buildSettingsItem(
+                      icon: Icons.info,
+                      title: 'Versão do app',
+                      subtitle: version,
+                      onTap: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => const AppVersionScreen(),
+                          ),
+                        );
+                      },
+                      showArrow: true,
+                    ),
+                    loading: () => _buildSettingsItem(
+                      icon: Icons.info,
+                      title: 'Versão do app',
+                      subtitle: 'Carregando...',
+                      onTap: () {},
+                      showArrow: false,
+                    ),
+                    error: (_, __) => _buildSettingsItem(
+                      icon: Icons.info,
+                      title: 'Versão do app',
+                      subtitle: '1.0.0',
+                      onTap: () {},
+                      showArrow: false,
+                    ),
+                  );
+                },
               ),
               _buildSettingsItem(
                 icon: Icons.help,
