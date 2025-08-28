@@ -215,6 +215,13 @@ class PurchaseService {
       }
     }
 
+    // Validação específica para boleto: valor mínimo de R$ 20,00
+    if (order.payment.data.method == PaymentMethodType.boleto &&
+        order.totalValue < 20.0) {
+      errors.add(
+          'Para pagamentos via boleto bancário, o valor mínimo é de R\$ 20,00');
+    }
+
     // Validar gateway
     if (order.payment.gateway.isEmpty) {
       errors.add('Gateway de pagamento é obrigatório');

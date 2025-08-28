@@ -171,7 +171,8 @@ class PaymentMethodScreen extends ConsumerWidget {
     PaymentMethodType method,
   ) {
     final color = _getPaymentMethodColor(method);
-    final isBoletoUnavailable = method == PaymentMethodType.boleto && product.price < 20.0;
+    final isBoletoUnavailable =
+        method == PaymentMethodType.boleto && product.price < 20.0;
 
     return Card(
       elevation: isBoletoUnavailable ? 1 : 3,
@@ -189,8 +190,8 @@ class PaymentMethodScreen extends ConsumerWidget {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: isBoletoUnavailable 
-                      ? Colors.grey[300] 
+                  color: isBoletoUnavailable
+                      ? Colors.grey[300]
                       : color.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
@@ -213,13 +214,16 @@ class PaymentMethodScreen extends ConsumerWidget {
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
-                              color: isBoletoUnavailable ? Colors.grey[600] : Colors.black87,
+                              color: isBoletoUnavailable
+                                  ? Colors.grey[600]
+                                  : Colors.black87,
                             ),
                           ),
                         ),
                         if (isBoletoUnavailable) ...[
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 4),
                             decoration: BoxDecoration(
                               color: Colors.orange[100],
                               borderRadius: BorderRadius.circular(12),
@@ -239,12 +243,14 @@ class PaymentMethodScreen extends ConsumerWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      isBoletoUnavailable 
+                      isBoletoUnavailable
                           ? 'Valor mínimo não atingido para esta opção'
                           : _getPaymentMethodDescription(method),
                       style: TextStyle(
                         fontSize: 14,
-                        color: isBoletoUnavailable ? Colors.grey[500] : Colors.grey[600],
+                        color: isBoletoUnavailable
+                            ? Colors.grey[500]
+                            : Colors.grey[600],
                       ),
                     ),
                   ],
@@ -253,7 +259,8 @@ class PaymentMethodScreen extends ConsumerWidget {
               Icon(
                 Icons.arrow_forward_ios,
                 size: 16,
-                color: isBoletoUnavailable ? Colors.grey[400] : Colors.grey[400],
+                color:
+                    isBoletoUnavailable ? Colors.grey[400] : Colors.grey[400],
               ),
             ],
           ),
