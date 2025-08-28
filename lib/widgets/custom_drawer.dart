@@ -8,6 +8,7 @@ import '../screens/vehicles/register_vehicle_screen.dart';
 import '../screens/cards/cards_screen.dart';
 
 import '../screens/purchase/choose_value_screen.dart';
+import '../screens/help/help_screen.dart';
 
 class CustomDrawer extends ConsumerWidget {
   const CustomDrawer({super.key});
@@ -156,7 +157,12 @@ class CustomDrawer extends ConsumerWidget {
                   title: 'Quero ajuda',
                   onTap: () {
                     Navigator.pop(context);
-                    // TODO: Navigate to help screen
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const HelpScreen(),
+                      ),
+                    );
                   },
                 ),
               ],

@@ -8,6 +8,7 @@ import 'alarm_settings_screen.dart';
 import 'location_settings_screen.dart';
 import 'app_version_screen.dart';
 import 'biometric_settings_screen.dart';
+import '../help/help_screen.dart';
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -200,7 +201,12 @@ class SettingsScreen extends ConsumerWidget {
                 title: 'Ajuda e suporte',
                 subtitle: 'Central de ajuda',
                 onTap: () {
-                  // TODO: Navigate to help screen
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const HelpScreen(),
+                    ),
+                  );
                 },
               ),
             ],
