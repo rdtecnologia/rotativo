@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../models/auth_models.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/register_form_provider.dart';
@@ -94,14 +96,49 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     try {
       final termsLink = await DynamicAppConfig.termsLink;
       if (termsLink != null && termsLink.isNotEmpty) {
-        // In a real app, you would open the terms URL in a browser or in-app browser
-        // For now, show a dialog
+        // Abre o PDF dos termos usando o visualizador interno
+        if (mounted) {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => Scaffold(
+                appBar: AppBar(
+                  title: const Text('Termos e Condições'),
+                  backgroundColor: Theme.of(context).primaryColor,
+                  foregroundColor: Colors.white,
+                  actions: [
+                    IconButton(
+                      icon: const Icon(Icons.close),
+                      onPressed: () => Navigator.of(context).pop(),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.open_in_browser),
+                      onPressed: () => _launchUrl(termsLink),
+                      tooltip: 'Abrir no navegador',
+                    ),
+                  ],
+                ),
+                body: SfPdfViewer.network(
+                  termsLink,
+                  canShowPaginationDialog: true,
+                  canShowScrollHead: true,
+                  canShowScrollStatus: true,
+                  enableDoubleTapZooming: true,
+                  enableTextSelection: true,
+                  enableHyperlinkNavigation: true,
+                ),
+              ),
+            ),
+          );
+        }
+      } else {
+        // Se não houver link, mostra mensagem
         if (mounted) {
           showDialog(
             context: context,
             builder: (context) => AlertDialog(
               title: const Text('Termos de Uso'),
-              content: Text('Link dos termos: $termsLink'),
+              content: const Text(
+                  'Os termos de uso não estão disponíveis no momento.'),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(),
@@ -113,20 +150,50 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
         }
       }
     } catch (e) {
-      // If can't get terms link, show generic message
+      // Se houver erro, tenta abrir no navegador
+      try {
+        final termsLink = await DynamicAppConfig.termsLink;
+        if (termsLink != null && termsLink.isNotEmpty) {
+          await _launchUrl(termsLink);
+        } else {
+          throw Exception('Link não disponível');
+        }
+      } catch (browserError) {
+        // Se falhar tudo, mostra mensagem genérica
+        if (mounted) {
+          showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: const Text('Termos de Uso'),
+              content: const Text(
+                  'Os termos de uso estão disponíveis em nosso site.'),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: const Text('Fechar'),
+                ),
+              ],
+            ),
+          );
+        }
+      }
+    }
+  }
+
+  Future<void> _launchUrl(String url) async {
+    try {
+      final uri = Uri.parse(url);
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      } else {
+        throw Exception('Não foi possível abrir o link');
+      }
+    } catch (e) {
       if (mounted) {
-        showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: const Text('Termos de Uso'),
-            content:
-                const Text('Os termos de uso estão disponíveis em nosso site.'),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: const Text('Fechar'),
-              ),
-            ],
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erro ao abrir link: $e'),
+            backgroundColor: Colors.red,
           ),
         );
       }

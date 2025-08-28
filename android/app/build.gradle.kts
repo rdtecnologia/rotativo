@@ -96,7 +96,7 @@ android {
         }
         create("ouroPreto") {
             dimension = "city"
-            applicationId = "com.rotativodigitalouropreto"
+            applicationId = "com.rotativodigitalouropretord"
             resValue("string", "app_name", "Rotativo Ouro Preto")
         }
     }
