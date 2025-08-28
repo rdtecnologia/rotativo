@@ -61,6 +61,12 @@ class PaymentMethodScreen extends ConsumerWidget {
 
   void _selectPaymentMethod(
       BuildContext context, WidgetRef ref, PaymentMethodType method) {
+    // Validação para boleto: valor mínimo de R$ 20,00
+    if (method == PaymentMethodType.boleto && product.price < 20.0) {
+      _showBoletoMinimumValueDialog(context);
+      return;
+    }
+
     ref.read(purchaseProvider.notifier).selectPaymentMethod(method);
 
     Navigator.push(
@@ -75,18 +81,104 @@ class PaymentMethodScreen extends ConsumerWidget {
     );
   }
 
+  void _showBoletoMinimumValueDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          title: Row(
+            children: [
+              Icon(
+                Icons.warning_amber_rounded,
+                color: Colors.orange[700],
+                size: 28,
+              ),
+              const SizedBox(width: 8),
+              const Text(
+                'Valor Mínimo',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Para pagamentos via boleto bancário, o valor mínimo é de R\$ 20,00.',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.black87,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.orange[50],
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.orange[200]!),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.info_outline,
+                      color: Colors.orange[700],
+                      size: 20,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'Valor atual: R\$ ${AppFormatters.formatCurrency(product.price)}',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.orange[800],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text(
+                'Entendi',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   Widget _buildPaymentMethodCard(
     BuildContext context,
     WidgetRef ref,
     PaymentMethodType method,
   ) {
     final color = _getPaymentMethodColor(method);
+    final isBoletoUnavailable = method == PaymentMethodType.boleto && product.price < 20.0;
 
     return Card(
-      elevation: 3,
+      elevation: isBoletoUnavailable ? 1 : 3,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
       ),
+      color: isBoletoUnavailable ? Colors.grey[100] : null,
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
         onTap: () => _selectPaymentMethod(context, ref, method),
@@ -97,13 +189,15 @@ class PaymentMethodScreen extends ConsumerWidget {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.1),
+                  color: isBoletoUnavailable 
+                      ? Colors.grey[300] 
+                      : color.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Icon(
                   _getPaymentMethodIcon(method),
                   size: 32,
-                  color: color,
+                  color: isBoletoUnavailable ? Colors.grey[600] : color,
                 ),
               ),
               const SizedBox(width: 16),
@@ -111,20 +205,46 @@ class PaymentMethodScreen extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      _getPaymentMethodName(method),
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black87,
-                      ),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            _getPaymentMethodName(method),
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: isBoletoUnavailable ? Colors.grey[600] : Colors.black87,
+                            ),
+                          ),
+                        ),
+                        if (isBoletoUnavailable) ...[
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: Colors.orange[100],
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: Colors.orange[300]!),
+                            ),
+                            child: Text(
+                              'Mín. R\$ 20,00',
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.orange[700],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ],
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      _getPaymentMethodDescription(method),
+                      isBoletoUnavailable 
+                          ? 'Valor mínimo não atingido para esta opção'
+                          : _getPaymentMethodDescription(method),
                       style: TextStyle(
                         fontSize: 14,
-                        color: Colors.grey[600],
+                        color: isBoletoUnavailable ? Colors.grey[500] : Colors.grey[600],
                       ),
                     ),
                   ],
@@ -133,7 +253,7 @@ class PaymentMethodScreen extends ConsumerWidget {
               Icon(
                 Icons.arrow_forward_ios,
                 size: 16,
-                color: Colors.grey[400],
+                color: isBoletoUnavailable ? Colors.grey[400] : Colors.grey[400],
               ),
             ],
           ),
