@@ -32,6 +32,16 @@ void main() {
   runApp(const ProviderScope(child: RotativoApp()));
 }
 
+/// Initialize Google Maps
+Future<void> _initializeGoogleMaps() async {
+  // A API Key é configurada no AppDelegate.swift
+  // Aqui apenas garantimos que o plugin está pronto
+  if (defaultTargetPlatform == TargetPlatform.iOS) {
+    // Para iOS, a inicialização é feita no AppDelegate.swift
+    return;
+  }
+}
+
 /// Configure error handling for pointer events
 void _configureErrorHandling() {
   // Configurar tratamento de erros para eventos de ponteiro

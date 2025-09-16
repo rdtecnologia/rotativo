@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
-class ParkingMap extends StatelessWidget {
+class ParkingMap extends StatefulWidget {
   final Position? currentPosition;
   final bool isGettingLocation;
   final VoidCallback onRetryLocation;
@@ -13,6 +13,14 @@ class ParkingMap extends StatelessWidget {
     required this.isGettingLocation,
     required this.onRetryLocation,
   });
+
+  @override
+  State<ParkingMap> createState() => _ParkingMapState();
+}
+
+class _ParkingMapState extends State<ParkingMap> {
+  GoogleMapController? _controller;
+  bool _mapLoadError = false;
 
   @override
   Widget build(BuildContext context) {
@@ -27,26 +35,47 @@ class ParkingMap extends StatelessWidget {
       child: Stack(
         children: [
           // Real Google Map
-          if (currentPosition != null)
+          if (widget.currentPosition != null && !_mapLoadError)
             GoogleMap(
               initialCameraPosition: CameraPosition(
                 target: LatLng(
-                  currentPosition!.latitude,
-                  currentPosition!.longitude,
+                  widget.currentPosition!.latitude,
+                  widget.currentPosition!.longitude,
                 ),
                 zoom: 16.0,
               ),
+              onMapCreated: (GoogleMapController controller) {
+                _controller = controller;
+                debugPrint('✅ Google Maps carregado com sucesso');
+                debugPrint(
+                    '📍 Posição: ${widget.currentPosition!.latitude}, ${widget.currentPosition!.longitude}');
+
+                // Verificar se o mapa carregou corretamente após 5 segundos
+                Future.delayed(const Duration(seconds: 5), () {
+                  if (mounted) {
+                    debugPrint(
+                        '🔍 Verificando se o mapa carregou corretamente...');
+                    debugPrint(
+                        '💡 Se o mapa estiver cinza, verifique as permissões da API Key no Google Cloud Console');
+                  }
+                });
+              },
+              mapType: MapType.normal,
+              liteModeEnabled: false,
+              trafficEnabled: false,
+              buildingsEnabled: true,
+              indoorViewEnabled: false,
               markers: {
                 Marker(
                   markerId: const MarkerId('current_location'),
                   position: LatLng(
-                    currentPosition!.latitude,
-                    currentPosition!.longitude,
+                    widget.currentPosition!.latitude,
+                    widget.currentPosition!.longitude,
                   ),
                   infoWindow: InfoWindow(
                     title: 'Sua localização atual',
                     snippet:
-                        'Lat: ${currentPosition!.latitude.toStringAsFixed(6)}\nLng: ${currentPosition!.longitude.toStringAsFixed(6)}',
+                        'Lat: ${widget.currentPosition!.latitude.toStringAsFixed(6)}\nLng: ${widget.currentPosition!.longitude.toStringAsFixed(6)}',
                   ),
                   icon: BitmapDescriptor.defaultMarkerWithHue(
                       BitmapDescriptor.hueRed),
@@ -58,7 +87,67 @@ class ParkingMap extends StatelessWidget {
               mapToolbarEnabled: false,
               compassEnabled: true,
             )
-          else if (isGettingLocation)
+          else if (widget.currentPosition != null && _mapLoadError)
+            // Fallback quando há erro no mapa
+            Container(
+              width: double.infinity,
+              height: double.infinity,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Colors.red.shade100,
+                    Colors.red.shade200,
+                  ],
+                ),
+              ),
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.map_outlined,
+                      size: 48,
+                      color: Colors.red[600],
+                    ),
+                    const SizedBox(height: 16),
+                    const Text(
+                      'Erro ao carregar o mapa',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    const Text(
+                      'Verifique as permissões da API Key\nno Google Cloud Console',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.black54,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        setState(() {
+                          _mapLoadError = false;
+                        });
+                      },
+                      icon: const Icon(Icons.refresh),
+                      label: const Text('Tentar Novamente'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red,
+                        foregroundColor: Colors.white,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            )
+          else if (widget.isGettingLocation)
             Container(
               width: double.infinity,
               height: double.infinity,
@@ -132,7 +221,7 @@ class ParkingMap extends StatelessWidget {
                     ),
                     const SizedBox(height: 16),
                     ElevatedButton.icon(
-                      onPressed: onRetryLocation,
+                      onPressed: widget.onRetryLocation,
                       icon: const Icon(Icons.refresh),
                       label: const Text('Tentar Novamente'),
                       style: ElevatedButton.styleFrom(
