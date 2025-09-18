@@ -1,6 +1,7 @@
 import Flutter
 import UIKit
 import GoogleMaps
+import UserNotifications
 
 @main
 @objc class AppDelegate: FlutterAppDelegate {
@@ -55,7 +56,41 @@ import GoogleMaps
       print("💥 ERRO CRÍTICO: Não foi possível obter API Key")
     }
     
+    // Configurar notificações locais
+    configureLocalNotifications()
+    
     GeneratedPluginRegistrant.register(with: self)
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
+  }
+  
+  // MARK: - Configuração de Notificações Locais
+  private func configureLocalNotifications() {
+    // Solicitar permissões de notificação
+    UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound]) { granted, error in
+      if granted {
+        print("🔔 Permissão de notificação concedida")
+      } else {
+        print("❌ Permissão de notificação negada: \(error?.localizedDescription ?? "Erro desconhecido")")
+      }
+    }
+    
+    // Configurar delegate para notificações
+    UNUserNotificationCenter.current().delegate = self
+  }
+}
+
+// MARK: - UNUserNotificationCenterDelegate
+extension AppDelegate {
+  // Notificação recebida com o app em foreground
+  override func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+    print("🔔 Notificação recebida em foreground: \(notification.request.content.title)")
+    // Mostrar notificação mesmo com o app em foreground
+    completionHandler([.alert, .badge, .sound])
+  }
+  
+  // Notificação tocada pelo usuário
+  override func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
+    print("🔔 Notificação tocada: \(response.notification.request.content.title)")
+    completionHandler()
   }
 }

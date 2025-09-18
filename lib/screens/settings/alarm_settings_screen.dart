@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'dart:io' show Platform;
 import '../../providers/alarm_settings_provider.dart';
 import '../../services/local_notification_service.dart';
-import 'dart:io' show Platform;
 
 class AlarmSettingsScreen extends ConsumerWidget {
   const AlarmSettingsScreen({super.key});
@@ -133,14 +133,14 @@ class AlarmSettingsScreen extends ConsumerWidget {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    'Testar Notificações',
+                    'Teste de Notificações',
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Envie uma notificação de teste para verificar se está funcionando',
+                    'Teste o funcionamento das notificações agendadas',
                     style: TextStyle(
                       color: Colors.grey.shade600,
                     ),
@@ -151,10 +151,10 @@ class AlarmSettingsScreen extends ConsumerWidget {
                     children: [
                       Expanded(
                         child: ElevatedButton.icon(
-                          onPressed: () => _sendTestNotification(
-                              context, localNotificationService),
+                          onPressed: () => _testImmediateNotification(
+                              context, localNotificationService, ref),
                           icon: const Icon(Icons.send),
-                          label: const Text('Notificação imediata'),
+                          label: const Text('Imediata'),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Theme.of(context).primaryColor,
                             foregroundColor: Colors.white,
@@ -171,10 +171,10 @@ class AlarmSettingsScreen extends ConsumerWidget {
                       const SizedBox(width: 12),
                       Expanded(
                         child: ElevatedButton.icon(
-                          onPressed: () => _scheduleTestNotification(
-                              context, localNotificationService),
+                          onPressed: () => _testScheduled10Seconds(
+                              context, localNotificationService, ref),
                           icon: const Icon(Icons.schedule),
-                          label: const Text('Agendar teste'),
+                          label: const Text('10 segundos'),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.orange,
                             foregroundColor: Colors.white,
@@ -190,33 +190,57 @@ class AlarmSettingsScreen extends ConsumerWidget {
                       ),
                     ],
                   ),
-                  // ✅ Botão específico para iOS
-                  if (Platform.isIOS) ...[
-                    const SizedBox(height: 12),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton.icon(
-                        onPressed: () => _testIOSNotification(
-                            context, localNotificationService),
-                        icon: const Icon(Icons.apple),
-                        label: const Text('🍎 Teste Específico iOS'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.black,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 12,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(25),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
                 ],
               ),
             ),
+
+            // Botões de teste para Android
+            if (Platform.isAndroid) ...[
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: () =>
+                          _test30Seconds(context, localNotificationService),
+                      icon: const Icon(Icons.timer),
+                      label: const Text('30s'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.teal,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 10,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: () => _testAndroidParkingNotification(
+                          context, localNotificationService, ref),
+                      icon: const Icon(Icons.local_parking),
+                      label: const Text('2min'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.purple,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 10,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
 
             const SizedBox(height: 32),
           ],
@@ -452,17 +476,20 @@ class AlarmSettingsScreen extends ConsumerWidget {
     );
   }
 
-  void _sendTestNotification(
-      BuildContext context, LocalNotificationService service) async {
+  /// Testa notificação imediata
+  void _testImmediateNotification(BuildContext context,
+      LocalNotificationService service, WidgetRef ref) async {
     try {
-      // Configurações de som, vibração e luzes sempre ativadas por padrão
+      final alarmSettings = ref.read(alarmSettingsProvider);
+
+      debugPrint('🔔 === TESTE DE NOTIFICAÇÃO IMEDIATA ===');
+
       await service.showImmediateNotification(
-        title: 'Teste de Notificação',
-        body:
-            'Esta é uma notificação de teste para verificar se o sistema está funcionando',
-        soundEnabled: true,
-        vibrationEnabled: true,
-        lightsEnabled: true,
+        title: 'Teste Imediato',
+        body: 'Esta é uma notificação de teste imediata!',
+        soundEnabled: alarmSettings.soundEnabled,
+        vibrationEnabled: alarmSettings.vibrationEnabled,
+        lightsEnabled: alarmSettings.lightsEnabled,
       );
 
       if (context.mounted) {
@@ -472,9 +499,7 @@ class AlarmSettingsScreen extends ConsumerWidget {
               children: [
                 const Icon(Icons.check_circle, color: Colors.white),
                 const SizedBox(width: 12),
-                Expanded(
-                    child: Text(
-                        'Notificação de teste enviada!')), // ✅ Texto mais conciso
+                Expanded(child: Text('Notificação imediata enviada!')),
               ],
             ),
             backgroundColor: Colors.green,
@@ -487,6 +512,8 @@ class AlarmSettingsScreen extends ConsumerWidget {
         );
       }
     } catch (e) {
+      debugPrint('❌ ERRO no teste de notificação imediata: $e');
+
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -494,7 +521,7 @@ class AlarmSettingsScreen extends ConsumerWidget {
               children: [
                 const Icon(Icons.error, color: Colors.white),
                 const SizedBox(width: 12),
-                Expanded(child: Text('Erro ao enviar notificação: $e')),
+                Expanded(child: Text('Erro no teste: ${e.toString()}')),
               ],
             ),
             backgroundColor: Colors.red,
@@ -509,15 +536,69 @@ class AlarmSettingsScreen extends ConsumerWidget {
     }
   }
 
-  void _scheduleTestNotification(
-      BuildContext context, LocalNotificationService service) async {
+  /// Testa notificação agendada para 10 segundos
+  void _testScheduled10Seconds(BuildContext context,
+      LocalNotificationService service, WidgetRef ref) async {
     try {
-      // Configurações de som, vibração e luzes sempre ativadas por padrão
-      await service.scheduleTestNotification(
-        soundEnabled: true,
-        vibrationEnabled: true,
-        lightsEnabled: true,
-      );
+      final alarmSettings = ref.read(alarmSettingsProvider);
+
+      debugPrint('🔔 === TESTE DE NOTIFICAÇÃO AGENDADA 10 SEGUNDOS ===');
+
+      if (!alarmSettings.localNotificationsEnabled ||
+          !alarmSettings.parkingExpiration) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Row(
+                children: [
+                  const Icon(Icons.warning, color: Colors.white),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                        'Ative as notificações locais e de vencimento para testar'),
+                  ),
+                ],
+              ),
+              backgroundColor: Colors.orange,
+              duration: const Duration(seconds: 4),
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+          );
+        }
+        return;
+      }
+
+      // Usa método específico para Android se for Android, senão usa método padrão
+      if (Platform.isAndroid) {
+        debugPrint('🤖 Usando método específico para Android');
+        await service.testAndroid10SecondsNotification(
+          soundEnabled: alarmSettings.soundEnabled,
+          vibrationEnabled: alarmSettings.vibrationEnabled,
+          lightsEnabled: alarmSettings.lightsEnabled,
+        );
+      } else {
+        debugPrint('🍎 Usando método padrão para iOS');
+        // Para iOS, usa o método normal que já funciona
+        final testExpirationTime =
+            DateTime.now().add(const Duration(seconds: 10));
+
+        await service.scheduleParkingExpirationNotification(
+          licensePlate: 'TESTE10S',
+          expirationTime: testExpirationTime,
+          reminderMinutes: 0, // Notificação no momento da expiração
+          location: 'Teste 10 segundos',
+          soundEnabled: alarmSettings.soundEnabled,
+          vibrationEnabled: alarmSettings.vibrationEnabled,
+          lightsEnabled: alarmSettings.lightsEnabled,
+        );
+
+        debugPrint('✅ Teste iOS de 10 segundos agendado:');
+        debugPrint(
+            '  - Notificação em: ${testExpirationTime.hour}:${testExpirationTime.minute}:${testExpirationTime.second}');
+      }
 
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -526,13 +607,11 @@ class AlarmSettingsScreen extends ConsumerWidget {
               children: [
                 const Icon(Icons.check_circle, color: Colors.white),
                 const SizedBox(width: 12),
-                Expanded(
-                    child: Text(
-                        'Notificação de teste agendada!')), // ✅ Texto mais conciso
+                Expanded(child: Text('Notificação agendada para 10 segundos!')),
               ],
             ),
-            backgroundColor: Colors.blue,
-            duration: const Duration(seconds: 3),
+            backgroundColor: Colors.orange,
+            duration: const Duration(seconds: 4),
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(10),
@@ -541,6 +620,8 @@ class AlarmSettingsScreen extends ConsumerWidget {
         );
       }
     } catch (e) {
+      debugPrint('❌ ERRO no teste de 10 segundos: $e');
+
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -548,7 +629,7 @@ class AlarmSettingsScreen extends ConsumerWidget {
               children: [
                 const Icon(Icons.error, color: Colors.white),
                 const SizedBox(width: 12),
-                Expanded(child: Text('Erro ao agendar notificação: $e')),
+                Expanded(child: Text('Erro no teste: ${e.toString()}')),
               ],
             ),
             backgroundColor: Colors.red,
@@ -563,16 +644,53 @@ class AlarmSettingsScreen extends ConsumerWidget {
     }
   }
 
-  void _testIOSNotification(
-      BuildContext context, LocalNotificationService service) async {
+  /// Testa notificação de estacionamento real no Android
+  void _testAndroidParkingNotification(BuildContext context,
+      LocalNotificationService service, WidgetRef ref) async {
     try {
-      // Configurações de som, vibração e luzes sempre ativadas por padrão
-      await service.showImmediateNotification(
-        title: 'Teste de Notificação iOS',
-        body: 'Esta é uma notificação de teste específica para iOS.',
-        soundEnabled: true,
-        vibrationEnabled: true,
-        lightsEnabled: true,
+      final alarmSettings = ref.read(alarmSettingsProvider);
+
+      debugPrint('🚗 === TESTE DE ESTACIONAMENTO ANDROID ===');
+
+      if (!alarmSettings.localNotificationsEnabled ||
+          !alarmSettings.parkingExpiration) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Row(
+                children: [
+                  const Icon(Icons.warning, color: Colors.white),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                        'Ative as notificações locais e de vencimento para testar'),
+                  ),
+                ],
+              ),
+              backgroundColor: Colors.orange,
+              duration: const Duration(seconds: 4),
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+          );
+        }
+        return;
+      }
+
+      // ✅ CORREÇÃO: Testa usando o método real de estacionamento corrigido
+      final testExpirationTime = DateTime.now()
+          .add(Duration(minutes: alarmSettings.reminderMinutes + 2));
+
+      await service.scheduleParkingExpirationNotification(
+        licensePlate: 'TESTE-REAL-ANDROID',
+        expirationTime: testExpirationTime,
+        reminderMinutes: alarmSettings.reminderMinutes,
+        location: 'Teste Método Real Android',
+        soundEnabled: alarmSettings.soundEnabled,
+        vibrationEnabled: alarmSettings.vibrationEnabled,
+        lightsEnabled: alarmSettings.lightsEnabled,
       );
 
       if (context.mounted) {
@@ -584,11 +702,11 @@ class AlarmSettingsScreen extends ConsumerWidget {
                 const SizedBox(width: 12),
                 Expanded(
                     child: Text(
-                        'Notificação de teste iOS enviada!')), // ✅ Texto mais conciso
+                        'Teste de estacionamento agendado para 2 minutos!')),
               ],
             ),
             backgroundColor: Colors.purple,
-            duration: const Duration(seconds: 3),
+            duration: const Duration(seconds: 4),
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(10),
@@ -597,6 +715,8 @@ class AlarmSettingsScreen extends ConsumerWidget {
         );
       }
     } catch (e) {
+      debugPrint('❌ ERRO no teste de estacionamento Android: $e');
+
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -604,7 +724,7 @@ class AlarmSettingsScreen extends ConsumerWidget {
               children: [
                 const Icon(Icons.error, color: Colors.white),
                 const SizedBox(width: 12),
-                Expanded(child: Text('Erro ao enviar notificação iOS: $e')),
+                Expanded(child: Text('Erro no teste: ${e.toString()}')),
               ],
             ),
             backgroundColor: Colors.red,
@@ -616,6 +736,36 @@ class AlarmSettingsScreen extends ConsumerWidget {
           ),
         );
       }
+    }
+  }
+
+  /// Testa notificação de 30 segundos
+  void _test30Seconds(
+      BuildContext context, LocalNotificationService service) async {
+    try {
+      await service.testAndroid30Seconds();
+
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.timer, color: Colors.white),
+                const SizedBox(width: 12),
+                Expanded(child: Text('Teste de 30 segundos agendado!')),
+              ],
+            ),
+            backgroundColor: Colors.teal,
+            duration: const Duration(seconds: 3),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      debugPrint('❌ ERRO no teste de 30s: $e');
     }
   }
 }

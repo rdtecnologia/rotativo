@@ -66,6 +66,15 @@
 	<array>
 		<string>remote-notification</string>
 		<string>background-processing</string>
+		<string>background-fetch</string>
 	</array>
+	
+	<!-- Configurações específicas para notificações locais -->
+	<key>UILocalNotificationUsageDescription</key>
+	<string>Este aplicativo precisa de permissão para enviar notificações locais sobre vencimento de estacionamento</string>
+	
+	<!-- Configurações para notificações silenciosas -->
+	<key>UIBackgroundAppRefreshStatus</key>
+	<string>UIBackgroundAppRefreshStatusAvailable</string>
 </dict>
 </plist>
