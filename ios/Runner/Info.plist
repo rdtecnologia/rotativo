@@ -2,6 +2,8 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>CADisableMinimumFrameDurationOnPhone</key>
+	<true/>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
@@ -24,8 +26,18 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSFaceIDUsageDescription</key>
+	<string>Este aplicativo usa Face ID para autenticação biométrica segura</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Este aplicativo precisa da sua localização para registrar o local do estacionamento e fornecer serviços baseados em localização</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Este aplicativo precisa da sua localização para registrar o local do estacionamento e fornecer serviços baseados em localização</string>
+	<key>UIApplicationSupportsIndirectInputEvents</key>
+	<true/>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
+	<key>NSUserNotificationsUsageDescription</key>
+	<string>Este aplicativo precisa de permissão para enviar notificações sobre vencimento de estacionamento</string>
 	<key>UIMainStoryboardFile</key>
 	<string>Main</string>
 	<key>UISupportedInterfaceOrientations</key>
@@ -41,40 +53,5 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
-	<key>CADisableMinimumFrameDurationOnPhone</key>
-	<true/>
-	<key>UIApplicationSupportsIndirectInputEvents</key>
-	<true/>
-	
-	<!-- Permissões para biometria -->
-	<key>NSFaceIDUsageDescription</key>
-	<string>Este aplicativo usa Face ID para autenticação biométrica segura</string>
-	
-	<!-- Permissões para localização -->
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Este aplicativo precisa da sua localização para registrar o local do estacionamento e fornecer serviços baseados em localização</string>
-	
-	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>Este aplicativo precisa da sua localização para registrar o local do estacionamento e fornecer serviços baseados em localização</string>
-	
-	<!-- Permissões para notificações -->
-	<key>NSUserNotificationUsageDescription</key>
-	<string>Este aplicativo precisa de permissão para enviar notificações sobre vencimento de estacionamento</string>
-	
-	<!-- Configurações para notificações em segundo plano -->
-	<key>UIBackgroundModes</key>
-	<array>
-		<string>remote-notification</string>
-		<string>background-processing</string>
-		<string>background-fetch</string>
-	</array>
-	
-	<!-- Configurações específicas para notificações locais -->
-	<key>UILocalNotificationUsageDescription</key>
-	<string>Este aplicativo precisa de permissão para enviar notificações locais sobre vencimento de estacionamento</string>
-	
-	<!-- Configurações para notificações silenciosas -->
-	<key>UIBackgroundAppRefreshStatus</key>
-	<string>UIBackgroundAppRefreshStatusAvailable</string>
 </dict>
 </plist>
