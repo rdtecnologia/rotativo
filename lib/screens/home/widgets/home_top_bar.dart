@@ -74,10 +74,10 @@ class HomeTopBar extends ConsumerWidget {
           ),
 
           // Environment indicator (only in debug mode)
-          if (kDebugMode) ...[
-            const EnvironmentIndicator(),
-            const SizedBox(width: 8),
-          ],
+          //if (kDebugMode) ...[
+          const EnvironmentIndicator(),
+          //const SizedBox(width: 8),
+          //],
 
           // Debug button (only in debug mode) or Logo (in release mode)
           if (kDebugMode)
