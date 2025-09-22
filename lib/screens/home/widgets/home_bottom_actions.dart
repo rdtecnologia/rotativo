@@ -28,7 +28,8 @@ class HomeBottomActions extends ConsumerWidget {
               icon: Icons.shopping_cart,
               label: 'COMPRAR',
               onTap: onPurchaseTap,
-              backgroundColor: Theme.of(context).primaryColor.withValues(alpha: 0.8),
+              backgroundColor:
+                  Theme.of(context).primaryColor.withValues(alpha: 1),
             ),
           ),
 
@@ -59,7 +60,8 @@ class HomeBottomActions extends ConsumerWidget {
               icon: Icons.history,
               label: 'HISTÓRICO',
               onTap: onHistoryTap,
-              backgroundColor: Theme.of(context).primaryColor.withValues(alpha: 0.8),
+              backgroundColor:
+                  Theme.of(context).primaryColor.withValues(alpha: 1),
             ),
           ),
         ],

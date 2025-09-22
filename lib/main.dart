@@ -95,7 +95,7 @@ class RotativoApp extends ConsumerWidget {
               brightness: Brightness.light,
               error: Colors.red,
               onError: Colors.white,
-              primary: const Color.fromARGB(255, 90, 123, 151),
+              primary: const Color.fromARGB(255, 7, 71, 51),
               secondary: Colors.orange,
               surface: Colors.white,
               onPrimary: Colors.white,

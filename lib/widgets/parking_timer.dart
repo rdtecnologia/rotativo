@@ -24,16 +24,12 @@ class ParkingTimer extends ConsumerWidget {
     // Observa mudanças no tempo global para forçar rebuild quando necessário
     ref.watch(timeUpdateProvider);
 
-    //debugPrint('🅿️ ParkingTimer - Estado completo das ativações: ${activeActivationsState.keys.join(', ')}');
-
     if (activeActivation == null) {
-      //debugPrint('🅿️ ParkingTimer - Nenhuma ativação ativa para ${vehicle.licensePlate}');
       return const SizedBox.shrink(); // Não mostra nada se não há ativação
     }
 
     // SEMPRE mostra a ativação se ela existir, independentemente do status
     final isActive = activeActivation.isActive;
-    //final isRecent = DateTime.now().difference(activeActivation.activatedAt).inHours < 24;
 
     // DEBUG DETALHADO para entender o problema
     if (kDebugMode) {
@@ -55,8 +51,6 @@ class ParkingTimer extends ConsumerWidget {
       debugPrint(
           '  - Time difference: ${expirationTime.difference(now).inMinutes} minutos');
     }
-
-    //debugPrint('🅿️ ParkingTimer - Mostrando timer para ${vehicle.licensePlate}: ${activeActivation.remainingMinutes}min restantes, isActive=$isActive, isRecent=$isRecent');
 
     final remainingMinutes = activeActivation.remainingMinutes;
     final totalMinutes = activeActivation.parkingTime;
@@ -100,7 +94,7 @@ class ParkingTimer extends ConsumerWidget {
       padding: const EdgeInsets.symmetric(
           horizontal: 12, vertical: 6), // Reduzido vertical de 8 para 6
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.30),
+        color: Colors.white.withValues(alpha: 0.40),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: timerColor.withValues(alpha: 0.6),
@@ -154,9 +148,9 @@ class ParkingTimer extends ConsumerWidget {
                 ? 'Ativado às ${AppFormatters.formatTime(activeActivation.activatedAt)}'
                 : 'Expira às ${AppFormatters.formatTime(expirationTime)}',
             style: TextStyle(
-              color: Colors.white.withValues(alpha: 0.8),
-              fontSize: 10, // Reduzido de 11 para 10
-              fontWeight: FontWeight.w500,
+              color: Colors.white.withValues(alpha: 1),
+              fontSize: 14,
+              fontWeight: FontWeight.w800,
             ),
             textAlign: TextAlign.center,
             maxLines: 1,

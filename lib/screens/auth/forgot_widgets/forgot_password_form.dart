@@ -22,7 +22,8 @@ class ForgotPasswordForm extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      elevation: 8,
+      elevation: 0,
+      color: Colors.white.withValues(alpha: 0.3),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
       ),
@@ -35,12 +36,15 @@ class ForgotPasswordForm extends StatelessWidget {
             children: [
               Text(
                 'Digite seu CPF para recuperar sua senha:',
-                style: Theme.of(context).textTheme.titleMedium,
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.white,
+                ),
                 textAlign: TextAlign.center,
               ),
-              
+
               const SizedBox(height: 24),
-              
+
               // CPF Field
               AppTextField(
                 name: 'cpf',
@@ -51,9 +55,9 @@ class ForgotPasswordForm extends StatelessWidget {
                 validator: AppValidators.validateCPF,
                 prefixIcon: const Icon(Icons.person),
               ),
-              
+
               const SizedBox(height: 24),
-              
+
               // Submit Button
               LoadingButton(
                 onPressed: onSubmit,
@@ -66,14 +70,15 @@ class ForgotPasswordForm extends StatelessWidget {
                   ),
                 ),
               ),
-              
+
               const SizedBox(height: 16),
-              
+
               // Info Text
               Text(
                 'Enviaremos as instruções para o e-mail cadastrado em sua conta.',
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Colors.grey.shade600,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.white,
                 ),
                 textAlign: TextAlign.center,
               ),

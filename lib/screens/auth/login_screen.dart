@@ -85,7 +85,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     // Cor base azul para combinar com a imagem de fundo
-    final baseColor = const Color.fromARGB(255, 90, 123, 151);
+    final baseColor = Theme.of(context).primaryColor;
 
     // Adicionar tratamento de erro para eventos de ponteiro
     return GestureDetector(

@@ -148,8 +148,8 @@ class VehicleCard extends ConsumerWidget {
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              Theme.of(context).primaryColor.withValues(alpha: 0.7),
-              Colors.grey.withValues(alpha: 0.1),
+              Theme.of(context).primaryColor.withValues(alpha: 0.3),
+              Colors.white.withValues(alpha: 0.21),
             ],
           ),
           borderRadius: BorderRadius.circular(16),

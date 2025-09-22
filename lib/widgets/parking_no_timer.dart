@@ -11,7 +11,7 @@ class ParkingNoTimer extends StatelessWidget {
       width: double.infinity,
       height: 80,
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.30),
+        color: Colors.white.withValues(alpha: 0.40),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: Colors.grey.withValues(alpha: 0.6),
@@ -24,7 +24,7 @@ class ParkingNoTimer extends StatelessWidget {
           // Ícone sugestivo
           Icon(
             Icons.timer_off,
-            color: Colors.red.withValues(alpha: 0.6),
+            color: Colors.red.withValues(alpha: 0.8),
             size: 24,
           ),
           const SizedBox(height: 6),
@@ -32,7 +32,7 @@ class ParkingNoTimer extends StatelessWidget {
           Text(
             'Não há estacionamento ativo\npara este veículo.',
             style: TextStyle(
-              color: Colors.grey.shade300,
+              color: Colors.white,
               fontSize: 15,
               fontWeight: FontWeight.w500,
             ),

@@ -29,8 +29,8 @@ class ParkingBackground extends StatelessWidget {
               image: AssetImage('assets/images/parking_background.png'),
               fit: BoxFit.cover,
               colorFilter: ColorFilter.mode(
-                Colors.white,
-                BlendMode.darken,
+                Colors.white.withValues(alpha: 0.3),
+                BlendMode.modulate,
               ),
             ),
           ),
@@ -43,8 +43,8 @@ class ParkingBackground extends StatelessWidget {
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                  color.withOpacity((opacity).clamp(0.0, 1.0)),
-                  color.withOpacity((opacity * 0.7).clamp(0.0, 1.0)),
+                  color.withValues(alpha: (opacity).clamp(0.0, 1.0)),
+                  color.withValues(alpha: (opacity * 0.7).clamp(0.0, 1.0)),
                 ],
               ),
             ),

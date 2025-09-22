@@ -23,7 +23,7 @@ class LoginFormWidget extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return Card(
       elevation: 0,
-      color: Colors.grey.withValues(alpha: 0.2),
+      color: Colors.white.withValues(alpha: 0.3),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
       ),
