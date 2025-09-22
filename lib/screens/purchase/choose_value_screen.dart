@@ -227,7 +227,7 @@ class _ChooseValueScreenState extends ConsumerState<ChooseValueScreen> {
     Map<String, List<ParkingRule>>? parkingRules,
   ) {
     return Card(
-      elevation: 2,
+      elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(8),
       ),

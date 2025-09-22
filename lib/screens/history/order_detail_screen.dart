@@ -66,13 +66,6 @@ class ChargebackSection extends StatelessWidget {
         border: fullBorder
             ? Border.all(color: Colors.red, width: 2)
             : Border.all(color: Colors.grey.shade300),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black12,
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -285,13 +278,6 @@ class MainDetailsSection extends StatelessWidget {
         border: fullBorder
             ? Border.all(color: Colors.red, width: 2)
             : Border.all(color: Colors.grey.shade300),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black12,
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

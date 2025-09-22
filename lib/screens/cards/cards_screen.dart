@@ -239,13 +239,6 @@ class CardItemWidget extends ConsumerWidget {
                     : [Colors.grey.shade600, Colors.grey.shade800],
               ),
               borderRadius: BorderRadius.circular(16),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.3),
-                  blurRadius: 8,
-                  offset: const Offset(0, 4),
-                ),
-              ],
             ),
             child: Padding(
               padding: const EdgeInsets.all(20),
@@ -427,13 +420,6 @@ class CardModalOverlay extends ConsumerWidget {
               topLeft: Radius.circular(20),
               topRight: Radius.circular(20),
             ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black26,
-                blurRadius: 10,
-                offset: Offset(0, -2),
-              ),
-            ],
           ),
           child: SafeArea(
             top: false,

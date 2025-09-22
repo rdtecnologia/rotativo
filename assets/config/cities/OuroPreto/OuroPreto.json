@@ -4,14 +4,20 @@
   "domain": "Ouro Preto",
   "latitude": -20.3875396,
   "longitude": -43.5097469,
+  "primaryColor": "#074733",
   "downloadLink": "http://www.rotativodigital.com.br/app/?city=ouropreto",
   "termsLink": "http://www.rotativodigital.com.br/wp-content/uploads/2024/01/termos-de-uso-rotativo-ouro-preto.pdf",
   "androidPackage": "com.rotativodigitalouropretord",
   "iosPackage": "com.rotativodigitalouropretord",
   "whatsapp": "(31) 99835-9953",
   "chatBotURL": "https://timob.chat.blip.ai/?appKey=YXRlbmRpbWVudG9odW1hbm9hcHBvcDozN2JjMDc0Mi1hN2Q1LTQyZTItYTcxZS1lNzg0ZWY4ZjNhNDY=",
-  "products": [13],
-  "vehicleTypes": [1, 2],
+  "products": [
+    13
+  ],
+  "vehicleTypes": [
+    1,
+    2
+  ],
   "mainLogo": "",
   "logoMenu": "",
   "balance": {
@@ -20,11 +26,29 @@
   },
   "parkingRules": {
     "1": [
-      {"time": 60, "price": 2, "credits": 4},
-      {"time": 120, "price": 3.5, "credits": 7},
-      {"time": 180, "price": 5, "credits": 10}
+      {
+        "time": 60,
+        "price": 2,
+        "credits": 4
+      },
+      {
+        "time": 120,
+        "price": 3.5,
+        "credits": 7
+      },
+      {
+        "time": 180,
+        "price": 5,
+        "credits": 10
+      }
     ],
-    "2": [{"time": 60, "price": 1, "credits": 2}]
+    "2": [
+      {
+        "time": 60,
+        "price": 1,
+        "credits": 2
+      }
+    ]
   },
   "purchase": {
     "vehicleTypeDefault": 1,

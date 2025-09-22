@@ -24,13 +24,6 @@ class BalanceCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(10), // Reduzido de 12 para 10
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.1),
-              blurRadius: 6, // Reduzido de 8 para 6
-              offset: const Offset(0, 2),
-            ),
-          ],
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -104,8 +97,6 @@ class BalanceCard extends StatelessWidget {
       ),
     );
   }
-
-
 }
 
 class ActionCard extends StatelessWidget {
@@ -139,13 +130,6 @@ class ActionCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: bgColor,
           borderRadius: BorderRadius.circular(10), // Reduzido de 12 para 10
-          boxShadow: [
-            BoxShadow(
-              color: bgColor.withValues(alpha: 0.3),
-              blurRadius: 6, // Reduzido de 8 para 6
-              offset: const Offset(0, 2),
-            ),
-          ],
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -157,7 +141,8 @@ class ActionCard extends StatelessWidget {
               color: iColor,
             ),
             const SizedBox(height: 6), // Reduzido de 8 para 6
-            Flexible( // Adicionado para evitar overflow
+            Flexible(
+              // Adicionado para evitar overflow
               child: Text(
                 label,
                 style: TextStyle(

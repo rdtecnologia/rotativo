@@ -1,4 +1,5 @@
 {
   "CITY_NAME": "Ouro Preto",
-  "FLAVOR": "ouroPreto"
+  "FLAVOR": "ouroPreto",
+  "primaryColor": "#000000"
 }

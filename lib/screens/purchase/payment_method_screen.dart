@@ -175,7 +175,7 @@ class PaymentMethodScreen extends ConsumerWidget {
         method == PaymentMethodType.boleto && product.price < 20.0;
 
     return Card(
-      elevation: isBoletoUnavailable ? 1 : 3,
+      elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
       ),

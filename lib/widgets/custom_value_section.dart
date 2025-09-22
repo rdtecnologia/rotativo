@@ -121,7 +121,7 @@ class _CustomValueSectionState extends ConsumerState<CustomValueSection> {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  elevation: chooseValueState.isCustomValueValid ? 2 : 0,
+                  elevation: 0,
                 ),
                 child: const Text(
                   'COMPRAR',

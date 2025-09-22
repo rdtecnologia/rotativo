@@ -39,7 +39,7 @@ class ParkingTimeCard extends StatelessWidget {
         availableCredits == null || availableCredits! >= credits;
 
     return Card(
-      elevation: isSelected ? 8 : 2,
+      elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
         side: isSelected

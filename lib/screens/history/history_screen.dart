@@ -372,7 +372,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen>
 
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
-      elevation: 2,
+      elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
       ),
@@ -476,7 +476,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen>
 
     return Card(
         margin: const EdgeInsets.only(bottom: 12),
-        elevation: 2,
+        elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
         ),

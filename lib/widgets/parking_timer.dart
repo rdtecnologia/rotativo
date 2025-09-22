@@ -224,13 +224,6 @@ class CompactParkingTimer extends ConsumerWidget {
       decoration: BoxDecoration(
         color: timerColor,
         shape: BoxShape.circle,
-        boxShadow: [
-          BoxShadow(
-            color: timerColor.withValues(alpha: 0.4),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
       ),
       child: Center(
         child: Text(

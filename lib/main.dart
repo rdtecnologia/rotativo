@@ -7,6 +7,9 @@ import 'package:rotativo/screens/widgets/loader.dart';
 import 'config/dynamic_app_config.dart';
 import 'config/environment.dart';
 
+// Utils
+import 'utils/color_utils.dart';
+
 // Providers
 import 'providers/auth_provider.dart';
 import 'providers/environment_provider.dart';
@@ -30,16 +33,6 @@ void main() {
   _initializeApp();
 
   runApp(const ProviderScope(child: RotativoApp()));
-}
-
-/// Initialize Google Maps
-Future<void> _initializeGoogleMaps() async {
-  // A API Key é configurada no AppDelegate.swift
-  // Aqui apenas garantimos que o plugin está pronto
-  if (defaultTargetPlatform == TargetPlatform.iOS) {
-    // Para iOS, a inicialização é feita no AppDelegate.swift
-    return;
-  }
 }
 
 /// Configure error handling for pointer events
@@ -76,6 +69,28 @@ void _initializeApp() {
 class RotativoApp extends ConsumerWidget {
   const RotativoApp({super.key});
 
+  /// Load app configuration including title and primary color
+  Future<Map<String, dynamic>> _loadAppConfig() async {
+    try {
+      final title = await DynamicAppConfig.displayName;
+      final primaryColor = await DynamicAppConfig.primaryColor;
+
+      return {
+        'title': title,
+        'primaryColor': primaryColor,
+      };
+    } catch (e) {
+      if (kDebugMode) {
+        print('❌ Error loading app config: $e');
+      }
+      // Return fallback values
+      return {
+        'title': 'Rotativo Digital',
+        'primaryColor': '#074733',
+      };
+    }
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // Inicializa o provider do ambiente
@@ -83,26 +98,24 @@ class RotativoApp extends ConsumerWidget {
       ref.read(environmentProvider.notifier).initialize();
     });
 
-    return FutureBuilder<String>(
-      future: DynamicAppConfig.displayName,
+    return FutureBuilder<Map<String, dynamic>>(
+      future: _loadAppConfig(),
       builder: (context, snapshot) {
-        final title = snapshot.data ?? 'Rotativo Digital';
+        final config = snapshot.data ??
+            {'title': 'Rotativo Digital', 'primaryColor': '#074733'};
+        final title = config['title'] as String;
+        final primaryColorHex = config['primaryColor'] as String;
+
+        // Convert hex color to Color object
+        final primaryColor = ColorUtils.hexToColor(primaryColorHex);
+
         return MaterialApp(
           title: title,
           theme: ThemeData(
-            //colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
-            colorScheme: ColorScheme(
+            colorScheme: ColorScheme.fromSeed(
+              seedColor: primaryColor,
               brightness: Brightness.light,
-              error: Colors.red,
-              onError: Colors.white,
-              primary: const Color.fromARGB(255, 7, 71, 51),
-              secondary: Colors.orange,
-              surface: Colors.white,
-              onPrimary: Colors.white,
-              onSecondary: Colors.white,
-              onSurface: Colors.black87,
             ),
-
             useMaterial3: true,
           ),
           home: const SplashScreen(),

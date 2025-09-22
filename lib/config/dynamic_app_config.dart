@@ -141,6 +141,12 @@ class DynamicAppConfig {
     return config['logoMenu'] ?? '';
   }
 
+  /// Get primary color from config
+  static Future<String> get primaryColor async {
+    final config = await _loadConfig();
+    return config['primaryColor'] ?? '#074733'; // Default fallback color
+  }
+
   static Future<Map<String, dynamic>> get balance async {
     final config = await _loadConfig();
     return config['balance'] ?? {};
