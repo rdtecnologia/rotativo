@@ -11,6 +11,7 @@ class HistoryNotifier extends StateNotifier<HistoryState> {
   Future<void> loadOrders({
     bool refresh = false,
     HistoryFilter? filters,
+    int retryCount = 0,
   }) async {
     try {
       if (kDebugMode) {
@@ -88,9 +89,45 @@ class HistoryNotifier extends StateNotifier<HistoryState> {
       if (kDebugMode) {
         print('📱 HistoryProvider.loadOrders - Error: $e');
       }
+
+      // Handle retry logic for authentication errors
+      if ((e.toString().contains('401') ||
+              e.toString().contains('Token de autenticação não disponível') ||
+              e.toString().contains('Usuário não autenticado')) &&
+          retryCount < 2) {
+        if (kDebugMode) {
+          print(
+              '📱 HistoryProvider.loadOrders - Retrying due to auth error (attempt ${retryCount + 1})');
+        }
+
+        // Wait a bit before retrying
+        await Future.delayed(Duration(milliseconds: 500 * (retryCount + 1)));
+
+        // Retry the request
+        return loadOrders(
+          refresh: refresh,
+          filters: filters,
+          retryCount: retryCount + 1,
+        );
+      }
+
+      // Provide user-friendly error messages
+      String errorMessage;
+      if (e.toString().contains('401')) {
+        errorMessage = 'Erro de autenticação. Faça login novamente.';
+      } else if (e
+          .toString()
+          .contains('Token de autenticação não disponível')) {
+        errorMessage = 'Sessão expirada. Faça login novamente.';
+      } else if (e.toString().contains('Usuário não autenticado')) {
+        errorMessage = 'Usuário não autenticado. Faça login novamente.';
+      } else {
+        errorMessage = 'Erro ao carregar histórico de compras: ${e.toString()}';
+      }
+
       state = state.copyWith(
         isLoadingOrders: false,
-        error: e.toString(),
+        error: errorMessage,
       );
     }
   }

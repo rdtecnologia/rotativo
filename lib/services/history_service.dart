@@ -9,7 +9,7 @@ import 'auth_service.dart';
 
 class HistoryService {
   static Dio? _dio;
-  
+
   /// Force recreate Dio instance (for fixing API URL)
   static void _clearDioInstance() {
     _dio = null;
@@ -19,9 +19,9 @@ class HistoryService {
     if (_dio != null) return _dio!;
 
     final baseUrl = _getTransacionaUrl();
-    
+
     AppLogger.history('Using TRANSACIONA API: $baseUrl');
-    
+
     _dio = Dio(BaseOptions(
       baseUrl: baseUrl,
       connectTimeout: const Duration(seconds: 30),
@@ -63,17 +63,48 @@ class HistoryService {
 
   static String _getTransacionaUrl() {
     final url = Environment.transacionaApi;
-    
+
     if (kDebugMode) {
-      print('🌐 HistoryService - Environment: ${Environment.currentEnvironment}');
+      print(
+          '🌐 HistoryService - Environment: ${Environment.currentEnvironment}');
       print('🌐 HistoryService - Transaciona URL: $url');
       Environment.printCurrentConfig();
     }
-    
+
     return url;
   }
 
+  /// Ensure authentication is ready before making requests
+  static Future<void> _ensureAuthenticationReady() async {
+    try {
+      // Wait for token to be available
+      final token = await AuthService.getStoredToken();
+      if (token == null || token.isEmpty) {
+        throw Exception('Token de autenticação não disponível');
+      }
 
+      // Wait for user to be available
+      final user = await AuthService.getStoredUser();
+      if (user == null) {
+        throw Exception('Usuário não autenticado');
+      }
+
+      if (kDebugMode) {
+        print(
+            '🔐 HistoryService - Authentication ready: ${user.name} (${user.cpf})');
+        print(
+            '🔐 HistoryService - Token available: ${token.substring(0, 20)}...');
+      }
+
+      // Small delay to ensure everything is properly initialized
+      await Future.delayed(const Duration(milliseconds: 100));
+    } catch (e) {
+      if (kDebugMode) {
+        print('❌ HistoryService - Authentication not ready: $e');
+      }
+      throw Exception('Autenticação não está pronta. Faça login novamente.');
+    }
+  }
 
   /// Get order history with pagination and filters
   static Future<List<OrderHistory>> getOrders({
@@ -84,20 +115,24 @@ class HistoryService {
     try {
       // Force clear cached Dio to use new PROD URL
       _clearDioInstance();
-      
+
       if (kDebugMode) {
         print('🛒 HistoryService.getOrders - offset: $offset, limit: $limit');
       }
-      
+
+      // Wait for authentication to be ready before making request
+      await _ensureAuthenticationReady();
+
       final dio = await _getDio();
-      
+
       String url = '/history/orders/$offset/$limit';
-      
+
       // Add filters as query parameters (like React Native)
       // React Native always adds "?" even when filters is undefined
-      final filterParams = filters != null ? _createFilters('filters', filters) : '';
+      final filterParams =
+          filters != null ? _createFilters('filters', filters) : '';
       url += '?$filterParams';
-      
+
       if (kDebugMode) {
         print('🛒 HistoryService.getOrders - Original filters: $filters');
         print('🛒 HistoryService.getOrders - Filter params: "$filterParams"');
@@ -106,21 +141,24 @@ class HistoryService {
       if (kDebugMode) {
         print('🛒 HistoryService.getOrders - URL: $url');
         print('🛒 HistoryService.getOrders - Base URL: ${dio.options.baseUrl}');
-        print('🛒 HistoryService.getOrders - Full URL: ${dio.options.baseUrl}$url');
+        print(
+            '🛒 HistoryService.getOrders - Full URL: ${dio.options.baseUrl}$url');
       }
 
       final response = await dio.get(url);
-      
+
       if (kDebugMode) {
-        print('🛒 HistoryService.getOrders - Response type: ${response.data.runtimeType}');
+        print(
+            '🛒 HistoryService.getOrders - Response type: ${response.data.runtimeType}');
         print('🛒 HistoryService.getOrders - Response data: ${response.data}');
-        print('🛒 HistoryService.getOrders - Response status: ${response.statusCode}');
+        print(
+            '🛒 HistoryService.getOrders - Response status: ${response.statusCode}');
       }
-      
+
       // Handle different response formats
       dynamic data = response.data;
       List<dynamic>? ordersList;
-      
+
       if (data is List) {
         ordersList = data;
       } else if (data is Map<String, dynamic>) {
@@ -136,23 +174,24 @@ class HistoryService {
           }
         }
       }
-      
+
       if (ordersList != null) {
         final orders = ordersList
             .map((json) => OrderHistory.fromJson(json as Map<String, dynamic>))
             .toList();
-        
+
         if (kDebugMode) {
           print('🛒 HistoryService.getOrders - Parsed ${orders.length} orders');
         }
-        
+
         return orders;
       }
-      
+
       if (kDebugMode) {
-        print('🛒 HistoryService.getOrders - Could not extract orders list from response, returning empty list');
+        print(
+            '🛒 HistoryService.getOrders - Could not extract orders list from response, returning empty list');
       }
-      
+
       return [];
     } on DioException catch (e) {
       if (kDebugMode) {
@@ -177,23 +216,26 @@ class HistoryService {
     try {
       // Force clear cached Dio to use new PROD URL
       _clearDioInstance();
-      
+
       if (kDebugMode) {
-        print('🅿️ HistoryService.getActivations - offset: $offset, limit: $limit');
+        print(
+            '🅿️ HistoryService.getActivations - offset: $offset, limit: $limit');
       }
-      
+
       final dio = await _getDio();
-      
+
       String url = '/history/activations/$offset/$limit';
-      
+
       // Add filters as query parameters (like React Native)
       // React Native always adds "?" even when filters is undefined
-      final filterParams = filters != null ? _createFilters('filters', filters) : '';
+      final filterParams =
+          filters != null ? _createFilters('filters', filters) : '';
       url += '?$filterParams';
-      
+
       if (kDebugMode) {
         print('🅿️ HistoryService.getActivations - Original filters: $filters');
-        print('🅿️ HistoryService.getActivations - Filter params: "$filterParams"');
+        print(
+            '🅿️ HistoryService.getActivations - Filter params: "$filterParams"');
       }
 
       if (kDebugMode) {
@@ -201,17 +243,20 @@ class HistoryService {
       }
 
       final response = await dio.get(url);
-      
+
       if (kDebugMode) {
-        print('🅿️ HistoryService.getActivations - Response type: ${response.data.runtimeType}');
-        print('🅿️ HistoryService.getActivations - Response data: ${response.data}');
-        print('🅿️ HistoryService.getActivations - Response status: ${response.statusCode}');
+        print(
+            '🅿️ HistoryService.getActivations - Response type: ${response.data.runtimeType}');
+        print(
+            '🅿️ HistoryService.getActivations - Response data: ${response.data}');
+        print(
+            '🅿️ HistoryService.getActivations - Response status: ${response.statusCode}');
       }
-      
+
       // Handle different response formats
       dynamic data = response.data;
       List<dynamic>? activationsList;
-      
+
       if (data is List) {
         activationsList = data;
       } else if (data is Map<String, dynamic>) {
@@ -222,33 +267,38 @@ class HistoryService {
           var nestedData = data['data'];
           if (nestedData is List) {
             activationsList = nestedData;
-          } else if (nestedData is Map && nestedData.containsKey('activations')) {
+          } else if (nestedData is Map &&
+              nestedData.containsKey('activations')) {
             activationsList = nestedData['activations'] as List<dynamic>?;
           }
         }
       }
-      
+
       if (activationsList != null) {
         final activations = activationsList
-            .map((json) => ActivationHistory.fromJson(json as Map<String, dynamic>))
+            .map((json) =>
+                ActivationHistory.fromJson(json as Map<String, dynamic>))
             .toList();
-        
+
         if (kDebugMode) {
-          print('🅿️ HistoryService.getActivations - Parsed ${activations.length} activations');
+          print(
+              '🅿️ HistoryService.getActivations - Parsed ${activations.length} activations');
         }
-        
+
         return activations;
       }
-      
+
       if (kDebugMode) {
-        print('🅿️ HistoryService.getActivations - Could not extract activations list from response, returning empty list');
+        print(
+            '🅿️ HistoryService.getActivations - Could not extract activations list from response, returning empty list');
       }
-      
+
       return [];
     } on DioException catch (e) {
       if (kDebugMode) {
         print('🅿️ HistoryService.getActivations - DioException: ${e.message}');
-        print('🅿️ HistoryService.getActivations - Response: ${e.response?.data}');
+        print(
+            '🅿️ HistoryService.getActivations - Response: ${e.response?.data}');
       }
       throw Exception('Erro ao buscar histórico de ativações: ${e.message}');
     } catch (e) {
@@ -277,7 +327,8 @@ class HistoryService {
   }
 
   /// Get specific activation details
-  static Future<ActivationHistory?> getActivationDetails(String activationId) async {
+  static Future<ActivationHistory?> getActivationDetails(
+      String activationId) async {
     try {
       final dio = await _getDio();
       final response = await dio.get('/activation/$activationId');
@@ -297,36 +348,43 @@ class HistoryService {
   static Future<OrderDetail> getOrderDetail(String orderId) async {
     try {
       _clearDioInstance(); // Force clear cached Dio to use new PROD URL
-      
+
       if (kDebugMode) {
         print('📋 HistoryService.getOrderDetail - orderId: $orderId');
       }
 
       final dio = await _getDio();
-      
+
       String url = '/order/$orderId';
-      
+
       if (kDebugMode) {
         print('📋 HistoryService.getOrderDetail - URL: $url');
-        print('📋 HistoryService.getOrderDetail - Base URL: ${dio.options.baseUrl}');
-        print('📋 HistoryService.getOrderDetail - Full URL: ${dio.options.baseUrl}$url');
+        print(
+            '📋 HistoryService.getOrderDetail - Base URL: ${dio.options.baseUrl}');
+        print(
+            '📋 HistoryService.getOrderDetail - Full URL: ${dio.options.baseUrl}$url');
       }
 
       final response = await dio.get(url);
 
       if (kDebugMode) {
-        print('📋 HistoryService.getOrderDetail - Response type: ${response.data.runtimeType}');
-        print('📋 HistoryService.getOrderDetail - Response data: ${response.data}');
-        print('📋 HistoryService.getOrderDetail - Response status: ${response.statusCode}');
+        print(
+            '📋 HistoryService.getOrderDetail - Response type: ${response.data.runtimeType}');
+        print(
+            '📋 HistoryService.getOrderDetail - Response data: ${response.data}');
+        print(
+            '📋 HistoryService.getOrderDetail - Response status: ${response.statusCode}');
       }
 
       if (response.data is Map<String, dynamic>) {
-        final orderDetail = OrderDetail.fromJson(response.data as Map<String, dynamic>);
-        
+        final orderDetail =
+            OrderDetail.fromJson(response.data as Map<String, dynamic>);
+
         if (kDebugMode) {
-          print('📋 HistoryService.getOrderDetail - Parsed order detail: ${orderDetail.id}');
+          print(
+              '📋 HistoryService.getOrderDetail - Parsed order detail: ${orderDetail.id}');
         }
-        
+
         return orderDetail;
       }
 
@@ -343,15 +401,18 @@ class HistoryService {
   static Future<bool> deleteOrder(String orderId, String value) async {
     try {
       if (kDebugMode) {
-        print('🗑️ HistoryService.deleteOrder - orderId: $orderId, value: $value');
+        print(
+            '🗑️ HistoryService.deleteOrder - orderId: $orderId, value: $value');
       }
 
       final dio = await _getDio();
       final response = await dio.delete('/order/$orderId?value=$value');
 
       if (kDebugMode) {
-        print('🗑️ HistoryService.deleteOrder - Response status: ${response.statusCode}');
-        print('🗑️ HistoryService.deleteOrder - Response data: ${response.data}');
+        print(
+            '🗑️ HistoryService.deleteOrder - Response status: ${response.statusCode}');
+        print(
+            '🗑️ HistoryService.deleteOrder - Response data: ${response.data}');
       }
 
       return true;
@@ -360,7 +421,7 @@ class HistoryService {
         print('🗑️ HistoryService.deleteOrder - DioException: ${e.message}');
         print('🗑️ HistoryService.deleteOrder - Response: ${e.response?.data}');
       }
-      
+
       if (e.response?.statusCode == 404) {
         throw Exception('Compra não encontrada');
       } else if (e.response?.statusCode == 400) {
