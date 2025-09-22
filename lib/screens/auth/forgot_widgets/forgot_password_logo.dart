@@ -19,10 +19,10 @@ class ForgotPasswordLogo extends StatelessWidget {
           ),
         ],
       ),
-      child: const Icon(
+      child: Icon(
         Icons.lock_reset,
         size: 60,
-        color: Colors.blue,
+        color: Theme.of(context).primaryColor,
       ),
     );
   }

@@ -72,8 +72,16 @@ class RotativoApp extends ConsumerWidget {
   /// Load app configuration including title and primary color
   Future<Map<String, dynamic>> _loadAppConfig() async {
     try {
+      // Clear cache to ensure fresh config loading
+      DynamicAppConfig.clearCache();
+
       final title = await DynamicAppConfig.displayName;
       final primaryColor = await DynamicAppConfig.primaryColor;
+
+      if (kDebugMode) {
+        print('🎨 Main._loadAppConfig - Title: $title');
+        print('🎨 Main._loadAppConfig - Primary Color: $primaryColor');
+      }
 
       return {
         'title': title,
@@ -106,8 +114,19 @@ class RotativoApp extends ConsumerWidget {
         final title = config['title'] as String;
         final primaryColorHex = config['primaryColor'] as String;
 
+        if (kDebugMode) {
+          print('🎨 Main.build - Config loaded: $config');
+          print('🎨 Main.build - Primary Color Hex: $primaryColorHex');
+        }
+
         // Convert hex color to Color object
         final primaryColor = ColorUtils.hexToColor(primaryColorHex);
+
+        if (kDebugMode) {
+          print('🎨 Main.build - Primary Color Object: $primaryColor');
+          print(
+              '🎨 Main.build - Primary Color Value: ${primaryColor.value.toRadixString(16)}');
+        }
 
         return MaterialApp(
           title: title,

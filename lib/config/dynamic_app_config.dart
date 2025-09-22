@@ -29,6 +29,14 @@ class DynamicAppConfig {
     final flavor = Environment.flavor;
     final cityDirectory = flavorToCityMapping[flavor];
 
+    if (kDebugMode) {
+      print('🔍 DynamicAppConfig._loadConfig - Environment.flavor: $flavor');
+      print(
+          '🔍 DynamicAppConfig._loadConfig - Mapped cityDirectory: $cityDirectory');
+      print(
+          '🔍 DynamicAppConfig._loadConfig - Available flavors: ${flavorToCityMapping.keys.toList()}');
+    }
+
     if (cityDirectory == null) {
       throw Exception('No city directory mapped for flavor: $flavor');
     }
@@ -47,6 +55,10 @@ class DynamicAppConfig {
         print('🏙️ DynamicAppConfig - Loaded city: ${_cachedConfig!['city']}');
         print(
             '🏙️ DynamicAppConfig - Loaded domain: ${_cachedConfig!['domain']}');
+        print(
+            '🏙️ DynamicAppConfig - Loaded primaryColor: ${_cachedConfig!['primaryColor']}');
+        print(
+            '🏙️ DynamicAppConfig - All config keys: ${_cachedConfig!.keys.toList()}');
       }
 
       return _cachedConfig!;
@@ -144,7 +156,18 @@ class DynamicAppConfig {
   /// Get primary color from config
   static Future<String> get primaryColor async {
     final config = await _loadConfig();
-    return config['primaryColor'] ?? '#074733'; // Default fallback color
+    final color = config['primaryColor'] ?? '#074733'; // Default fallback color
+
+    if (kDebugMode) {
+      print('🎨 DynamicAppConfig.primaryColor - Loaded color: $color');
+      print(
+          '🎨 DynamicAppConfig.primaryColor - Config keys: ${config.keys.toList()}');
+      print('🎨 DynamicAppConfig.primaryColor - Raw config: $config');
+      print(
+          '🎨 DynamicAppConfig.primaryColor - primaryColor type: ${config['primaryColor'].runtimeType}');
+    }
+
+    return color;
   }
 
   static Future<Map<String, dynamic>> get balance async {
@@ -202,6 +225,9 @@ class DynamicAppConfig {
   /// Clear cached config (useful for testing or switching flavors)
   static void clearCache() {
     _cachedConfig = null;
+    if (kDebugMode) {
+      print('🔄 DynamicAppConfig - Cache cleared');
+    }
   }
 
   /// Get debug info
