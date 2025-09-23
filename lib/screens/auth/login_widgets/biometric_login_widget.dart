@@ -6,17 +6,38 @@ import '../../../providers/auth_provider.dart';
 import '../../../services/auth_service.dart';
 import '../../widgets/loading_button.dart';
 
-class BiometricLoginWidget extends ConsumerWidget {
+class BiometricLoginWidget extends ConsumerStatefulWidget {
   const BiometricLoginWidget({super.key});
 
-  Future<void> _handleBiometricLogin(WidgetRef ref, BuildContext context) async {
+  @override
+  ConsumerState<BiometricLoginWidget> createState() =>
+      _BiometricLoginWidgetState();
+}
+
+class _BiometricLoginWidgetState extends ConsumerState<BiometricLoginWidget> {
+  bool _isLoading = false;
+
+  Future<void> _handleBiometricLogin() async {
+    // Evitar múltiplas execuções simultâneas
+    if (_isLoading) return;
+
+    setState(() {
+      _isLoading = true;
+    });
+
     // Adicionar feedback tátil
     HapticFeedback.lightImpact();
-    
+
     try {
+      // ✅ CORREÇÃO: Verificar se o widget ainda está montado antes de operações assíncronas
+      if (!mounted) return;
+
       // Primeiro verifica se há credenciais armazenadas
       final credentials = await AuthService.getStoredCredentials();
+      if (!mounted) return; // ✅ Verificar novamente após operação assíncrona
+
       if (credentials == null) {
+        if (!mounted) return;
         Fluttertoast.showToast(
           msg:
               'Primeiro faça login tradicional e configure a biometria nas configurações',
@@ -27,13 +48,18 @@ class BiometricLoginWidget extends ConsumerWidget {
         return;
       }
 
+      // ✅ CORREÇÃO: Verificar se o widget ainda está montado antes de usar ref
+      if (!mounted) return;
       final success =
           await ref.read(authProvider.notifier).loginWithBiometrics();
+
+      // ✅ CORREÇÃO: Verificar se o widget ainda está montado após operação assíncrona
+      if (!mounted) return;
 
       if (success) {
         // Feedback de sucesso
         HapticFeedback.mediumImpact();
-        
+
         Fluttertoast.showToast(
           msg: 'Login realizado com sucesso!',
           toastLength: Toast.LENGTH_SHORT,
@@ -41,15 +67,18 @@ class BiometricLoginWidget extends ConsumerWidget {
         );
 
         // Navigate to main app after successful biometric login
-        if (context.mounted) {
+        if (mounted) {
           Navigator.of(context).pushReplacementNamed('/home');
         }
       } else {
         // Feedback de erro
         HapticFeedback.heavyImpact();
-        
+
+        // ✅ CORREÇÃO: Verificar se o widget ainda está montado antes de usar ref
+        if (!mounted) return;
         final error = ref.read(authProvider).error;
-        if (error != null) {
+
+        if (error != null && mounted) {
           Fluttertoast.showToast(
             msg: error,
             toastLength: Toast.LENGTH_LONG,
@@ -61,18 +90,28 @@ class BiometricLoginWidget extends ConsumerWidget {
     } catch (e) {
       // Feedback de erro
       HapticFeedback.heavyImpact();
-      
-      Fluttertoast.showToast(
-        msg: 'Erro ao fazer login biométrico: $e',
-        toastLength: Toast.LENGTH_LONG,
-        gravity: ToastGravity.BOTTOM,
-        backgroundColor: Colors.red,
-      );
+
+      // ✅ CORREÇÃO: Verificar se o widget ainda está montado antes de mostrar toast
+      if (mounted) {
+        Fluttertoast.showToast(
+          msg: 'Erro ao fazer login biométrico: $e',
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.BOTTOM,
+          backgroundColor: Colors.red,
+        );
+      }
+    } finally {
+      // ✅ CORREÇÃO: Sempre definir loading como false, mas apenas se ainda estiver montado
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     return Card(
       elevation: 0,
       color: Colors.grey.withValues(alpha: 0.2),
@@ -108,14 +147,10 @@ class BiometricLoginWidget extends ConsumerWidget {
             const SizedBox(height: 16),
             // Usar GestureDetector para melhor controle de eventos
             GestureDetector(
-              onTap: () {
-                _handleBiometricLogin(ref, context);
-              },
+              onTap: _handleBiometricLogin,
               child: LoadingButton(
-                onPressed: () {
-                  _handleBiometricLogin(ref, context);
-                },
-                isLoading: false,
+                onPressed: _handleBiometricLogin,
+                isLoading: _isLoading,
                 child: const Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [

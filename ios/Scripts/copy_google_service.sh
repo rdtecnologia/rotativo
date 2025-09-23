@@ -4,13 +4,29 @@
 # Usage: copy_google_service.sh <city_name>
 
 CITY_NAME=${1:-Main}
-PROJECT_DIR="${SRCROOT}/.."
-CONFIG_DIR="${PROJECT_DIR}/ios/config/cities"
-TARGET_DIR="${PROJECT_DIR}/ios/Runner"
+
+# Detectar se está sendo executado pelo Xcode ou manualmente
+if [ -n "$SRCROOT" ]; then
+    # Executado pelo Xcode
+    PROJECT_DIR="${SRCROOT}/.."
+    CONFIG_DIR="${PROJECT_DIR}/ios/config/cities"
+    TARGET_DIR="${PROJECT_DIR}/ios/Runner"
+else
+    # Executado manualmente - usar caminho relativo ao script
+    SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    PROJECT_DIR="${SCRIPT_DIR}/../.."
+    CONFIG_DIR="${PROJECT_DIR}/ios/config/cities"
+    TARGET_DIR="${PROJECT_DIR}/ios/Runner"
+fi
 
 echo "🔄 Copying GoogleService-Info.plist for city: ${CITY_NAME}"
 echo "📁 CONFIG_DIR: ${CONFIG_DIR}"
 echo "📁 TARGET_DIR: ${TARGET_DIR}"
+
+# Debug: Verificar se os diretórios existem
+echo "🔍 Debug - Verificando diretórios:"
+echo "  - CONFIG_DIR existe: $([ -d "${CONFIG_DIR}" ] && echo "✅ SIM" || echo "❌ NÃO")"
+echo "  - TARGET_DIR existe: $([ -d "${TARGET_DIR}" ] && echo "✅ SIM" || echo "❌ NÃO")"
 
 # List available files for debug
 echo "📄 Available GoogleService files:"
