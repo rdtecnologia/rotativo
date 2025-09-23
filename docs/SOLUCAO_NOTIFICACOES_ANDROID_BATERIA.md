@@ -280,3 +280,5 @@ O problema era específico das otimizações de bateria do Android, e a soluçã
 
 
 
+
+

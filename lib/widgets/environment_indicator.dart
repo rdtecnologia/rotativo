@@ -11,9 +11,9 @@ class EnvironmentIndicator extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // Só mostra o indicador em modo debug
-    if (!kDebugMode) {
-      return const SizedBox.shrink();
-    }
+    //if (!kDebugMode) {
+    //  return const SizedBox.shrink();
+    //}
 
     return Consumer(
       builder: (context, ref, child) {
