@@ -23,9 +23,13 @@ class LoginFormWidget extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return Card(
       elevation: 0,
-      color: Colors.white.withValues(alpha: 0.3),
+      color: Colors.white.withValues(alpha: 0.6),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
+        side: BorderSide(
+          color: Colors.grey.shade300,
+          width: 1,
+        ),
       ),
       child: Padding(
         padding: const EdgeInsets.all(24.0),
@@ -39,7 +43,7 @@ class LoginFormWidget extends ConsumerWidget {
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: Colors.white,
+                  color: Colors.black, // Alterado para preto
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -48,7 +52,7 @@ class LoginFormWidget extends ConsumerWidget {
                 'Digite suas credenciais para acessar',
                 style: TextStyle(
                   fontSize: 14,
-                  color: Colors.white,
+                  color: Colors.black87, // Alterado para preto
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -67,7 +71,7 @@ class LoginFormWidget extends ConsumerWidget {
                   inputFormatters: [AppFormatters.cpfFormatter],
                   validator: AppValidators.validateCPF,
                   prefixIcon: const Icon(Icons.person),
-                  fillColor: Colors.white.withAlpha(100),
+                  fillColor: Colors.grey.shade50,
                 ),
               ),
               const SizedBox(height: 16),
@@ -84,7 +88,7 @@ class LoginFormWidget extends ConsumerWidget {
                   obscureText: true,
                   validator: AppValidators.validatePassword,
                   prefixIcon: const Icon(Icons.lock),
-                  fillColor: Colors.white.withAlpha(100),
+                  fillColor: Colors.grey.shade50,
                 ),
               ),
               const SizedBox(height: 24),
@@ -140,7 +144,7 @@ class LoginFormWidget extends ConsumerWidget {
                       children: [
                         const TextSpan(
                           text: 'Não tem uma conta? ',
-                          style: TextStyle(color: Colors.white60),
+                          style: TextStyle(color: Colors.black54),
                         ),
                         TextSpan(
                           text: 'Cadastre-se',

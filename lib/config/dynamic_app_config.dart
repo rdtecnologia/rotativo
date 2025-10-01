@@ -170,6 +170,24 @@ class DynamicAppConfig {
     return color;
   }
 
+  /// Get secondary color from config
+  static Future<String> get secondaryColor async {
+    final config = await _loadConfig();
+    final color =
+        config['secondaryColor'] ?? '#17428e'; // Default fallback color
+
+    if (kDebugMode) {
+      print('🎨 DynamicAppConfig.secondaryColor - Loaded color: $color');
+      print(
+          '🎨 DynamicAppConfig.secondaryColor - Config keys: ${config.keys.toList()}');
+      print('🎨 DynamicAppConfig.secondaryColor - Raw config: $config');
+      print(
+          '🎨 DynamicAppConfig.secondaryColor - secondaryColor type: ${config['secondaryColor'].runtimeType}');
+    }
+
+    return color;
+  }
+
   static Future<Map<String, dynamic>> get balance async {
     final config = await _loadConfig();
     return config['balance'] ?? {};

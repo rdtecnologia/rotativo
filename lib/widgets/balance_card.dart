@@ -6,6 +6,9 @@ class BalanceCard extends StatelessWidget {
   final bool isLoading;
   final VoidCallback onTap;
   final String displayType; // 'credits' or 'real'
+  final Color? backgroundColor;
+  final Color? iconColor;
+  final Color? textColor;
 
   const BalanceCard({
     super.key,
@@ -13,16 +16,23 @@ class BalanceCard extends StatelessWidget {
     this.isLoading = false,
     required this.onTap,
     this.displayType = 'credits',
+    this.backgroundColor,
+    this.iconColor,
+    this.textColor,
   });
 
   @override
   Widget build(BuildContext context) {
+    final bgColor = backgroundColor ?? Colors.white;
+    final iColor = iconColor ?? Theme.of(context).primaryColor;
+    final tColor = textColor ?? Colors.grey.shade600;
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.all(12), // Reduzido de 16 para 12
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: bgColor,
           borderRadius: BorderRadius.circular(10), // Reduzido de 12 para 10
         ),
         child: Column(
@@ -43,7 +53,7 @@ class BalanceCard extends StatelessWidget {
               Icon(
                 Icons.account_balance_wallet,
                 size: 28, // Reduzido de 32 para 28
-                color: Theme.of(context).primaryColor,
+                color: iColor,
               ),
               const SizedBox(height: 6), // Reduzido de 8 para 6
               // Available label (top)
@@ -52,7 +62,7 @@ class BalanceCard extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 9, // Reduzido de 10 para 9
                   fontWeight: FontWeight.w600,
-                  color: Colors.grey.shade600,
+                  color: tColor,
                   letterSpacing: 0.3, // Reduzido de 0.5 para 0.3
                 ),
               ),
@@ -85,7 +95,7 @@ class BalanceCard extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 9, // Reduzido de 10 para 9
                       fontWeight: FontWeight.w600,
-                      color: Colors.grey.shade600,
+                      color: tColor,
                       letterSpacing: 0.3, // Reduzido de 0.5 para 0.3
                     ),
                   ),

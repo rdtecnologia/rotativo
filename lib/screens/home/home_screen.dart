@@ -129,8 +129,9 @@ class _HomePageState extends ConsumerState<HomePage>
           }
         },
         child: ParkingBackground(
-          primaryColor: Theme.of(context).primaryColor,
-          opacity: 0.15,
+          //opacity: 0.15,
+          primaryColor: Colors.white,
+          secondaryColor: Colors.white,
           child: Column(
             children: [
               HomeTopBar(

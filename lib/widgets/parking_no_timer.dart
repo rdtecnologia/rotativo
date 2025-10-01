@@ -32,7 +32,7 @@ class ParkingNoTimer extends StatelessWidget {
           Text(
             'Não há estacionamento ativo\npara este veículo.',
             style: TextStyle(
-              color: Colors.white,
+              color: Colors.black.withValues(alpha: 0.7),
               fontSize: 15,
               fontWeight: FontWeight.w500,
             ),

@@ -19,7 +19,7 @@ class NoVehiclesWidget extends StatelessWidget {
           Icon(
             Icons.directions_car_outlined,
             size: 64,
-            color: Colors.grey.shade400,
+            color: Colors.black.withValues(alpha: 0.5),
           ),
           const SizedBox(height: 16),
           Text(
@@ -27,7 +27,7 @@ class NoVehiclesWidget extends StatelessWidget {
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: Colors.grey.shade400,
+              color: Colors.black.withValues(alpha: 0.5),
             ),
             textAlign: TextAlign.center,
           ),
@@ -36,7 +36,7 @@ class NoVehiclesWidget extends StatelessWidget {
             'Cadastre seus veículos para começar a usar o app',
             style: TextStyle(
               fontSize: 14,
-              color: Colors.grey.shade300,
+              color: Colors.black.withValues(alpha: 0.5),
             ),
             textAlign: TextAlign.center,
           ),

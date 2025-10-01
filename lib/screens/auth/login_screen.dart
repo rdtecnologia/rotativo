@@ -84,9 +84,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Cor base azul para combinar com a imagem de fundo
-    final baseColor = Theme.of(context).primaryColor;
-
     // Adicionar tratamento de erro para eventos de ponteiro
     return GestureDetector(
       onTap: () {
@@ -94,37 +91,34 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         FocusScope.of(context).unfocus();
       },
       child: Scaffold(
-        // Aplicar cor de fundo base para evitar tela branca
-        backgroundColor: baseColor,
-        body: Stack(
-          children: [
-            // Main content
-            ParkingBackground(
-              primaryColor: baseColor,
-              opacity: 0.25,
-              child: SafeArea(
-                child: Center(
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.all(24.0),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        if (_isInitialized) ...[
-                          const AppLogoWidget(),
-                          const SizedBox(height: 48),
-                          const BiometricSectionWidget(),
-                          LoginFormSectionWidget(
-                            formKey: _formKey,
-                            onLogin: _handleLogin,
-                          ),
-                        ],
-                      ],
-                    ),
-                  ),
+        // Fundo branco
+        backgroundColor: Colors.white,
+        body: ParkingBackground(
+          // Usar cor neutra para manter a imagem monocromática
+          primaryColor: Colors.white,
+          secondaryColor: Colors.white,
+          opacity: 0.3, // Opacidade reduzida para não interferir nos textos
+          child: SafeArea(
+            child: Center(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(24.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    if (_isInitialized) ...[
+                      const AppLogoWidget(),
+                      const SizedBox(height: 30),
+                      const BiometricSectionWidget(),
+                      LoginFormSectionWidget(
+                        formKey: _formKey,
+                        onLogin: _handleLogin,
+                      ),
+                    ],
+                  ],
                 ),
               ),
             ),
-          ],
+          ),
         ),
       ),
     );

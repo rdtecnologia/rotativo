@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../../../config/dynamic_app_config.dart';
+import '../../../config/environment.dart';
 
 class AppLogoWidget extends StatelessWidget {
   const AppLogoWidget({super.key});
@@ -11,41 +12,56 @@ class AppLogoWidget extends StatelessWidget {
       future: DynamicAppConfig.cityName,
       builder: (context, snapshot) {
         final cityName = snapshot.data ?? 'Rotativo Digital';
+        final flavor = Environment.flavor;
+
+        // Mapear flavor para nome da pasta da cidade
+        final cityFolder = _getCityFolder(flavor);
+        final logoPath = 'assets/config/cities/$cityFolder/logo_login.png';
+
         return Column(
           children: [
             Container(
-              width: 100,
-              height: 100,
+              width: 200,
+              //height: 200,
               decoration: BoxDecoration(
                 color: Colors.transparent,
                 borderRadius: BorderRadius.circular(60),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.1),
-                    blurRadius: 10,
-                    spreadRadius: 2,
-                  ),
-                ],
+                // boxShadow: [
+                //   BoxShadow(
+                //     color: Colors.black.withValues(alpha: 0.1),
+                //     blurRadius: 10,
+                //     spreadRadius: 2,
+                //   ),
+                // ],
               ),
               child: Center(
-                child: SvgPicture.asset(
-                  'assets/images/svg/logo.svg',
-                  width: 100,
-                  height: 100,
+                child: Image.asset(
+                  logoPath,
+                  width: 250,
+                  //height: 200,
                   fit: BoxFit.contain,
-                  placeholderBuilder: (context) => Container(
-                    width: 60,
-                    height: 60,
-                    decoration: BoxDecoration(
-                      color: Colors.blue,
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                    child: const Icon(
-                      Icons.local_parking,
-                      size: 40,
-                      color: Colors.white,
-                    ),
-                  ),
+                  errorBuilder: (context, error, stackTrace) {
+                    // Fallback para o logo SVG original se a imagem não existir
+                    return SvgPicture.asset(
+                      'assets/images/svg/logo.svg',
+                      width: 100,
+                      height: 100,
+                      fit: BoxFit.contain,
+                      placeholderBuilder: (context) => Container(
+                        width: 60,
+                        height: 60,
+                        decoration: BoxDecoration(
+                          color: Colors.blue,
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                        child: const Icon(
+                          Icons.local_parking,
+                          size: 40,
+                          color: Colors.white,
+                        ),
+                      ),
+                    );
+                  },
                 ),
               ),
             ),
@@ -53,9 +69,9 @@ class AppLogoWidget extends StatelessWidget {
             Text(
               'Rotativo $cityName',
               style: const TextStyle(
-                fontSize: 24,
+                fontSize: 30,
                 fontWeight: FontWeight.bold,
-                color: Colors.white,
+                color: Colors.black,
               ),
               textAlign: TextAlign.center,
             ),
@@ -63,5 +79,24 @@ class AppLogoWidget extends StatelessWidget {
         );
       },
     );
+  }
+
+  /// Mapear flavor para nome da pasta da cidade
+  String _getCityFolder(String flavor) {
+    const flavorToFolder = {
+      'demo': 'Main',
+      'patosDeMinas': 'PatosDeMinas',
+      'janauba': 'Janauba',
+      'conselheiroLafaiete': 'ConselheiroLafaiete',
+      'capaoBonito': 'CapaoBonito',
+      'joaoMonlevade': 'JoaoMonlevade',
+      'itarare': 'Itarare',
+      'passos': 'Passos',
+      'ribeiraoDasNeves': 'RibeiraoDasNeves',
+      'igarape': 'Igarape',
+      'ouroPreto': 'OuroPreto',
+    };
+
+    return flavorToFolder[flavor] ?? 'Main';
   }
 }

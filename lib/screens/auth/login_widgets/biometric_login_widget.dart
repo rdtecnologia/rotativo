@@ -114,9 +114,13 @@ class _BiometricLoginWidgetState extends ConsumerState<BiometricLoginWidget> {
   Widget build(BuildContext context) {
     return Card(
       elevation: 0,
-      color: Colors.grey.withValues(alpha: 0.2),
+      color: Colors.white.withValues(alpha: 0.6),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
+        side: BorderSide(
+          color: Colors.grey.shade300,
+          width: 1,
+        ),
       ),
       child: Padding(
         padding: const EdgeInsets.all(24.0),
@@ -133,7 +137,7 @@ class _BiometricLoginWidgetState extends ConsumerState<BiometricLoginWidget> {
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
-                color: Colors.white,
+                color: Colors.black, // Alterado para preto
               ),
             ),
             const SizedBox(height: 8),
@@ -141,7 +145,7 @@ class _BiometricLoginWidgetState extends ConsumerState<BiometricLoginWidget> {
               'Toque no botão para acessar com sua biometria',
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: Colors.white70,
+                color: Colors.black87, // Alterado para preto
               ),
             ),
             const SizedBox(height: 16),

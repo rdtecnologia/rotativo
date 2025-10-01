@@ -69,7 +69,15 @@ void _initializeApp() {
 class RotativoApp extends ConsumerWidget {
   const RotativoApp({super.key});
 
-  /// Load app configuration including title and primary color
+  /// Get contrast color (black or white) for better readability
+  Color _getContrastColor(Color color) {
+    // Calculate luminance
+    final luminance =
+        (0.299 * color.red + 0.587 * color.green + 0.114 * color.blue) / 255;
+    return luminance > 0.5 ? Colors.black : Colors.white;
+  }
+
+  /// Load app configuration including title and colors
   Future<Map<String, dynamic>> _loadAppConfig() async {
     try {
       // Clear cache to ensure fresh config loading
@@ -77,15 +85,18 @@ class RotativoApp extends ConsumerWidget {
 
       final title = await DynamicAppConfig.displayName;
       final primaryColor = await DynamicAppConfig.primaryColor;
+      final secondaryColor = await DynamicAppConfig.secondaryColor;
 
       if (kDebugMode) {
         print('🎨 Main._loadAppConfig - Title: $title');
         print('🎨 Main._loadAppConfig - Primary Color: $primaryColor');
+        print('🎨 Main._loadAppConfig - Secondary Color: $secondaryColor');
       }
 
       return {
         'title': title,
         'primaryColor': primaryColor,
+        'secondaryColor': secondaryColor,
       };
     } catch (e) {
       if (kDebugMode) {
@@ -95,6 +106,7 @@ class RotativoApp extends ConsumerWidget {
       return {
         'title': 'Rotativo Digital',
         'primaryColor': '#074733',
+        'secondaryColor': '#17428e',
       };
     }
   }
@@ -110,32 +122,75 @@ class RotativoApp extends ConsumerWidget {
       future: _loadAppConfig(),
       builder: (context, snapshot) {
         final config = snapshot.data ??
-            {'title': 'Rotativo Digital', 'primaryColor': '#074733'};
+            {
+              'title': 'Rotativo Digital',
+              'primaryColor': '#074733',
+              'secondaryColor': '#17428e'
+            };
         final title = config['title'] as String;
         final primaryColorHex = config['primaryColor'] as String;
+        final secondaryColorHex = config['secondaryColor'] as String;
 
         if (kDebugMode) {
           print('🎨 Main.build - Config loaded: $config');
           print('🎨 Main.build - Primary Color Hex: $primaryColorHex');
+          print('🎨 Main.build - Secondary Color Hex: $secondaryColorHex');
         }
 
-        // Convert hex color to Color object
+        // Convert hex colors to Color objects
         final primaryColor = ColorUtils.hexToColor(primaryColorHex);
+        final secondaryColor = ColorUtils.hexToColor(secondaryColorHex);
 
         if (kDebugMode) {
           print('🎨 Main.build - Primary Color Object: $primaryColor');
+          print('🎨 Main.build - Secondary Color Object: $secondaryColor');
           print(
               '🎨 Main.build - Primary Color Value: ${primaryColor.value.toRadixString(16)}');
+          print(
+              '🎨 Main.build - Secondary Color Value: ${secondaryColor.value.toRadixString(16)}');
         }
+
+        // Create custom color scheme with both colors
+        final colorScheme = ColorUtils.createCustomColorScheme(
+          primaryColor: primaryColor,
+          secondaryColor: secondaryColor,
+        );
 
         return MaterialApp(
           title: title,
           theme: ThemeData(
-            colorScheme: ColorScheme.fromSeed(
-              seedColor: primaryColor,
-              brightness: Brightness.light,
-            ),
+            colorScheme: colorScheme,
             useMaterial3: true,
+            // Additional theme customizations
+            appBarTheme: AppBarTheme(
+              backgroundColor: primaryColor,
+              foregroundColor: _getContrastColor(primaryColor),
+              elevation: 0,
+            ),
+            elevatedButtonTheme: ElevatedButtonThemeData(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: primaryColor,
+                foregroundColor: _getContrastColor(primaryColor),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+            ),
+            outlinedButtonTheme: OutlinedButtonThemeData(
+              style: OutlinedButton.styleFrom(
+                foregroundColor: secondaryColor,
+                side: BorderSide(color: secondaryColor),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+            ),
+            cardTheme: CardTheme(
+              elevation: 2,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
           ),
           home: const SplashScreen(),
           routes: {

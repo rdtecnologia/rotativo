@@ -14,10 +14,10 @@ class ForgotPasswordLinkWidget extends StatelessWidget {
           ),
         );
       },
-      child: const Text(
+      child: Text(
         'Esqueceu sua senha?',
         style: TextStyle(
-          color: Colors.white,
+          color: Theme.of(context).primaryColor,
           fontSize: 16,
         ),
       ),

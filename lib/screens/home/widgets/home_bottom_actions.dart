@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../providers/balance_provider.dart';
+import '../../../providers/color_scheme_provider.dart';
 import '../../../widgets/balance_card.dart';
 
 class HomeBottomActions extends ConsumerWidget {
@@ -18,24 +19,36 @@ class HomeBottomActions extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    return ref.watch(appColorsProvider).when(
+          data: (appColors) => _buildActions(context, ref, appColors),
+          loading: () => _buildActions(context, ref, null),
+          error: (_, __) => _buildActions(context, ref, null),
+        );
+  }
+
+  Widget _buildActions(
+      BuildContext context, WidgetRef ref, AppColors? appColors) {
+    final primaryColor = appColors?.primary ?? Theme.of(context).primaryColor;
+    final secondaryColor =
+        appColors?.secondary ?? Theme.of(context).colorScheme.secondary;
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
       child: Row(
         children: [
-          // Purchase card
+          // Purchase card - Primary color
           Expanded(
             child: ActionCard(
               icon: Icons.shopping_cart,
               label: 'COMPRAR',
               onTap: onPurchaseTap,
-              backgroundColor:
-                  Theme.of(context).primaryColor.withValues(alpha: 1),
+              backgroundColor: primaryColor,
             ),
           ),
 
           const SizedBox(width: 8),
 
-          // Balance card
+          // Balance card - Secondary color
           Expanded(
             child: Consumer(
               builder: (context, ref, child) {
@@ -47,6 +60,7 @@ class HomeBottomActions extends ConsumerWidget {
                   isLoading: isLoading,
                   onTap: onBalanceTap,
                   displayType: 'credits',
+                  backgroundColor: Theme.of(context).colorScheme.inversePrimary,
                 );
               },
             ),
@@ -54,14 +68,13 @@ class HomeBottomActions extends ConsumerWidget {
 
           const SizedBox(width: 8),
 
-          // History card
+          // History card - Primary color
           Expanded(
             child: ActionCard(
               icon: Icons.history,
               label: 'HISTÓRICO',
               onTap: onHistoryTap,
-              backgroundColor:
-                  Theme.of(context).primaryColor.withValues(alpha: 1),
+              backgroundColor: primaryColor,
             ),
           ),
         ],

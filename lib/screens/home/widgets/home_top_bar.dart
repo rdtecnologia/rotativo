@@ -28,7 +28,7 @@ class HomeTopBar extends ConsumerWidget {
             onPressed: onMenuTap,
             icon: const Icon(
               Icons.menu,
-              color: Colors.white,
+              color: Colors.black,
               size: 28,
             ),
           ),
@@ -45,7 +45,7 @@ class HomeTopBar extends ConsumerWidget {
                       data: (cityName) => Text(
                         cityName,
                         style: const TextStyle(
-                          color: Colors.white,
+                          color: Colors.black,
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                         ),
@@ -53,7 +53,7 @@ class HomeTopBar extends ConsumerWidget {
                       loading: () => const Text(
                         'Carregando...',
                         style: TextStyle(
-                          color: Colors.white,
+                          color: Colors.black,
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                         ),
@@ -92,7 +92,7 @@ class HomeTopBar extends ConsumerWidget {
               },
               icon: const Icon(
                 Icons.bug_report,
-                color: Colors.white,
+                color: Colors.black,
                 size: 24,
               ),
             )
@@ -105,7 +105,7 @@ class HomeTopBar extends ConsumerWidget {
                 width: 32,
                 height: 32,
                 colorFilter: const ColorFilter.mode(
-                  Colors.white,
+                  Colors.black,
                   BlendMode.srcIn,
                 ),
               ),

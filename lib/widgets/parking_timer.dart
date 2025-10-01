@@ -94,7 +94,7 @@ class ParkingTimer extends ConsumerWidget {
       padding: const EdgeInsets.symmetric(
           horizontal: 12, vertical: 6), // Reduzido vertical de 8 para 6
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.40),
+        color: Colors.white.withValues(alpha: 0.60),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: timerColor.withValues(alpha: 0.6),
@@ -120,7 +120,7 @@ class ParkingTimer extends ConsumerWidget {
               Text(
                 timeText,
                 style: TextStyle(
-                  color: Colors.white,
+                  color: Colors.black.withValues(alpha: 0.5),
                   fontSize: 15, // Reduzido de 16 para 15
                   fontWeight: FontWeight.bold,
                 ),
@@ -136,7 +136,7 @@ class ParkingTimer extends ConsumerWidget {
             width: double.infinity,
             child: LinearProgressIndicator(
               value: !isActive ? 0.0 : progress, // 0 para ativações expiradas
-              backgroundColor: Colors.white.withValues(alpha: 0.3),
+              backgroundColor: Colors.white.withValues(alpha: 0.5),
               valueColor: AlwaysStoppedAnimation<Color>(timerColor),
               minHeight: 4, // Reduzido de 5 para 4
             ),
@@ -148,7 +148,7 @@ class ParkingTimer extends ConsumerWidget {
                 ? 'Ativado às ${AppFormatters.formatTime(activeActivation.activatedAt)}'
                 : 'Expira às ${AppFormatters.formatTime(expirationTime)}',
             style: TextStyle(
-              color: Colors.white.withValues(alpha: 1),
+              color: Colors.black.withValues(alpha: 0.5),
               fontSize: 14,
               fontWeight: FontWeight.w800,
             ),

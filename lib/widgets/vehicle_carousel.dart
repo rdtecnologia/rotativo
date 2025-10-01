@@ -145,11 +145,11 @@ class VehicleCard extends ConsumerWidget {
         margin: const EdgeInsets.symmetric(horizontal: 8.0),
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
             colors: [
-              Theme.of(context).primaryColor.withValues(alpha: 0.3),
-              Colors.white.withValues(alpha: 0.21),
+              Theme.of(context).primaryColor.withValues(alpha: 0.6),
+              Theme.of(context).primaryColor.withValues(alpha: 0.2),
             ],
           ),
           borderRadius: BorderRadius.circular(16),

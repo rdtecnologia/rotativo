@@ -4,7 +4,7 @@ import '../../../providers/login_screen_provider.dart';
 
 class LoginToggleButtonWidget extends ConsumerWidget {
   final bool showingLoginCard;
-  
+
   const LoginToggleButtonWidget({
     super.key,
     required this.showingLoginCard,
@@ -21,10 +21,10 @@ class LoginToggleButtonWidget extends ConsumerWidget {
             onPressed: () {
               ref.read(loginScreenProvider.notifier).toggleLoginCard();
             },
-            icon: const Icon(Icons.fingerprint, color: Colors.white54),
+            icon: const Icon(Icons.fingerprint, color: Colors.black54),
             label: const Text(
               'Usar apenas biometria',
-              style: TextStyle(color: Colors.white54),
+              style: TextStyle(color: Colors.black54),
             ),
           ),
         ],
@@ -37,10 +37,10 @@ class LoginToggleButtonWidget extends ConsumerWidget {
             onPressed: () {
               ref.read(loginScreenProvider.notifier).toggleLoginCard();
             },
-            icon: const Icon(Icons.login, color: Colors.white54),
+            icon: const Icon(Icons.login, color: Colors.black54),
             label: const Text(
               'Usar login tradicional',
-              style: TextStyle(color: Colors.white54),
+              style: TextStyle(color: Colors.black54),
             ),
           ),
           const SizedBox(height: 16),

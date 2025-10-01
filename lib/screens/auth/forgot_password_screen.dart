@@ -15,7 +15,8 @@ class ForgotPasswordScreen extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<ForgotPasswordScreen> createState() => _ForgotPasswordScreenState();
+  ConsumerState<ForgotPasswordScreen> createState() =>
+      _ForgotPasswordScreenState();
 }
 
 class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
@@ -38,7 +39,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
 
     try {
       await ref.read(authProvider.notifier).forgotPassword(cpf);
-      
+
       if (mounted) {
         Fluttertoast.showToast(
           msg: 'Instruções de recuperação enviadas!',
@@ -47,7 +48,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
           backgroundColor: Colors.green,
           textColor: Colors.white,
         );
-        
+
         Navigator.of(context).pop();
       }
     } catch (e) {
@@ -69,8 +70,9 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
 
     return Scaffold(
       body: ParkingBackground(
-        primaryColor: Theme.of(context).primaryColor,
-        opacity: 0.25,
+        primaryColor: Colors.white,
+        secondaryColor: Colors.white,
+        //opacity: 0.25,
         child: SafeArea(
           child: Center(
             child: SingleChildScrollView(
@@ -80,14 +82,14 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                 children: [
                   // Logo
                   const ForgotPasswordLogo(),
-                  
+
                   const SizedBox(height: 16),
-                  
+
                   // Title
                   const ForgotPasswordTitle(),
-                  
+
                   const SizedBox(height: 48),
-                  
+
                   // Form Card
                   ForgotPasswordForm(
                     formKey: _formKey,
@@ -95,9 +97,9 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                     onSubmit: _handleSubmit,
                     isLoading: authState.isLoading,
                   ),
-                  
+
                   const SizedBox(height: 24),
-                  
+
                   // Actions
                   ForgotPasswordActions(
                     onBackToLogin: () => Navigator.of(context).pop(),

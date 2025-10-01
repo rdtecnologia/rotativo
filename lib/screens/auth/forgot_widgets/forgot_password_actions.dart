@@ -26,29 +26,29 @@ class ForgotPasswordActions extends StatelessWidget {
         // Back to Login
         TextButton(
           onPressed: onBackToLogin,
-          child: const Text(
+          child: Text(
             'Voltar ao Login',
             style: TextStyle(
-              color: Colors.white,
+              color: Theme.of(context).primaryColor,
               fontSize: 16,
             ),
           ),
         ),
-        
+
         const SizedBox(height: 16),
-        
+
         // Contact Support
-        TextButton(
-          onPressed: _showContactSupport,
-          child: const Text(
-            'Problemas? Fale conosco!',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 16,
-              decoration: TextDecoration.underline,
-            ),
-          ),
-        ),
+        // TextButton(
+        //   onPressed: _showContactSupport,
+        //   child: const Text(
+        //     'Problemas? Fale conosco!',
+        //     style: TextStyle(
+        //       color: Colors.white,
+        //       fontSize: 16,
+        //       decoration: TextDecoration.underline,
+        //     ),
+        //   ),
+        // ),
       ],
     );
   }

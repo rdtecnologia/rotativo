@@ -23,7 +23,7 @@ class ForgotPasswordForm extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       elevation: 0,
-      color: Colors.white.withValues(alpha: 0.3),
+      color: Colors.white.withValues(alpha: 0.6),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
       ),
@@ -38,7 +38,7 @@ class ForgotPasswordForm extends StatelessWidget {
                 'Digite seu CPF para recuperar sua senha:',
                 style: TextStyle(
                   fontSize: 16,
-                  color: Colors.white,
+                  color: Colors.black,
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -76,10 +76,7 @@ class ForgotPasswordForm extends StatelessWidget {
               // Info Text
               Text(
                 'Enviaremos as instruções para o e-mail cadastrado em sua conta.',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.white,
-                ),
+                style: TextStyle(fontSize: 14, color: Colors.black),
                 textAlign: TextAlign.center,
               ),
             ],
