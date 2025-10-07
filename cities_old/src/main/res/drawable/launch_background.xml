@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Modify this file to customize your launch splash screen -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Background gradient similar to our Flutter splash screen -->
+    <item>
+        <shape android:shape="rectangle">
+            <gradient
+                android:startColor="#5A7B97"
+                android:endColor="#466783"
+                android:angle="90" />
+        </shape>
+    </item>
+
+    <!-- Logo at center -->
+    <item>
+        <bitmap
+            android:gravity="center"
+            android:src="@mipmap/launcher_icon" />
+    </item>
+</layer-list>

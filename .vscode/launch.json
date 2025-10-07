@@ -5,27 +5,6 @@
     "version": "0.2.0",
     "configurations": [
         // ==========================================
-        // 🚀 CONFIGURAÇÕES GERAIS (SEM FLAVOR)
-        // ==========================================
-        {
-            "name": "🚀 Debug (Sem Flavor)",
-            "request": "launch",
-            "type": "dart",
-            "flutterMode": "debug"
-        },
-        {
-            "name": "⚡ Profile (Sem Flavor)",
-            "request": "launch",
-            "type": "dart",
-            "flutterMode": "profile"
-        },
-        {
-            "name": "📦 Release (Sem Flavor)",
-            "request": "launch",
-            "type": "dart",
-            "flutterMode": "release"
-        },
-        // ==========================================
         // 🏙️ FLAVORS POR CIDADE - ANDROID
         // ==========================================
         {
@@ -45,150 +24,6 @@
             ]
         },
         {
-            "name": "🐎 Patos de Minas - Android Debug",
-            "request": "launch",
-            "type": "dart",
-            "flutterMode": "debug",
-            "args": [
-                "--flavor",
-                "patosDeMinas",
-                "--dart-define-from-file",
-                "env/patosDeMinas.json",
-                "--target",
-                "lib/main.dart",
-                "--web-browser-flag",
-                "--disable-web-security"
-            ]
-        },
-        {
-            "name": "🌾 Janaúba - Android Debug",
-            "request": "launch",
-            "type": "dart",
-            "flutterMode": "debug",
-            "args": [
-                "--flavor",
-                "janauba",
-                "--dart-define-from-file",
-                "env/janauba.json",
-                "--target",
-                "lib/main.dart",
-                "--web-browser-flag",
-                "--disable-web-security"
-            ]
-        },
-        {
-            "name": "⛪ Conselheiro Lafaiete - Android Debug",
-            "request": "launch",
-            "type": "dart",
-            "flutterMode": "debug",
-            "args": [
-                "--flavor",
-                "conselheiroLafaiete",
-                "--dart-define-from-file",
-                "env/conselheiroLafaiete.json",
-                "--target",
-                "lib/main.dart",
-                "--web-browser-flag",
-                "--disable-web-security"
-            ]
-        },
-        {
-            "name": "🌺 Capão Bonito - Android Debug",
-            "request": "launch",
-            "type": "dart",
-            "flutterMode": "debug",
-            "args": [
-                "--flavor",
-                "capaoBonito",
-                "--dart-define-from-file",
-                "env/capaoBonito.json",
-                "--target",
-                "lib/main.dart",
-                "--web-browser-flag",
-                "--disable-web-security"
-            ]
-        },
-        {
-            "name": "🏭 João Monlevade - Android Debug",
-            "request": "launch",
-            "type": "dart",
-            "flutterMode": "debug",
-            "args": [
-                "--flavor",
-                "joaoMonlevade",
-                "--dart-define-from-file",
-                "env/joaoMonlevade.json",
-                "--target",
-                "lib/main.dart",
-                "--web-browser-flag",
-                "--disable-web-security"
-            ]
-        },
-        {
-            "name": "🌄 Itararé - Android Debug",
-            "request": "launch",
-            "type": "dart",
-            "flutterMode": "debug",
-            "args": [
-                "--flavor",
-                "itarare",
-                "--dart-define-from-file",
-                "env/itarare.json",
-                "--target",
-                "lib/main.dart",
-                "--web-browser-flag",
-                "--disable-web-security"
-            ]
-        },
-        {
-            "name": "🎭 Passos - Android Debug",
-            "request": "launch",
-            "type": "dart",
-            "flutterMode": "debug",
-            "args": [
-                "--flavor",
-                "passos",
-                "--dart-define-from-file",
-                "env/passos.json",
-                "--target",
-                "lib/main.dart",
-                "--web-browser-flag",
-                "--disable-web-security"
-            ]
-        },
-        {
-            "name": "🌊 Ribeirão das Neves - Android Debug",
-            "request": "launch",
-            "type": "dart",
-            "flutterMode": "debug",
-            "args": [
-                "--flavor",
-                "ribeiraoDasNeves",
-                "--dart-define-from-file",
-                "env/ribeiraoDasNeves.json",
-                "--target",
-                "lib/main.dart",
-                "--web-browser-flag",
-                "--disable-web-security"
-            ]
-        },
-        {
-            "name": "🌸 Igarapé - Android Debug",
-            "request": "launch",
-            "type": "dart",
-            "flutterMode": "debug",
-            "args": [
-                "--flavor",
-                "igarape",
-                "--dart-define-from-file",
-                "env/igarape.json",
-                "--target",
-                "lib/main.dart",
-                "--web-browser-flag",
-                "--disable-web-security"
-            ]
-        },
-        {
             "name": "💰 Ouro Preto - Debug",
             "request": "launch",
             "type": "dart",
@@ -198,6 +33,23 @@
                 "ouroPreto",
                 "--dart-define-from-file",
                 "env/ouroPreto.json",
+                "--target",
+                "lib/main.dart",
+                "--web-browser-flag",
+                "--disable-web-security",
+                "--debug"
+            ]
+        },
+        {
+            "name": "💰 Viçosa - Debug",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "debug",
+            "args": [
+                "--flavor",
+                "vicosa",
+                "--dart-define-from-file",
+                "env/vicosa.json",
                 "--target",
                 "lib/main.dart",
                 "--web-browser-flag",
@@ -223,132 +75,6 @@
             ]
         },
         {
-            "name": "🐎 Patos de Minas - Android Release",
-            "request": "launch",
-            "type": "dart",
-            "flutterMode": "release",
-            "args": [
-                "--flavor",
-                "patosDeMinas",
-                "--dart-define-from-file",
-                "env/patosDeMinas.json",
-                "--target",
-                "lib/main.dart"
-            ]
-        },
-        {
-            "name": "🌾 Janaúba - Android Release",
-            "request": "launch",
-            "type": "dart",
-            "flutterMode": "release",
-            "args": [
-                "--flavor",
-                "janauba",
-                "--dart-define-from-file",
-                "env/janauba.json",
-                "--target",
-                "lib/main.dart"
-            ]
-        },
-        {
-            "name": "⛪ Conselheiro Lafaiete - Android Release",
-            "request": "launch",
-            "type": "dart",
-            "flutterMode": "release",
-            "args": [
-                "--flavor",
-                "conselheiroLafaiete",
-                "--dart-define-from-file",
-                "env/conselheiroLafaiete.json",
-                "--target",
-                "lib/main.dart"
-            ]
-        },
-        {
-            "name": "🌺 Capão Bonito - Android Release",
-            "request": "launch",
-            "type": "dart",
-            "flutterMode": "release",
-            "args": [
-                "--flavor",
-                "capaoBonito",
-                "--dart-define-from-file",
-                "env/capaoBonito.json",
-                "--target",
-                "lib/main.dart"
-            ]
-        },
-        {
-            "name": "🏭 João Monlevade - Android Release",
-            "request": "launch",
-            "type": "dart",
-            "flutterMode": "release",
-            "args": [
-                "--flavor",
-                "joaoMonlevade",
-                "--dart-define-from-file",
-                "env/joaoMonlevade.json",
-                "--target",
-                "lib/main.dart"
-            ]
-        },
-        {
-            "name": "🌄 Itararé - Android Release",
-            "request": "launch",
-            "type": "dart",
-            "flutterMode": "release",
-            "args": [
-                "--flavor",
-                "itarare",
-                "--dart-define-from-file",
-                "env/itarare.json",
-                "--target",
-                "lib/main.dart"
-            ]
-        },
-        {
-            "name": "🎭 Passos - Android Release",
-            "request": "launch",
-            "type": "dart",
-            "flutterMode": "release",
-            "args": [
-                "--flavor",
-                "passos",
-                "--dart-define-from-file",
-                "env/passos.json",
-                "--target",
-                "lib/main.dart"
-            ]
-        },
-        {
-            "name": "🌊 Ribeirão das Neves - Android Release",
-            "request": "launch",
-            "type": "dart",
-            "flutterMode": "release",
-            "args": [
-                "--flavor",
-                "ribeiraoDasNeves",
-                "--dart-define-from-file",
-                "env/ribeiraoDasNeves.json",
-                "--target",
-                "lib/main.dart"
-            ]
-        },
-        {
-            "name": "🌸 Igarapé - Android Release",
-            "request": "launch",
-            "type": "dart",
-            "flutterMode": "release",
-            "args": [
-                "--flavor",
-                "igarape",
-                "--dart-define-from-file",
-                "env/igarape.json",
-                "--target",
-                "lib/main.dart"
-            ]
-        },
-        {
             "name": "💰 Ouro Preto - Android Release",
             "request": "launch",
             "type": "dart",
@@ -361,37 +87,6 @@
                 "--target",
                 "lib/main.dart"
             ]
-        },
-        // ==========================================
-        // 🍎 CONFIGURAÇÕES ESPECIAIS - iOS
-        // ==========================================
-        {
-            "name": "🍎 iOS Debug - Configuração Simples",
-            "request": "launch",
-            "type": "dart",
-            "flutterMode": "debug",
-            "deviceId": "ios",
-            "preLaunchTask": {
-                "type": "shell",
-                "command": "echo",
-                "args": [
-                    "Use: dart scripts/build_city.dart <cidade> '<Nome>' antes de executar"
-                ]
-            }
-        },
-        {
-            "name": "🍎 iOS Release - Configuração Simples",
-            "request": "launch",
-            "type": "dart",
-            "flutterMode": "release",
-            "deviceId": "ios",
-            "preLaunchTask": {
-                "type": "shell",
-                "command": "echo",
-                "args": [
-                    "Use: dart scripts/build_city.dart <cidade> '<Nome>' antes de executar"
-                ]
-            }
         },
         // ==========================================
         // 🔧 CONFIGURAÇÕES AVANÇADAS
@@ -426,16 +121,8 @@
             "type": "pickString",
             "options": [
                 "demo",
-                "patosDeMinas",
-                "janauba",
-                "conselheiroLafaiete",
-                "capaoBonito",
-                "joaoMonlevade",
-                "itarare",
-                "passos",
-                "ribeiraoDasNeves",
-                "igarape",
-                "ouroPreto"
+                "ouroPreto",
+                "vicosa"
             ]
         }
     ]

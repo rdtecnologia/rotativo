@@ -88,13 +88,5 @@ flutter:
     - assets/images/svg/
     - assets/config/cities/
     - assets/config/cities/Main/
-    - assets/config/cities/PatosDeMinas/
-    - assets/config/cities/Janauba/
-    - assets/config/cities/ConselheiroLafaiete/
-    - assets/config/cities/CapaoBonito/
-    - assets/config/cities/JoaoMonlevade/
-    - assets/config/cities/Itarare/
-    - assets/config/cities/Passos/
-    - assets/config/cities/RibeiraoDasNeves/
-    - assets/config/cities/Igarape/
     - assets/config/cities/OuroPreto/
+    - assets/config/cities/Vicosa/    

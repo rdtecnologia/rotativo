@@ -1,0 +1,147 @@
+{
+  "$schema": "../schema.json",
+  "city": "Viçosa",
+  "domain": "Vicosa",
+  "latitude": -20.7455642,
+  "longitude": -42.8829505,
+  "primaryColor": "#b61817",
+  "secondaryColor": "#17428e",
+  "downloadLink": "http://www.rotativodigital.com.br/app/?city=vicosa",
+  "termsLink": "http://www.rotativodigital.com.br/wp-content/uploads/2024/01/termos-de-uso-rotativo-vicosa.pdf",
+  "androidPackage": "com.rotativodigitalvicosard",
+  "iosPackage": "com.rotativodigitalvicosard",
+  "whatsapp": "(31) 99835-9953",
+  "chatBotURL": "https://timob.chat.blip.ai/?appKey=YXRlbmRpbWVudG9odW1hbm9hcHBvcDozN2JjMDc0Mi1hN2Q1LTQyZTItYTcxZS1lNzg0ZWY4ZjNhNDY=",
+  "products": [
+    13
+  ],
+  "vehicleTypes": [
+    1,
+    2
+  ],
+  "mainLogo": "",
+  "logoMenu": "",
+  "balance": {
+    "showBy": "real",
+    "showDetails": false
+  },
+  "parkingRules": {
+    "1": [
+      {
+        "time": 60,
+        "price": 2.5,
+        "credits": 5
+      },
+      {
+        "time": 120,
+        "price": 5.0,
+        "credits": 10
+      }
+    ],
+    "2": [
+      {
+        "time": 120,
+        "price": 1.5,
+        "credits": 3
+      }
+    ]
+  },
+  "purchase": {
+    "vehicleTypeDefault": 1,
+    "showBy": "real",
+    "chargeback": true,
+    "minCreditsByVehicle": {
+      "1": 2,
+      "2": 2
+    },
+    "products": {
+      "1": [
+        {
+          "credits": 30,
+          "price": 15
+        },
+        {
+          "credits": 40,
+          "price": 20
+        },
+        {
+          "credits": 60,
+          "price": 30
+        },
+        {
+          "credits": 90,
+          "price": 45
+        },
+        {
+          "credits": 100,
+          "price": 50
+        },
+        {
+          "credits": 200,
+          "price": 100
+        }
+      ],
+      "2": [
+        {
+          "credits": 30,
+          "price": 15
+        },
+        {
+          "credits": 40,
+          "price": 20
+        },
+        {
+          "credits": 60,
+          "price": 30
+        },
+        {
+          "credits": 90,
+          "price": 45
+        },
+        {
+          "credits": 100,
+          "price": 50
+        },
+        {
+          "credits": 200,
+          "price": 100
+        }
+      ]
+    },
+    "payment": {
+      "creditCard": true,
+      "billet": true,
+      "pix": true
+    }
+  },
+  "faq": [
+    {
+      "title": "O que é o Rotativo Digital Ouro Preto?",
+      "content": "O sistema de estacionamento Rotativo Digital de Ouro Preto tem como objetivo, aumentar a oferta de vagas de estacionamento nas regiões de grande concentração de comércio e lazer, oferecendo aos motoristas mais facilidade de estacionamento, contribuindo para melhorar a qualidade de vida, assim como proporcionar o aumento da fluidez do trânsito.\n\nA receita líquida obtida com o pagamento para a utilização das vagas, é revertida para projetos de melhoria do sistema viário da cidade.\n\nEm Ouro Preto a SECRETARIA MUNICIPAL DE SEGURANÇA E TRÂNSITO, através da OUROTRAN - Departamento Municipal de Trânsito de Ouro Preto é quem é o órgão responsável pela gestão e gerenciamento do ROTATIVO DIGITAL na cidade.\n\nLEGISLAÇÃO APLICÁVEL: Decreto Municipal nº. 4.893/2017; Decreto Municipal nº 3.964/2014; Lei Federal nº 10.520/2002; Lei Complementar Federal nº 123/2006 e Lei Federal nº 8.666/1993."
+    },
+    {
+      "title": "Como funciona o Rotativo Digital Ouro Preto?",
+      "content": "O sistema Rotativo Digital Ouro Preto é um sistema moderno, que tem como maior propósito proporcionar conforto, praticidade e uma série de vantagens para a população de Ouro Preto e seus visitantes.\n\nPara utilização do sistema de estacionamento Rotativo Digital Ouro Preto, o usuário deverá adquirir CRÉDITOS ELETRÔNICOS e ao estacionar seu veículo em uma das vagas identificadas como Estacionamento Rotativo, ativar seus créditos.\n\nO tempo máximo de permanência na vaga é o informado na placa de sinalização local.\n\nPara maior comodidade e conforto dos usuários, foram disponibilizadas 02 formas de aquisição dos créditos: a) CRÉDITO ELETRÔNICO AVULSO: ideal para o usuário que irá fazer a utilização pontual da vaga de estacionamento. Neste modelo o usuário compra/ativa 01 crédito sob demanda.\n\n b) CRÉDITO ELETRÔNICO PRÉ-PAGO: os usuários recorrentes, poderão adquirir quantidades maiores de CRÉDITOS ELETRÔNICOS que serão armazenados em uma conta, vinculada ao CPF de cadastro do usuário. Neste modelo o usuário poderá comprar/armazenar saldo de créditos em sua conta, podendo com comodidade ATIVÁ-LOS quando for estacionar seu veículo em uma das vagas do Rotativo Digital."
+    },
+    {
+      "title": "Valor e tempo do estacionamento",
+      "content": "O sistema Rotativo Digital Ouro Preto possui vagas exclusivas para o estacionamento de Veículos de 02 rodas (motocicletas) e veículos de 04 rodas (carros). \n\nMOTOCICLETAS\n1 HORA = R$ 1,00 (um real)\n\nCARROS\n1 HORA = R$ 2,00 (dois reais)\n2 HORAS = R$ 3,50 (três reais e cinquenta centavos)\n3 HORAS = R$ 5,00 (cinco reais)\n\nAo estacionar seu veículo (carro ou moto) o USUÁRIO deverá ATIVAR seus créditos eletrônicos de acordo com o tempo máximo informado na PLACA DE SINALIZAÇÃO."
+    },
+    {
+      "title": "Horário de funcionamento",
+      "content": "O horário de funcionamento do Sistema ZONA AZUL OURO PRETO será: \n\na) Segunda feira a Sábado - das 08:00 horas às 18:00 horas \nb) Domingos e feriados - de 08:00 horas às 13:00 horas\n\nO tempo máximo de permanência será de até 03 (três) horas, conforme regulamentação.\n\nO estacionamento será livre de segunda feira a sábado após às 18:00 horas, e aos domingos e feriados após às 13:00 horas."
+    },
+    {
+      "title": "Onde posso comprar e ativar os meus créditos?",
+      "content": "Visando maior disponibilidade, comodidade e conveniência aos USUÁRIOS, os créditos poderão ser comprados e ativados em diversos canais:\n\na) PONTOS DE VENDA CREDENCIADOS -  comércios locais credenciados como padarias, bancas de revista, farmácias, lanchonetes, lojas, etc., possuem máquinas para a venda/ativação de créditos eletrônicos avulso e/ou pré-pago.\n\nb) APLICATIVO / WEB SITE ROTATIVO DIGITAL OURO PRETO.  \n\n c).  WHATAPP ROTATIVO DIGITAL OURO PRETO – através do n° (31) 9 9835-9953"
+    },
+    {
+      "title": "Como funciona a FISCALIZAÇÃO?",
+      "content": "Os AGENTES DE TRÂNSITO da OUROTRAN e a Guarda Municipal de Ouro Preto fazem a fiscalização diária da utilização das vagas na cidade de Ouro Preto.\n\nEsta fiscalização pode ocorrer de 02 formas:\n\na). Manualmente: Através de tablets/smartphones equipados com o sistema de fiscalização Rotativo Digital os agentes de trânsito ou os guardas municipais consultam as placas de veículos estacionados nas vagas de estacionamento rotativo da cidade.\n\nb). Videomonitoramento: veículos da OUROTRAN e da Guarda Municipal estão equipados com câmeras de videomonitoramento interligados ao sistema de fiscalização Rotativo Digital. Quando em rota, as câmeras de videomonitoramento automaticamente detectam as placas de veículos estacionados, consultando se possuem créditos válidos para estacionamento. \n\nEstando o veículo estacionado sem créditos ativos ou vencidos, automaticamente é gerado a informação no sistema de fiscalização, devendo o agente de trânsito/guarda municipal proceder com a autuação do veículo.  "
+    },
+    {
+      "title": "Vagas especiais",
+      "content": "Conforme a Lei Federal 10741/03 e a Lei Federal nº 10.098 Idosos e PNE - Portadores de Necessidades Especiais, terão direito a vagas especiais de estacionamento. \n\nA utilização das vagas pelos Idosos e PNE - Portadores de Necessidades Especiais, deverá ser feito nas vagas destinadas e sinalizadas aos mesmos, devendo os mesmos utilizar a CREDENCIAL especial de estacionamento, que deverá estar exposta em local visível no painel frontal do veículo. "
+    }
+  ]
+}

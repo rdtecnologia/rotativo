@@ -85,16 +85,8 @@ class AppLogoWidget extends StatelessWidget {
   String _getCityFolder(String flavor) {
     const flavorToFolder = {
       'demo': 'Main',
-      'patosDeMinas': 'PatosDeMinas',
-      'janauba': 'Janauba',
-      'conselheiroLafaiete': 'ConselheiroLafaiete',
-      'capaoBonito': 'CapaoBonito',
-      'joaoMonlevade': 'JoaoMonlevade',
-      'itarare': 'Itarare',
-      'passos': 'Passos',
-      'ribeiraoDasNeves': 'RibeiraoDasNeves',
-      'igarape': 'Igarape',
       'ouroPreto': 'OuroPreto',
+      'vicosa': 'Vicosa',
     };
 
     return flavorToFolder[flavor] ?? 'Main';

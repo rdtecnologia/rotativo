@@ -6,16 +6,8 @@ import 'dart:io';
 class IOSFlavorFixer {
   static const Map<String, String> flavors = {
     'demo': 'Main',
-    'patosDeMinas': 'PatosDeMinas',
-    'janauba': 'Janauba',
-    'conselheiroLafaiete': 'ConselheiroLafaiete',
-    'capaoBonito': 'CapaoBonito',
-    'joaoMonlevade': 'JoaoMonlevade',
-    'itarare': 'Itarare',
-    'passos': 'Passos',
-    'ribeiraoDasNeves': 'RibeiraoDasNeves',
-    'igarape': 'Igarape',
     'ouroPreto': 'OuroPreto',
+    'vicosa': 'Vicosa',
   };
 
   static Future<void> fixIOSFlavors() async {

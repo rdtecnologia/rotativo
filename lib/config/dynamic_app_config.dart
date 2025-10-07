@@ -10,16 +10,8 @@ class DynamicAppConfig {
   /// Flavor to city directory mapping
   static const Map<String, String> flavorToCityMapping = {
     'demo': 'Main',
-    'patosDeMinas': 'PatosDeMinas',
-    'janauba': 'Janauba',
-    'conselheiroLafaiete': 'ConselheiroLafaiete',
-    'capaoBonito': 'CapaoBonito',
-    'joaoMonlevade': 'JoaoMonlevade',
-    'itarare': 'Itarare',
-    'passos': 'Passos',
-    'ribeiraoDasNeves': 'RibeiraoDasNeves',
-    'igarape': 'Igarape',
     'ouroPreto': 'OuroPreto',
+    'vicosa': 'Vicosa',
   };
 
   /// Load configuration based on current flavor
