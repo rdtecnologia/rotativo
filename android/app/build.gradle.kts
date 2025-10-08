@@ -49,51 +49,6 @@ android {
             applicationId = "com.rotativodigital"
             resValue("string", "app_name", "Rotativo")
         }
-        // create("patosDeMinas") {
-        //     dimension = "city"
-        //     applicationId = "com.rotativodigitalpatos"
-        //     resValue("string", "app_name", "Rotativo Patos")
-        // }
-        // create("janauba") {
-        //     dimension = "city"
-        //     applicationId = "com.rotativodigitaljanauba"
-        //     resValue("string", "app_name", "Rotativo Janauba")
-        // }
-        // create("conselheiroLafaiete") {
-        //     dimension = "city"
-        //     applicationId = "com.rotativodigitallafaiete"
-        //     resValue("string", "app_name", "Rotativo Lafaiete")
-        // }
-        // create("capaoBonito") {
-        //     dimension = "city"
-        //     applicationId = "com.rotativodigitalcapao"
-        //     resValue("string", "app_name", "Rotativo Capão")
-        // }
-        // create("joaoMonlevade") {
-        //     dimension = "city"
-        //     applicationId = "com.rotativodigitalmonlevade"
-        //     resValue("string", "app_name", "Rotativo Monlevade")
-        // }
-        // create("itarare") {
-        //     dimension = "city"
-        //     applicationId = "com.rotativodigitalitarare"
-        //     resValue("string", "app_name", "Rotativo Itararé")
-        // }
-        // create("passos") {
-        //     dimension = "city"
-        //     applicationId = "com.rotativodigitalpassos"
-        //     resValue("string", "app_name", "Rotativo Passos")
-        // }
-        // create("ribeiraoDasNeves") {
-        //     dimension = "city"
-        //     applicationId = "com.rotativodigitalneves"
-        //     resValue("string", "app_name", "Rotativo Neves")
-        // }
-        // create("igarape") {
-        //     dimension = "city"
-        //     applicationId = "com.rotativodigitaligarape"
-        //     resValue("string", "app_name", "Rotativo Igarape")
-        // }
         create("ouroPreto") {
             dimension = "city"
             applicationId = "com.rotativodigitalouropretord"
