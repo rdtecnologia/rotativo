@@ -65,7 +65,7 @@ void main() async {
 
   print('🎉 Otimização de proporção concluída!');
   print('\n📝 Dicas para melhor proporção:');
-  print('   • Certifique-se de que a imagem icon_tr.png tenha padding interno');
+  print('   • Certifique-se de que a imagem icon.png tenha padding interno');
   print('   • A imagem deve ter elementos centrais que não serão cortados');
   print('   • Teste em devices reais para verificar o resultado');
   print('\n🧪 Para testar:');

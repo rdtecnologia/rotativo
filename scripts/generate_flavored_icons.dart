@@ -48,12 +48,12 @@ void main() async {
 flutter_launcher_icons:
   android: true
   ios: true
-  image_path: "assets/images/icon_tr.png"
+  image_path: "assets/images/icons/icon.png"
   min_sdk_android: 21
   
   # Android - Ícone adaptativo com cor de fundo
   adaptive_icon_background: "$primaryColor"
-  adaptive_icon_foreground: "assets/images/icon_tr.png"
+  adaptive_icon_foreground: "assets/images/icons/icon.png"
   
   # Android - Padding para manter proporção
   adaptive_icon_foreground_padding: 20
@@ -68,14 +68,14 @@ flutter_launcher_icons:
   # Web
   web:
     generate: true
-    image_path: "assets/images/icon_tr.png"
+    image_path: "assets/images/icons/icon.png"
     background_color: "$primaryColor"
     theme_color: "$primaryColor"
   
   # Windows
   windows:
     generate: true
-    image_path: "assets/images/icon_tr.png"
+    image_path: "assets/images/icons/icon.png"
     icon_size: 48
 ''';
 
