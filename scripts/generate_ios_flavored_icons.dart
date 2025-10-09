@@ -29,7 +29,7 @@ void main() async {
     return;
   }
 
-  final baseIconPath = 'assets/images/icons/icon.png';
+  final baseIconPath = 'assets/images/icons/icon_ios.png';
   final baseIconFile = File(baseIconPath);
 
   if (!baseIconFile.existsSync()) {
