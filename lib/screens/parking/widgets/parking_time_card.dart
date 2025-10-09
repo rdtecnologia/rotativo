@@ -5,6 +5,7 @@ class ParkingTimeCard extends StatelessWidget {
   final int time;
   final int credits;
   final double price;
+  final String area;
   final bool isSelected;
   final VoidCallback onTap;
   final double? availableCredits;
@@ -14,6 +15,7 @@ class ParkingTimeCard extends StatelessWidget {
     required this.time,
     required this.credits,
     required this.price,
+    required this.area,
     required this.isSelected,
     required this.onTap,
     this.availableCredits,
@@ -46,7 +48,7 @@ class ParkingTimeCard extends StatelessWidget {
             ? BorderSide(color: Theme.of(context).primaryColor, width: 2)
             : !hasEnoughCredits
                 ? BorderSide(color: Colors.grey.shade100, width: 2)
-                : BorderSide.none,
+                : BorderSide(color: Colors.grey.shade300, width: 1),
       ),
       color: !hasEnoughCredits ? Colors.grey[100] : null,
       child: InkWell(
@@ -117,30 +119,27 @@ class ParkingTimeCard extends StatelessWidget {
                     Row(
                       children: [
                         Icon(
-                          Icons.confirmation_number,
-                          color: !hasEnoughCredits
-                              ? Colors.grey.shade500
-                              : Colors.grey[600],
+                          Icons.map,
+                          color: isSelected
+                              ? Theme.of(context).primaryColor
+                              : !hasEnoughCredits
+                                  ? Colors.grey.shade500
+                                  : Colors.grey[600],
                           size: 16,
                         ),
                         const SizedBox(width: 8),
                         Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                '$credits créditos',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: hasEnoughCredits
-                                      ? Colors.grey[600]
-                                      : Colors.grey.shade500,
-                                  fontWeight: hasEnoughCredits
-                                      ? FontWeight.normal
-                                      : FontWeight.bold,
-                                ),
-                              ),
-                            ],
+                          child: Text(
+                            area,
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: isSelected
+                                  ? Theme.of(context).primaryColor
+                                  : !hasEnoughCredits
+                                      ? Colors.grey.shade500
+                                      : Theme.of(context).primaryColor,
+                            ),
                           ),
                         ),
                       ],

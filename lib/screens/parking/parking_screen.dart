@@ -415,6 +415,7 @@ class _ParkingScreenState extends ConsumerState<ParkingScreen> {
                               final credits = rule['credits'] as int? ?? 0;
                               final price =
                                   (rule['price'] as num?)?.toDouble() ?? 0.0;
+                              final area = rule['area'] as String? ?? '';
 
                               return Padding(
                                 padding: const EdgeInsets.only(bottom: 12),
@@ -426,6 +427,7 @@ class _ParkingScreenState extends ConsumerState<ParkingScreen> {
                                       time: time,
                                       credits: credits,
                                       price: price,
+                                      area: area,
                                       isSelected: selectedTime == time,
                                       availableCredits: currentBalance?.credits,
                                       onTap: () {

@@ -173,11 +173,13 @@ class ParkingRule {
   final int time; // minutes
   final double price;
   final int credits;
+  final String area;
 
   ParkingRule({
     required this.time,
     required this.price,
     required this.credits,
+    required this.area,
   });
 
   factory ParkingRule.fromJson(Map<String, dynamic> json) {
@@ -185,6 +187,7 @@ class ParkingRule {
       time: json['time'] ?? 0,
       price: (json['price'] ?? 0).toDouble(),
       credits: json['credits'] ?? 0,
+      area: json['area'] ?? '',
     );
   }
 

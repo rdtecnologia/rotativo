@@ -27,34 +27,40 @@
       {
         "time": 60,
         "price": 2,
-        "credits": 1
+        "credits": 1,
+        "area": "Setor A"
       },
       {
         "time": 120,
         "price": 4,
-        "credits": 2
+        "credits": 2,
+        "area": "Setor B"
       },
       {
         "time": 240,
         "price": 6,
-        "credits": 3
+        "credits": 3,
+        "area": "Setor C"
       }
     ],
     "2": [
       {
         "time": 60,
         "price": 1,
-        "credits": 1
+        "credits": 1,
+        "area": "Setor D"
       },
       {
         "time": 120,
         "price": 2,
-        "credits": 2
+        "credits": 2,
+        "area": "Setor E"
       },
       {
         "time": 240,
         "price": 3,
-        "credits": 3
+        "credits": 3,
+        "area": "Setor F"
       }
     ]
   },
@@ -70,45 +76,37 @@
       "1": [
         {
           "credits": 5,
-          "price": 10,
-          "area": "Setor A"
+          "price": 10
         },
         {
           "credits": 10,
-          "price": 20,
-          "area": "Setor B"
+          "price": 20
         },
         {
           "credits": 15,
-          "price": 30,
-          "area": "Setor C"
+          "price": 30
         },
         {
           "credits": 25,
-          "price": 50,
-          "area": "Setor D"
+          "price": 50
         }
       ],
       "2": [
         {
           "credits": 10,
-          "price": 10,
-          "area": "Setor E"
+          "price": 10
         },
         {
           "credits": 15,
-          "price": 15,
-          "area": "Setor F"
+          "price": 15
         },
         {
           "credits": 20,
-          "price": 20,
-          "area": "Setor G"
+          "price": 20
         },
         {
           "credits": 25,
-          "price": 25,
-          "area": "Setor H"
+          "price": 25
         }
       ]
     },
