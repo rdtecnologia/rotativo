@@ -175,7 +175,7 @@ class _ChooseValueScreenState extends ConsumerState<ChooseValueScreen> {
                 ...carRules.map((rule) => Padding(
                       padding: const EdgeInsets.only(bottom: 4),
                       child: Text(
-                        '${rule.formattedTime} = R\$ ${AppFormatters.formatCurrency(rule.price)} (${rule.credits} créditos)',
+                        '${rule.formattedTime} = R\$ ${AppFormatters.formatCurrency(rule.price)} - ${rule.area}',
                         style: TextStyle(
                           fontSize: 12,
                           color: Colors.blue.shade700,
@@ -205,7 +205,7 @@ class _ChooseValueScreenState extends ConsumerState<ChooseValueScreen> {
                 ...motorcycleRules.map((rule) => Padding(
                       padding: const EdgeInsets.only(bottom: 4),
                       child: Text(
-                        '${rule.formattedTime} = R\$ ${AppFormatters.formatCurrency(rule.price)} (${rule.credits} créditos)',
+                        '${rule.formattedTime} = R\$ ${AppFormatters.formatCurrency(rule.price)} - ${rule.area}',
                         style: TextStyle(
                           fontSize: 12,
                           color: Colors.blue.shade700,
@@ -230,6 +230,10 @@ class _ChooseValueScreenState extends ConsumerState<ChooseValueScreen> {
       elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(8),
+        side: BorderSide(
+          color: Colors.grey.shade300,
+          width: 1,
+        ),
       ),
       child: InkWell(
         borderRadius: BorderRadius.circular(8),

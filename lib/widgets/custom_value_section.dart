@@ -54,7 +54,7 @@ class _CustomValueSectionState extends ConsumerState<CustomValueSection> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Digite um valor personalizado para compra (apenas valores inteiros, máximo R\$ 100,00)',
+            'Máximo R\$ 100,00',
             style: TextStyle(
               fontSize: 14,
               color: Colors.green.shade700,

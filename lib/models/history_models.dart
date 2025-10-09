@@ -60,6 +60,7 @@ class ActivationHistory {
   final String status;
   final String? location;
   final int? vehicleType;
+  final String? area;
 
   ActivationHistory({
     required this.id,
@@ -70,6 +71,7 @@ class ActivationHistory {
     required this.status,
     this.location,
     this.vehicleType,
+    this.area,
   });
 
   /// Determina o tipo de veículo baseado na placa (1 = carro, 2 = moto)
@@ -199,6 +201,7 @@ class ActivationHistory {
         location: json['location']?.toString(),
         vehicleType:
             json['vehicleType']?.toInt() ?? json['vehicle_type']?.toInt(),
+        area: json['area']?.toString(),
       );
     } catch (e) {
       throw Exception(
@@ -216,6 +219,7 @@ class ActivationHistory {
       'status': status,
       'location': location,
       'vehicleType': vehicleType,
+      'area': area,
     };
   }
 }
