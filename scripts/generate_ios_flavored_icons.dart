@@ -153,6 +153,60 @@ void main() async {
           "size": "60x60"
         },
         {
+          "filename": "Icon-App-20x20@1x.png",
+          "idiom": "ipad",
+          "scale": "1x",
+          "size": "20x20"
+        },
+        {
+          "filename": "Icon-App-20x20@2x.png",
+          "idiom": "ipad",
+          "scale": "2x",
+          "size": "20x20"
+        },
+        {
+          "filename": "Icon-App-29x29@1x.png",
+          "idiom": "ipad",
+          "scale": "1x",
+          "size": "29x29"
+        },
+        {
+          "filename": "Icon-App-29x29@2x.png",
+          "idiom": "ipad",
+          "scale": "2x",
+          "size": "29x29"
+        },
+        {
+          "filename": "Icon-App-40x40@1x.png",
+          "idiom": "ipad",
+          "scale": "1x",
+          "size": "40x40"
+        },
+        {
+          "filename": "Icon-App-40x40@2x.png",
+          "idiom": "ipad",
+          "scale": "2x",
+          "size": "40x40"
+        },
+        {
+          "filename": "Icon-App-76x76@1x.png",
+          "idiom": "ipad",
+          "scale": "1x",
+          "size": "76x76"
+        },
+        {
+          "filename": "Icon-App-76x76@2x.png",
+          "idiom": "ipad",
+          "scale": "2x",
+          "size": "76x76"
+        },
+        {
+          "filename": "Icon-App-83.5x83.5@2x.png",
+          "idiom": "ipad",
+          "scale": "2x",
+          "size": "83.5x83.5"
+        },
+        {
           "filename": "Icon-App-1024x1024@1x.png",
           "idiom": "ios-marketing",
           "scale": "1x",
@@ -172,6 +226,7 @@ void main() async {
         'scale': '@1x',
         'filename': 'Icon-App-1024x1024@1x.png'
       },
+      // iPhone icons
       {'size': '60x60', 'scale': '@2x', 'filename': 'Icon-App-60x60@2x.png'},
       {'size': '60x60', 'scale': '@3x', 'filename': 'Icon-App-60x60@3x.png'},
       {'size': '40x40', 'scale': '@2x', 'filename': 'Icon-App-40x40@2x.png'},
@@ -180,6 +235,17 @@ void main() async {
       {'size': '29x29', 'scale': '@3x', 'filename': 'Icon-App-29x29@3x.png'},
       {'size': '20x20', 'scale': '@2x', 'filename': 'Icon-App-20x20@2x.png'},
       {'size': '20x20', 'scale': '@3x', 'filename': 'Icon-App-20x20@3x.png'},
+      // iPad icons
+      {'size': '20x20', 'scale': '@1x', 'filename': 'Icon-App-20x20@1x.png'},
+      {'size': '29x29', 'scale': '@1x', 'filename': 'Icon-App-29x29@1x.png'},
+      {'size': '40x40', 'scale': '@1x', 'filename': 'Icon-App-40x40@1x.png'},
+      {'size': '76x76', 'scale': '@1x', 'filename': 'Icon-App-76x76@1x.png'},
+      {'size': '76x76', 'scale': '@2x', 'filename': 'Icon-App-76x76@2x.png'},
+      {
+        'size': '83.5x83.5',
+        'scale': '@2x',
+        'filename': 'Icon-App-83.5x83.5@2x.png'
+      },
     ];
 
     print('   🔄 Gerando todos os tamanhos de ícones iOS...');
@@ -192,14 +258,14 @@ void main() async {
 
       // Calcula o tamanho real baseado na escala
       final sizeParts = size.split('x');
-      final width = int.parse(sizeParts[0]);
-      final height = int.parse(sizeParts[1]);
+      final width = double.parse(sizeParts[0]);
+      final height = double.parse(sizeParts[1]);
 
       final scale = iconSize['scale'] as String;
       final scaleMultiplier = scale == '@2x' ? 2 : (scale == '@3x' ? 3 : 1);
 
-      final realWidth = width * scaleMultiplier;
-      final realHeight = height * scaleMultiplier;
+      final realWidth = (width * scaleMultiplier).round();
+      final realHeight = (height * scaleMultiplier).round();
 
       // Redimensiona o ícone composto para o tamanho necessário
       final resizeResult = await Process.run('magick',
