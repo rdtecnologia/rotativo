@@ -30,19 +30,22 @@
       {
         "time": 60,
         "price": 2.5,
-        "credits": 5
+        "credits": 5,
+        "area": "Setor A"
       },
       {
         "time": 120,
         "price": 5.0,
-        "credits": 10
+        "credits": 10,
+        "area": "Setor B"
       }
     ],
     "2": [
       {
         "time": 120,
         "price": 1.5,
-        "credits": 3
+        "credits": 3,
+        "area": "Setor C"
       }
     ]
   },

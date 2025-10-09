@@ -76,31 +76,6 @@ class BalanceCard extends StatelessWidget {
                   color: Colors.green.shade700,
                 ),
               ),
-              const SizedBox(height: 6), // Reduzido de 8 para 6
-              // Credits (bottom, compact)
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    balance?.credits.toStringAsFixed(0) ?? '0',
-                    style: TextStyle(
-                      fontSize: 14, // Reduzido de 16 para 16
-                      fontWeight: FontWeight.bold,
-                      color: Theme.of(context).primaryColor,
-                    ),
-                  ),
-                  const SizedBox(width: 3), // Reduzido de 4 para 3
-                  Text(
-                    'créditos',
-                    style: TextStyle(
-                      fontSize: 9, // Reduzido de 10 para 9
-                      fontWeight: FontWeight.w600,
-                      color: tColor,
-                      letterSpacing: 0.3, // Reduzido de 0.5 para 0.3
-                    ),
-                  ),
-                ],
-              ),
             ],
           ],
         ),

@@ -8,8 +8,14 @@
   "termsLink": "http://www.rotativodigital.com.br/wp-content/uploads/2019/10/termos-de-uso-monlevade.pdf",
   "androidPackage": "com.rotativodigital",
   "iosPackage": "com.rotativodigital",
-  "products": [7, 8],
-  "vehicleTypes": [1, 2],
+  "products": [
+    7,
+    8
+  ],
+  "vehicleTypes": [
+    1,
+    2
+  ],
   "mainLogo": "",
   "logoMenu": "",
   "balance": {
@@ -18,14 +24,38 @@
   },
   "parkingRules": {
     "1": [
-      {"time": 60, "price": 2, "credits": 1},
-      {"time": 120, "price": 4, "credits": 2},
-      {"time": 240, "price": 6, "credits": 3}
+      {
+        "time": 60,
+        "price": 2,
+        "credits": 1
+      },
+      {
+        "time": 120,
+        "price": 4,
+        "credits": 2
+      },
+      {
+        "time": 240,
+        "price": 6,
+        "credits": 3
+      }
     ],
     "2": [
-      {"time": 60, "price": 1, "credits": 1},
-      {"time": 120, "price": 2, "credits": 2},
-      {"time": 240, "price": 3, "credits": 3}
+      {
+        "time": 60,
+        "price": 1,
+        "credits": 1
+      },
+      {
+        "time": 120,
+        "price": 2,
+        "credits": 2
+      },
+      {
+        "time": 240,
+        "price": 3,
+        "credits": 3
+      }
     ]
   },
   "purchase": {
@@ -40,37 +70,45 @@
       "1": [
         {
           "credits": 5,
-          "price": 10
+          "price": 10,
+          "area": "Setor A"
         },
         {
           "credits": 10,
-          "price": 20
+          "price": 20,
+          "area": "Setor B"
         },
         {
           "credits": 15,
-          "price": 30
+          "price": 30,
+          "area": "Setor C"
         },
         {
           "credits": 25,
-          "price": 50
+          "price": 50,
+          "area": "Setor D"
         }
       ],
       "2": [
         {
           "credits": 10,
-          "price": 10
+          "price": 10,
+          "area": "Setor E"
         },
         {
           "credits": 15,
-          "price": 15
+          "price": 15,
+          "area": "Setor F"
         },
         {
           "credits": 20,
-          "price": 20
+          "price": 20,
+          "area": "Setor G"
         },
         {
           "credits": 25,
-          "price": 25
+          "price": 25,
+          "area": "Setor H"
         }
       ]
     },
