@@ -32,10 +32,10 @@ void main() async {
         ]),
     '5. Organizando ícones Android por flavor': () =>
         _runDart('scripts/organize_flavor_icons.dart'),
-    '6. Criando AppIcons iOS básicos': () =>
+    '6. Criando ícones iOS com cores específicas (NOVO)': () =>
+        _runDart('scripts/create_ios_flavored_icons_direct.dart'),
+    '7. Criando AppIcons iOS básicos (fallback)': () =>
         _runDart('scripts/organize_ios_flavor_icons.dart'),
-    '7. Gerando AppIcons para todos os flavors iOS': () =>
-        _runDart('scripts/generate_all_flavor_appicons.dart'),
     '8. Atualizando configurações do Xcode': () =>
         _runPython('scripts/update_ios_appicons.py'),
     '9. Adicionando PreActions aos schemes iOS': () =>
