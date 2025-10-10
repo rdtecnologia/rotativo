@@ -8,7 +8,14 @@
         // 🏙️ FLAVORS POR CIDADE - ANDROID
         // ==========================================
         {
-            "name": "🏛️ Demo - Android Debug",
+            "name": "────────── DEBUG FLAVORS ──────────",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main.dart",
+            "args": []
+        },
+        {
+            "name": "🚀 🏛️ Demo - Android Debug ",
             "request": "launch",
             "type": "dart",
             "flutterMode": "debug",
@@ -24,7 +31,7 @@
             ]
         },
         {
-            "name": "💰 Ouro Preto - Debug",
+            "name": "🚀 💰 Ouro Preto - Debug",
             "request": "launch",
             "type": "dart",
             "flutterMode": "debug",
@@ -41,7 +48,7 @@
             ]
         },
         {
-            "name": "💰 Viçosa - Debug",
+            "name": "🚀 🏛️ Viçosa - Debug",
             "request": "launch",
             "type": "dart",
             "flutterMode": "debug",
@@ -58,72 +65,72 @@
             ]
         },
         // ==========================================
-        // 📱 FLAVORS POR CIDADE - RELEASE ANDROID
+        // 📱 FLAVORS POR CIDADE - RELEASE OURO PRETO
         // ==========================================
         {
-            "name": "🏛️ Demo - Android Release",
+            "name": "────────── RELEASE OURO PRETO ───────",
             "request": "launch",
             "type": "dart",
+            "program": "lib/main.dart",
+            "args": []
+        },
+        {
+            "name": "💰 APK Ouro Preto - Android Release",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main.dart",
             "flutterMode": "release",
-            "args": [
-                "--flavor",
-                "demo",
-                "--dart-define-from-file",
-                "env/demo.json",
-                "--target",
-                "lib/main.dart"
-            ]
+            "preLaunchTask": "Build Ouro Preto APK"
         },
         {
-            "name": "💰 Ouro Preto - Android Release",
+            "name": "💰 AAB Ouro Preto - Android Release",
             "request": "launch",
             "type": "dart",
+            "program": "lib/main.dart",
             "flutterMode": "release",
-            "args": [
-                "--flavor",
-                "ouroPreto",
-                "--dart-define-from-file",
-                "env/ouroPreto.json",
-                "--target",
-                "lib/main.dart"
-            ]
+            "preLaunchTask": "Build Ouro Preto AAB"
         },
-        // ==========================================
-        // 🔧 CONFIGURAÇÕES AVANÇADAS
-        // ==========================================
         {
-            "name": "🔧 Custom Device",
+            "name": "👔 IPA Ouro Preto - IOS Release",
             "request": "launch",
             "type": "dart",
-            "flutterMode": "debug",
-            "deviceId": "${input:deviceId}",
-            "args": [
-                "--flavor",
-                "${input:flavorName}",
-                "--dart-define-from-file",
-                "env/${input:flavorName}.json",
-                "--target",
-                "lib/main.dart"
-            ]
-        }
-    ],
-    "inputs": [
+            "program": "lib/main.dart",
+            "flutterMode": "release",
+            "preLaunchTask": "Build Ouro Preto IPA"
+        },
+        // ==========================================
+        // 📱 FLAVORS POR CIDADE - RELEASE VIÇOSA
+        // ==========================================
         {
-            "id": "deviceId",
-            "description": "Device ID",
-            "default": "emulator-5554",
-            "type": "promptString"
+            "name": "────────── RELEASE VIÇOSA ──────────",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main.dart",
+            "args": []
         },
         {
-            "id": "flavorName",
-            "description": "Flavor Name",
-            "default": "demo",
-            "type": "pickString",
-            "options": [
-                "demo",
-                "ouroPreto",
-                "vicosa"
-            ]
+            "name": "💰 APK Viçosa - Android Release",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main.dart",
+            "flutterMode": "release",
+            "preLaunchTask": "Build Ouro Preto APK"
+        },
+        {
+            "name": "💰 AAB Viçosa - Android Release",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main.dart",
+            "flutterMode": "release",
+            "preLaunchTask": "Build Ouro Preto AAB"
+        },
+        {
+            "name": "👔 IPA Viçosa - IOS Release",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main.dart",
+            "flutterMode": "release",
+            "preLaunchTask": "Build Ouro Preto IPA"
         }
     ]
 }
