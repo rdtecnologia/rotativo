@@ -24,10 +24,10 @@ class LocalNotificationService {
   /// Inicializa o serviço de notificações
   Future<void> initialize() async {
     try {
-      debugPrint('🔧 Inicializando serviço de notificações...');
+      print('🔧 [RELEASE] Inicializando serviço de notificações...');
 
       // Inicializa timezone
-      debugPrint('🌍 Inicializando timezone...');
+      print('🌍 [RELEASE] Inicializando timezone...');
       tz.initializeTimeZones();
 
       // Aguarda um momento para garantir que o banco de dados seja carregado
@@ -37,19 +37,21 @@ class LocalNotificationService {
       try {
         final location = tz.getLocation('America/Sao_Paulo');
         tz.setLocalLocation(location);
-        debugPrint('🌍 Timezone definido: America/Sao_Paulo');
-        debugPrint('🌍 Local timezone: ${tz.local}');
+        print('🌍 [RELEASE] Timezone definido: America/Sao_Paulo');
+        print('🌍 [RELEASE] Local timezone: ${tz.local}');
       } catch (e) {
-        debugPrint('⚠️ Erro ao definir timezone America/Sao_Paulo: $e');
-        debugPrint('🌍 Usando timezone UTC como fallback...');
+        print('⚠️ [RELEASE] Erro ao definir timezone America/Sao_Paulo: $e');
+        print('🌍 [RELEASE] Usando timezone UTC como fallback...');
         tz.setLocalLocation(tz.UTC);
       }
 
-      debugPrint('🌍 Timezone inicializado com sucesso');
+      print('🌍 [RELEASE] Timezone inicializado com sucesso');
 
       // Configuração para Android
       const androidSettings =
           AndroidInitializationSettings('@mipmap/ic_launcher');
+
+      print('🤖 [RELEASE] Configuração Android: @mipmap/ic_launcher');
 
       // Configuração para iOS
       const iosSettings = DarwinInitializationSettings(
@@ -76,13 +78,17 @@ class LocalNotificationService {
         onDidReceiveNotificationResponse: _onNotificationTapped,
       );
 
+      print('🔧 [RELEASE] Plugin de notificações inicializado');
+
       // Solicita permissões
       await _requestPermissions();
 
       _isInitialized = true;
-      debugPrint('🔔 Serviço de notificações inicializado com sucesso');
+      print('🔔 [RELEASE] Serviço de notificações inicializado com sucesso');
     } catch (e) {
-      debugPrint('❌ Erro ao inicializar serviço de notificações: $e');
+      print(
+          '❌ [RELEASE] ERRO CRÍTICO ao inicializar serviço de notificações: $e');
+      print('❌ [RELEASE] Stack trace: ${StackTrace.current}');
       rethrow;
     }
   }
@@ -325,7 +331,7 @@ class LocalNotificationService {
             importance: Importance.max,
             priority: Priority.max,
             color: Colors.orange,
-            icon: 'ic_notification',
+            icon: '@mipmap/ic_launcher',
             // Configurações específicas para garantir som e vibração
             enableVibration: vibrationEnabled ?? true,
             enableLights: lightsEnabled ?? true,
@@ -386,7 +392,7 @@ class LocalNotificationService {
                   importance: Importance.max,
                   priority: Priority.max,
                   color: Colors.orange,
-                  icon: 'ic_notification',
+                  icon: '@mipmap/ic_launcher',
                   enableVibration: vibrationEnabled ?? true,
                   enableLights: lightsEnabled ?? true,
                   playSound: soundEnabled ?? true,
@@ -540,13 +546,16 @@ class LocalNotificationService {
     bool? vibrationEnabled,
     bool? lightsEnabled,
   }) async {
+    print('🔔 [RELEASE] Iniciando notificação imediata: $title');
+
     // Garante que o serviço está inicializado
     await _ensureInitialized();
 
     try {
       // ✅ Verificação específica para iOS
       if (Platform.isIOS) {
-        debugPrint('🍎 iOS detectado - Configurando notificações específicas');
+        print(
+            '🍎 [RELEASE] iOS detectado - Configurando notificações específicas');
 
         // Para iOS, vamos usar configurações mais simples
         await _notifications.show(
@@ -569,18 +578,16 @@ class LocalNotificationService {
           payload: payload,
         );
 
-        debugPrint('🍎 Notificação iOS enviada com sucesso');
+        print('🍎 [RELEASE] Notificação iOS enviada com sucesso');
 
         // ✅ Para emulador iOS, vamos aguardar um pouco e verificar se apareceu
         await Future.delayed(const Duration(seconds: 2));
 
-        // ✅ Se estiver no emulador, vamos mostrar um log adicional
-        if (kDebugMode) {
-          debugPrint(
-              '🍎 Emulador iOS detectado - Verifique o Centro de Notificações');
-          debugPrint(
-              '🍎 Dica: Puxe para baixo no topo da tela para ver notificações');
-        }
+        // ✅ Log adicional para iOS (funciona em debug e release)
+        print(
+            '🍎 [RELEASE] Notificação iOS processada - Verifique o Centro de Notificações');
+        print(
+            '🍎 [RELEASE] Dica: Puxe para baixo no topo da tela para ver notificações');
 
         return;
       }
@@ -595,10 +602,10 @@ class LocalNotificationService {
         lightsEnabled: lightsEnabled ?? true,
       );
 
-      debugPrint('🔔 Enviando notificação imediata:');
-      debugPrint('  - Som: $soundEnabled');
-      debugPrint('  - Vibração: $vibrationEnabled');
-      debugPrint('  - Luzes: $lightsEnabled');
+      print('🔔 [RELEASE] Enviando notificação Android imediata:');
+      print('  - Som: $soundEnabled');
+      print('  - Vibração: $vibrationEnabled');
+      print('  - Luzes: $lightsEnabled');
 
       await _notifications.show(
         DateTime.now().millisecondsSinceEpoch ~/ 1000,
@@ -612,7 +619,7 @@ class LocalNotificationService {
             importance: Importance.max, // ✅ Importância máxima
             priority: Priority.max, // ✅ Prioridade máxima
             // Configura ícone explícito para evitar NullPointerException
-            icon: 'ic_notification',
+            icon: '@mipmap/ic_launcher',
             // ✅ Configurações específicas da notificação
             enableVibration: vibrationEnabled ?? true,
             enableLights: lightsEnabled ?? true,
@@ -633,9 +640,16 @@ class LocalNotificationService {
         payload: payload,
       );
 
-      debugPrint('🔔 Notificação imediata enviada com sucesso');
+      print('🔔 [RELEASE] Notificação imediata enviada com sucesso');
+
+      // Verificar se a notificação foi realmente processada
+      final pendingNotifications =
+          await _notifications.pendingNotificationRequests();
+      print(
+          '📊 [RELEASE] Total de notificações pendentes após envio: ${pendingNotifications.length}');
     } catch (e) {
-      debugPrint('❌ Erro ao enviar notificação imediata: $e');
+      print('❌ [RELEASE] ERRO CRÍTICO ao enviar notificação imediata: $e');
+      print('❌ [RELEASE] Stack trace: ${StackTrace.current}');
     }
   }
 
@@ -816,7 +830,7 @@ class LocalNotificationService {
             channelDescription: 'Notificações de teste',
             importance: Importance.max,
             priority: Priority.max,
-            icon: 'ic_notification',
+            icon: '@mipmap/ic_launcher',
             // ✅ Configurações específicas para garantir som e vibração
             enableVibration: vibrationEnabled ?? true,
             enableLights: lightsEnabled ?? true,
@@ -1020,7 +1034,7 @@ class LocalNotificationService {
             channelDescription: 'Notificações de teste para Android',
             importance: Importance.max,
             priority: Priority.max,
-            icon: 'ic_notification',
+            icon: '@mipmap/ic_launcher',
             enableVibration: true,
             enableLights: true,
             playSound: true,
@@ -1085,7 +1099,7 @@ class LocalNotificationService {
             channelDescription: 'Teste de notificação agendada para Android',
             importance: Importance.max,
             priority: Priority.max,
-            icon: 'ic_notification',
+            icon: '@mipmap/ic_launcher',
             enableVibration: true,
             enableLights: true,
             playSound: true,
@@ -1290,7 +1304,7 @@ class LocalNotificationService {
             channelDescription: 'Notificações de teste para longo prazo',
             importance: Importance.max,
             priority: Priority.max,
-            icon: 'ic_notification',
+            icon: '@mipmap/ic_launcher',
             enableVibration: true,
             enableLights: true,
             playSound: true,
@@ -1382,7 +1396,7 @@ class LocalNotificationService {
             channelDescription: 'Teste comparativo curto prazo',
             importance: Importance.max,
             priority: Priority.max,
-            icon: 'ic_notification',
+            icon: '@mipmap/ic_launcher',
             enableVibration: true,
             enableLights: true,
             playSound: true,
@@ -1426,7 +1440,7 @@ class LocalNotificationService {
             channelDescription: 'Teste comparativo longo prazo',
             importance: Importance.max,
             priority: Priority.max,
-            icon: 'ic_notification',
+            icon: '@mipmap/ic_launcher',
             enableVibration: true,
             enableLights: true,
             playSound: true,
@@ -1505,7 +1519,7 @@ class LocalNotificationService {
             channelDescription: 'Notificações de teste simples',
             importance: Importance.max,
             priority: Priority.max,
-            icon: 'ic_notification',
+            icon: '@mipmap/ic_launcher',
             enableVibration: true,
             enableLights: true,
             playSound: true,
@@ -1618,7 +1632,7 @@ class LocalNotificationService {
             channelDescription: 'Notificações que aparecem imediatamente',
             importance: Importance.max,
             priority: Priority.max,
-            icon: 'ic_notification',
+            icon: '@mipmap/ic_launcher',
             enableVibration: vibrationEnabled,
             enableLights: lightsEnabled,
             playSound: soundEnabled,
@@ -1708,7 +1722,7 @@ class LocalNotificationService {
                 channelDescription: 'Notificações que aparecem imediatamente',
                 importance: Importance.max,
                 priority: Priority.max,
-                icon: 'ic_notification',
+                icon: '@mipmap/ic_launcher',
                 enableVibration: true,
                 enableLights: true,
                 playSound: true,
@@ -1793,7 +1807,7 @@ class LocalNotificationService {
             channelDescription: 'Notificações que aparecem imediatamente',
             importance: Importance.max,
             priority: Priority.max,
-            icon: 'ic_notification',
+            icon: '@mipmap/ic_launcher',
             enableVibration: vibrationEnabled,
             enableLights: lightsEnabled,
             playSound: soundEnabled,
@@ -1905,7 +1919,7 @@ class LocalNotificationService {
             channelDescription: 'Notificações que aparecem imediatamente',
             importance: Importance.max,
             priority: Priority.max,
-            icon: 'ic_notification',
+            icon: '@mipmap/ic_launcher',
             enableVibration: true,
             enableLights: true,
             playSound: true,
@@ -1949,7 +1963,7 @@ class LocalNotificationService {
                 channelDescription: 'Notificações que aparecem imediatamente',
                 importance: Importance.max,
                 priority: Priority.max,
-                icon: 'ic_notification',
+                icon: '@mipmap/ic_launcher',
                 enableVibration: true,
                 enableLights: true,
                 playSound: true,
@@ -2090,7 +2104,7 @@ class LocalNotificationService {
             channelDescription: 'Canal para teste forçado no Android',
             importance: Importance.max,
             priority: Priority.max,
-            icon: 'ic_notification',
+            icon: '@mipmap/ic_launcher',
             enableVibration: vibrationEnabled,
             enableLights: lightsEnabled,
             playSound: soundEnabled,

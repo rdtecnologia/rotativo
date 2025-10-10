@@ -17,6 +17,7 @@ import 'providers/environment_provider.dart';
 // Services
 import 'services/notification_service.dart';
 import 'services/parking_notification_service.dart';
+import 'services/local_notification_service.dart';
 
 // Screens
 import 'screens/splash_screen.dart';
@@ -25,12 +26,24 @@ import 'screens/home/home_screen.dart';
 import 'screens/cards/cards_screen.dart';
 import 'screens/settings/biometric_settings_screen.dart';
 
-void main() {
+void main() async {
+  // Ensure Flutter binding is initialized
+  WidgetsFlutterBinding.ensureInitialized();
+
   // Configurar tratamento de erros para eventos de ponteiro
   _configureErrorHandling();
 
   // Initialize app environment configuration
   _initializeApp();
+
+  // Initialize notification service early
+  try {
+    print('🚀 [RELEASE] Inicializando notificações no startup...');
+    await LocalNotificationService().initialize();
+    print('🚀 [RELEASE] Notificações inicializadas com sucesso no startup');
+  } catch (e) {
+    print('🚀 [RELEASE] ERRO ao inicializar notificações no startup: $e');
+  }
 
   runApp(const ProviderScope(child: RotativoApp()));
 }
@@ -59,7 +72,7 @@ void _configureErrorHandling() {
 /// Change Environment.setEnvironment('dev') to switch to development
 void _initializeApp() {
   // 🔧 CONFIGURE ENVIRONMENT HERE:
-  Environment.setEnvironment('dev'); // Use development APIs (default)
+  Environment.setEnvironment('prod'); // Use development APIs (default)
   //Environment.setEnvironment('prod'); // Use production APIs
 
   // Print current configuration for debugging
