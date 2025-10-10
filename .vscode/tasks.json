@@ -6,6 +6,9 @@
             "type": "shell",
             "command": "flutter clean"
         },
+        // ==========================================
+        // 📱 FLAVORS POR CIDADE - BUILD OURO PRETO
+        // ==========================================
         {
             "label": "Build APK Ouro Preto",
             "type": "shell",
@@ -49,6 +52,56 @@
             "dependsOn": [
                 "Limpar build",
                 "Build IPA Ouro Preto"
+                //"📦 Renomear APK Ouro Preto"
+            ],
+            "dependsOrder": "sequence"
+        },
+        // ==========================================
+        // 📱 FLAVORS POR CIDADE - BUILD VIÇOSA
+        // ==========================================
+        {
+            "label": "Build APK Viçosa",
+            "type": "shell",
+            "command": "flutter build apk --release --flavor vicosa --dart-define-from-file=env/vicosa.json --target=lib/main.dart"
+        },
+        {
+            "label": "Build AAB Viçosa",
+            "type": "shell",
+            "command": "flutter build appbundle --release --flavor vicosa --dart-define-from-file=env/vicosa.json --target=lib/main.dart"
+        },
+        {
+            "label": "Build IPA Viçosa",
+            "type": "shell",
+            "command": "flutter build ipa --flavor vicosa  -t lib/main.dart --dart-define-from-file=env/vicosa.json —release"
+        },
+        {
+            "label": "Renomear APK Viçosa",
+            "type": "shell",
+            "command": "mv build/app/outputs/flutter-apk/app-vicosa-release.apk build/app/outputs/flutter-apk/meu_app_vicosa_v1.0.0.apk"
+        },
+        {
+            "label": "Build Viçosa APK",
+            "dependsOn": [
+                "Limpar build",
+                "Build APK Viçosa"
+                //"📦 Renomear APK Ouro Preto"
+            ],
+            "dependsOrder": "sequence"
+        },
+        {
+            "label": "Build Viçosa AAB",
+            "dependsOn": [
+                "Limpar build",
+                "Build AAB Viçosa"
+                //"📦 Renomear APK Ouro Preto"
+            ],
+            "dependsOrder": "sequence"
+        },
+        {
+            "label": "Build Viçosa IPA",
+            "dependsOn": [
+                "Limpar build",
+                "Build IPA Viçosa"
                 //"📦 Renomear APK Ouro Preto"
             ],
             "dependsOrder": "sequence"
