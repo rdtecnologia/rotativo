@@ -9,6 +9,7 @@ class ParkingTimeCard extends StatelessWidget {
   final bool isSelected;
   final VoidCallback onTap;
   final double? availableCredits;
+  final String? color;
 
   const ParkingTimeCard({
     super.key,
@@ -19,6 +20,7 @@ class ParkingTimeCard extends StatelessWidget {
     required this.isSelected,
     required this.onTap,
     this.availableCredits,
+    this.color,
   });
 
   String _formatTime(int minutes) {
@@ -32,6 +34,21 @@ class ParkingTimeCard extends StatelessWidget {
       } else {
         return '${hours}h ${remainingMinutes}min';
       }
+    }
+  }
+
+  Color _parseColor(String? colorString) {
+    if (colorString == null || colorString.isEmpty) {
+      return Colors.black;
+    }
+
+    try {
+      // Remove # if present and add alpha channel
+      final hexString = colorString.replaceFirst('#', '');
+      final colorValue = int.parse(hexString, radix: 16) + 0xFF000000;
+      return Color(colorValue);
+    } catch (e) {
+      return Colors.black;
     }
   }
 
@@ -138,7 +155,7 @@ class ParkingTimeCard extends StatelessWidget {
                                   ? Theme.of(context).primaryColor
                                   : !hasEnoughCredits
                                       ? Colors.grey.shade500
-                                      : Theme.of(context).primaryColor,
+                                      : _parseColor(color),
                             ),
                           ),
                         ),
