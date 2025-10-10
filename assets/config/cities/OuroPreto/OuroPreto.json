@@ -31,19 +31,22 @@
         "time": 60,
         "price": 2,
         "credits": 4,
-        "area": "Setor A"
+        "area": "Zona Vermelha",
+        "color": "#c71f37"
       },
       {
         "time": 120,
         "price": 3.5,
         "credits": 7,
-        "area": "Setor B"
+        "area": "Zona Azul",
+        "color": "#3c6dc2"
       },
       {
         "time": 180,
         "price": 5,
         "credits": 10,
-        "area": "Setor C"
+        "area": "Zona Verde",
+        "color": "#008000"
       }
     ],
     "2": [
@@ -51,7 +54,8 @@
         "time": 60,
         "price": 1,
         "credits": 2,
-        "area": "Setor D"
+        "area": "Zona Vermelha",
+        "color": "#c71f37"
       }
     ]
   },

@@ -1,11 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'dart:io' show Platform;
 import '../../providers/alarm_settings_provider.dart';
 import '../../services/local_notification_service.dart';
+import '../../config/environment.dart';
 
 class AlarmSettingsScreen extends ConsumerWidget {
   const AlarmSettingsScreen({super.key});
+
+  /// Verifica se deve mostrar o card de teste de notificações
+  /// Esconde em produção quando o build é release
+  bool _shouldShowTestCard() {
+    // Se for ambiente de produção E build release, esconder o card
+    if (Environment.currentEnvironment == 'prod' && kReleaseMode) {
+      return false;
+    }
+    // Em todos os outros casos, mostrar o card
+    return true;
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -110,135 +123,137 @@ class AlarmSettingsScreen extends ConsumerWidget {
 
             const SizedBox(height: 32),
 
-            // Test notification button
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.05),
-                    blurRadius: 10,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: Column(
-                children: [
-                  Icon(
-                    Icons.notifications_none,
-                    size: 32,
-                    color: Colors.grey.shade600,
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Teste de Notificações',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Teste o funcionamento das notificações agendadas',
-                    style: TextStyle(
+            // Test notification button - Only show if not in production release
+            if (_shouldShowTestCard()) ...[
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.05),
+                      blurRadius: 10,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  children: [
+                    Icon(
+                      Icons.notifications_none,
+                      size: 32,
                       color: Colors.grey.shade600,
                     ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 16),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: ElevatedButton.icon(
-                          onPressed: () => _testImmediateNotification(
-                              context, localNotificationService, ref),
-                          icon: const Icon(Icons.send),
-                          label: const Text('Imediata'),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Theme.of(context).primaryColor,
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 12,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(25),
-                            ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Teste de Notificações',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
                           ),
-                        ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Teste o funcionamento das notificações agendadas',
+                      style: TextStyle(
+                        color: Colors.grey.shade600,
                       ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: ElevatedButton.icon(
-                          onPressed: () => _testScheduled10Seconds(
-                              context, localNotificationService, ref),
-                          icon: const Icon(Icons.schedule),
-                          label: const Text('10 segundos'),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.orange,
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 12,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(25),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 16),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: ElevatedButton.icon(
+                            onPressed: () => _testImmediateNotification(
+                                context, localNotificationService, ref),
+                            icon: const Icon(Icons.send),
+                            label: const Text('Imediata'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Theme.of(context).primaryColor,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 12,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(25),
+                              ),
                             ),
                           ),
                         ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: ElevatedButton.icon(
+                            onPressed: () => _testScheduled10Seconds(
+                                context, localNotificationService, ref),
+                            icon: const Icon(Icons.schedule),
+                            label: const Text('10 segundos'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.orange,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 12,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(25),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    // Botões de teste para Android
+                    if (Platform.isAndroid) ...[
+                      const SizedBox(height: 16),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: ElevatedButton.icon(
+                              onPressed: () => _test30Seconds(
+                                  context, localNotificationService),
+                              icon: const Icon(Icons.timer),
+                              label: const Text('30s'),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.teal,
+                                foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 10,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: ElevatedButton.icon(
+                              onPressed: () => _testAndroidParkingNotification(
+                                  context, localNotificationService, ref),
+                              icon: const Icon(Icons.local_parking),
+                              label: const Text('2min'),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.purple,
+                                foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 10,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ],
-                  ),
-                ],
-              ),
-            ),
-
-            // Botões de teste para Android
-            if (Platform.isAndroid) ...[
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  Expanded(
-                    child: ElevatedButton.icon(
-                      onPressed: () =>
-                          _test30Seconds(context, localNotificationService),
-                      icon: const Icon(Icons.timer),
-                      label: const Text('30s'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.teal,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 10,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: ElevatedButton.icon(
-                      onPressed: () => _testAndroidParkingNotification(
-                          context, localNotificationService, ref),
-                      icon: const Icon(Icons.local_parking),
-                      label: const Text('2min'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.purple,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 10,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ],
 

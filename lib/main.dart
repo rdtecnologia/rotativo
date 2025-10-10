@@ -72,7 +72,7 @@ void _configureErrorHandling() {
 /// Change Environment.setEnvironment('dev') to switch to development
 void _initializeApp() {
   // 🔧 CONFIGURE ENVIRONMENT HERE:
-  Environment.setEnvironment('prod'); // Use development APIs (default)
+  Environment.setEnvironment('dev'); // Use development APIs (default)
   //Environment.setEnvironment('prod'); // Use production APIs
 
   // Print current configuration for debugging
