@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
+//import 'package:fluttertoast/fluttertoast.dart';
 
 class ForgotPasswordActions extends StatelessWidget {
   final VoidCallback onBackToLogin;
@@ -9,15 +9,15 @@ class ForgotPasswordActions extends StatelessWidget {
     required this.onBackToLogin,
   });
 
-  void _showContactSupport() {
-    Fluttertoast.showToast(
-      msg: 'Entre em contato com o suporte',
-      toastLength: Toast.LENGTH_SHORT,
-      gravity: ToastGravity.BOTTOM,
-      backgroundColor: Colors.blue,
-      textColor: Colors.white,
-    );
-  }
+  // void _showContactSupport() {
+  //   Fluttertoast.showToast(
+  //     msg: 'Entre em contato com o suporte',
+  //     toastLength: Toast.LENGTH_SHORT,
+  //     gravity: ToastGravity.BOTTOM,
+  //     backgroundColor: Colors.blue,
+  //     textColor: Colors.white,
+  //   );
+  // }
 
   @override
   Widget build(BuildContext context) {

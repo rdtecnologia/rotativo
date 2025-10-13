@@ -229,6 +229,7 @@ class AuthWrapper extends ConsumerStatefulWidget {
 
 class _AuthWrapperState extends ConsumerState<AuthWrapper> {
   bool _hasInitialized = false;
+  bool _isInitialLoad = true;
 
   @override
   void initState() {
@@ -250,13 +251,32 @@ class _AuthWrapperState extends ConsumerState<AuthWrapper> {
   Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
 
-    // Sempre mostrar loader durante o estado de loading para evitar flash
-    // Também mostrar loader durante a inicialização para garantir estado estável
-    // Adicionar delay adicional para garantir estado completamente estável
-    if (authState.isLoading || !_hasInitialized) {
+    // Mostrar loader apenas durante a carga inicial (checking stored credentials)
+    // Não mostrar loader durante tentativas ativas de login (usuário clicando no botão)
+    // Isso permite que o loader do botão seja mostrado e os toasts sejam exibidos
+    if (!_hasInitialized) {
       if (kDebugMode) {
-        print(
-            '🔄 AuthWrapper: Mostrando loader - isLoading: ${authState.isLoading}, hasInitialized: $_hasInitialized');
+        print('🔄 AuthWrapper: Mostrando loader - inicialização');
+      }
+      return const LoaderWidget();
+    }
+
+    // Após a inicialização, marcar que não é mais a carga inicial
+    // Isso permite que tentativas de login mostrem apenas o loader do botão
+    if (_isInitialLoad && !authState.isLoading) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          setState(() {
+            _isInitialLoad = false;
+          });
+        }
+      });
+    }
+
+    // Durante a carga inicial E loading, mostrar loader full-screen
+    if (_isInitialLoad && authState.isLoading) {
+      if (kDebugMode) {
+        print('🔄 AuthWrapper: Mostrando loader - carga inicial');
       }
       return const LoaderWidget();
     }
