@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -6,9 +7,9 @@ import '../screens/settings/settings_screen.dart';
 import '../screens/history/history_screen.dart';
 import '../screens/vehicles/register_vehicle_screen.dart';
 import '../screens/cards/cards_screen.dart';
-
 import '../screens/purchase/choose_value_screen.dart';
 import '../screens/help/help_screen.dart';
+import '../config/dynamic_app_config.dart';
 
 class CustomDrawer extends ConsumerWidget {
   const CustomDrawer({super.key});
@@ -143,11 +144,39 @@ class CustomDrawer extends ConsumerWidget {
                   title: 'Avalie o app',
                   onTap: () async {
                     Navigator.pop(context);
-                    // TODO: Get download link from config
-                    const url =
-                        'https://play.google.com/store/apps/details?id=com.example.rotativo';
-                    if (await canLaunchUrl(Uri.parse(url))) {
-                      await launchUrl(Uri.parse(url));
+
+                    try {
+                      String storeUrl;
+
+                      if (Platform.isAndroid) {
+                        final packageName =
+                            await DynamicAppConfig.androidPackage;
+                        storeUrl =
+                            'https://play.google.com/store/apps/details?id=$packageName';
+                      } else if (Platform.isIOS) {
+                        final appId = await DynamicAppConfig.iosPackage;
+                        storeUrl = 'https://apps.apple.com/app/id$appId';
+                      } else {
+                        throw Exception('Plataforma não suportada');
+                      }
+
+                      final uri = Uri.parse(storeUrl);
+                      if (await canLaunchUrl(uri)) {
+                        await launchUrl(uri,
+                            mode: LaunchMode.externalApplication);
+                      } else {
+                        throw Exception(
+                            'Não foi possível abrir a loja de aplicativos');
+                      }
+                    } catch (e) {
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Erro ao abrir a loja: $e'),
+                            backgroundColor: Colors.red,
+                          ),
+                        );
+                      }
                     }
                   },
                 ),
