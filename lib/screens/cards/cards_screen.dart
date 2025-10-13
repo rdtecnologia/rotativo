@@ -32,12 +32,6 @@ class _CardsScreenState extends ConsumerState<CardsScreen> {
     ref.read(cardUIProvider.notifier).showModal(id);
   }
 
-  // TODO: Implement card usage history tracking when API supports it
-  // This would require:
-  // 1. Getting order details for each order
-  // 2. Checking payment method information
-  // 3. Matching card IDs with payment data
-
   @override
   Widget build(BuildContext context) {
     inspect('build');

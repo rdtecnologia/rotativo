@@ -2,8 +2,6 @@ import 'dart:convert';
 import 'dart:io';
 
 void main() async {
-  print('🎨 Gerando ícones com cores específicas por flavor...\n');
-
   // Mapeia os flavors e suas configurações
   final flavors = {
     'Main': {
@@ -26,8 +24,6 @@ void main() async {
     // Lê o arquivo de configuração da cidade
     final configFile = File(config['configPath'] as String);
     if (!configFile.existsSync()) {
-      print(
-          '⚠️  Arquivo de configuração não encontrado: ${config['configPath']}');
       continue;
     }
 
@@ -38,9 +34,6 @@ void main() async {
     final primaryColor = cityConfig['primaryColor'] as String? ??
         config['defaultColor'] as String? ??
         '#5A7B97';
-
-    print('📱 Flavor: $flavorName');
-    print('   Cor: $primaryColor');
 
     // Cria o arquivo de configuração para o flutter_launcher_icons
     final iconConfigFile = File('flutter_launcher_icons_$flavorName.yaml');
@@ -80,19 +73,5 @@ flutter_launcher_icons:
 ''';
 
     await iconConfigFile.writeAsString(iconConfig);
-    print('   ✅ Arquivo criado: ${iconConfigFile.path}\n');
   }
-
-  print('\n🎯 Próximos passos:');
-  print('   1. Execute os comandos abaixo para gerar os ícones:');
-  print('');
-  print(
-      '   flutter pub run flutter_launcher_icons -f flutter_launcher_icons_Main.yaml');
-  print(
-      '   flutter pub run flutter_launcher_icons -f flutter_launcher_icons_OuroPreto.yaml');
-  print(
-      '   flutter pub run flutter_launcher_icons -f flutter_launcher_icons_Vicosa.yaml');
-  print('');
-  print('   2. Os ícones serão gerados com as cores corretas para cada flavor');
-  print('');
 }

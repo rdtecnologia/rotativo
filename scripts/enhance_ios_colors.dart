@@ -27,14 +27,10 @@ void main() async {
   final baseIconPath = 'assets/images/icons/icon.png';
   final iosAssetsPath = 'ios/Runner/Assets.xcassets';
 
-  print('🎯 Cores melhoradas para maior contraste:');
   for (final entry in flavorColors.entries) {
     final flavorName = entry.key;
     final config = entry.value;
-    print(
-        '   $flavorName: ${config['originalColor']} → ${config['enhancedColor']}');
   }
-  print('');
 
   // Tamanhos de ícones iOS principais
   final iconSizes = [
@@ -57,8 +53,6 @@ void main() async {
     final flavorName = entry.key;
     final config = entry.value;
     final enhancedColor = config['enhancedColor'] as String;
-
-    print('📱 Processando $flavorName com cor melhorada: $enhancedColor');
 
     // Remove o AppIcon existente
     final appIconPath = '$iosAssetsPath/AppIcon-$flavorName.appiconset';
@@ -162,16 +156,9 @@ void main() async {
         outputPath
       ]);
 
-      if (magickResult.exitCode != 0) {
-        print('   ❌ Erro ao criar $filename: ${magickResult.stderr}');
-      }
+      if (magickResult.exitCode != 0) {}
     }
-
-    print('   ✅ AppIcon-$flavorName.appiconset criado com cor melhorada\n');
   }
-
-  print('✨ Processo concluído!');
-  print('\n🔍 Verificação das cores melhoradas:');
 
   final iconPaths = [
     'ios/Runner/Assets.xcassets/AppIcon-Main.appiconset/Icon-App-1024x1024@1x.png',
@@ -183,19 +170,6 @@ void main() async {
     final file = File(iconPath);
     if (file.existsSync()) {
       final result = await Process.run('md5', [iconPath]);
-      print('   ${iconPath.split('/').last}: ${result.stdout.trim()}');
     }
   }
-
-  print('\n📱 Agora as cores devem ser mais distintas visualmente!');
-  print('   • Main: Azul mais escuro');
-  print('   • OuroPreto: Dourado mais vibrante e claro');
-  print('   • Vicosa: Vermelho mais vibrante');
-
-  print('\n🧪 Para testar:');
-  print('   flutter run --flavor main -d ios');
-  print('   flutter run --flavor ouroPreto -d ios');
-  print('   flutter run --flavor vicosa -d ios');
 }
-
-

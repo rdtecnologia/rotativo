@@ -25,12 +25,9 @@ void main() async {
     final flavorName = entry.key;
     final config = entry.value;
 
-    print('📱 Processando flavor: $flavorName');
-
     // Lê a configuração da cidade
     final configFile = File(config['configPath'] as String);
     if (!configFile.existsSync()) {
-      print('   ⚠️  Arquivo de configuração não encontrado');
       continue;
     }
 
@@ -123,17 +120,5 @@ void main() async {
 
     final colorsFile = File('$flavorResPath/values/colors.xml');
     await colorsFile.writeAsString(colorsXml);
-
-    print('   ✅ Estrutura criada e ícones copiados\n');
   }
-
-  print('✨ Processo concluído!');
-  print('\n📝 Resumo:');
-  print('   • Ícones organizados por flavor');
-  print('   • Cores de fundo aplicadas conforme configuração');
-  print('   • Estrutura Android configurada');
-  print('\n🚀 Para testar, execute:');
-  print('   flutter run --flavor demo -d <device>');
-  print('   flutter run --flavor ouroPreto -d <device>');
-  print('   flutter run --flavor vicosa -d <device>');
 }

@@ -332,11 +332,6 @@ class _UpdateButton extends ConsumerWidget {
     ref.read(editProfileNotifierProvider).setLoading(true);
 
     try {
-      // TODO: Implement user update API call
-      // await ref.read(authProvider.notifier).updateUser(
-      //   notifier.getFormDataForSubmission()
-      // );
-
       // Simulate API call
       await Future.delayed(const Duration(seconds: 2));
 

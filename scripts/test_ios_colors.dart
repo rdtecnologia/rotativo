@@ -1,10 +1,7 @@
-import 'dart:convert';
 import 'dart:io';
 
 /// Script de teste para verificar se as cores estão sendo aplicadas corretamente
 void main() async {
-  print('🧪 Testando cores iOS com cores bem distintas...\n');
-
   // Cores de teste bem distintas para verificar o funcionamento
   final testFlavors = {
     'OuroPreto': {
@@ -22,19 +19,11 @@ void main() async {
   final baseIconPath = 'assets/images/icons/icon.png';
   final iosAssetsPath = 'ios/Runner/Assets.xcassets';
 
-  print('🎨 Usando cores de teste bem distintas:');
-  print('   OuroPreto: #FF0000 (vermelho puro)');
-  print('   Vicosa: #0000FF (azul puro)\n');
-
   for (final entry in testFlavors.entries) {
     final flavorName = entry.key;
     final config = entry.value;
     final testColor = config['testColor'] as String;
     final originalColor = config['originalColor'] as String;
-
-    print('📱 Processando $flavorName');
-    print('   Cor original: $originalColor');
-    print('   Cor de teste: $testColor');
 
     // Cria o diretório do AppIcon
     final appIconPath = '$iosAssetsPath/AppIcon-$flavorName.appiconset';
@@ -57,18 +46,11 @@ void main() async {
     ]);
 
     if (magickResult.exitCode == 0) {
-      print('   ✅ Ícone de teste criado');
-
       // Verifica o hash
       final hashResult = await Process.run('md5', [outputPath]);
-      print('   Hash: ${hashResult.stdout.trim()}');
-    } else {
-      print('   ❌ Erro: ${magickResult.stderr}');
-    }
-    print('');
+    } else {}
   }
 
-  print('🔍 Verificação final:');
   final ouroPretoPath =
       '$iosAssetsPath/AppIcon-OuroPreto.appiconset/Icon-App-1024x1024@1x.png';
   final vicosaPath =
@@ -76,7 +58,6 @@ void main() async {
 
   if (File(ouroPretoPath).existsSync() && File(vicosaPath).existsSync()) {
     final compareResult = await Process.run('md5', [ouroPretoPath, vicosaPath]);
-    print(compareResult.stdout);
 
     if (compareResult.stdout.contains('MD5')) {
       final lines = compareResult.stdout.trim().split('\n');
@@ -85,18 +66,10 @@ void main() async {
         final hash2 = lines[1].split(' = ')[1];
 
         if (hash1 == hash2) {
-          print('❌ PROBLEMA: Os ícones são idênticos!');
-        } else {
-          print('✅ SUCESSO: Os ícones são diferentes!');
-        }
+        } else {}
       }
     }
   }
-
-  print('\n📝 Próximo passo:');
-  print(
-      '   Se os ícones de teste ficaram diferentes, o problema são as cores originais.');
-  print('   Se ficaram iguais, há problema no processo de geração.');
 
   // Limpa arquivos de teste
   final testFiles = [
@@ -111,5 +84,3 @@ void main() async {
     }
   }
 }
-
-

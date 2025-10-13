@@ -2,8 +2,6 @@ import 'dart:convert';
 import 'dart:io';
 
 void main() async {
-  print('🍎 Configurando ícones iOS por flavor...\n');
-
   // Configurações dos flavors
   final flavors = {
     'Demo': {
@@ -25,12 +23,9 @@ void main() async {
     final flavorName = entry.key;
     final config = entry.value;
 
-    print('📱 Processando flavor: $flavorName');
-
     // Lê a configuração da cidade
     final configFile = File(config['configPath'] as String);
     if (!configFile.existsSync()) {
-      print('   ⚠️  Arquivo de configuração não encontrado');
       continue;
     }
 
@@ -41,8 +36,6 @@ void main() async {
     final primaryColor = cityConfig['primaryColor'] as String? ??
         config['defaultColor'] as String? ??
         '#5A7B97';
-
-    print('   Cor: $primaryColor');
 
     // Cria o diretório do AppIcon para o flavor
     final appIconPath = '$iosAssetsPath/AppIcon-$flavorName.appiconset';
@@ -68,18 +61,5 @@ void main() async {
         await contentsFile.copy(destContentsFile.path);
       }
     }
-
-    print('   ✅ AppIcon-$flavorName.appiconset criado\n');
   }
-
-  print('✨ Processo iOS concluído!');
-  print('\n📝 Próximos passos:');
-  print('   1. Abra o Xcode: open ios/Runner.xcworkspace');
-  print('   2. Para cada configuração (Demo, OuroPreto, Vicosa):');
-  print('      • Selecione o target Runner');
-  print('      • Vá em Build Settings');
-  print('      • Busque por "Asset Catalog App Icon Set Name"');
-  print('      • Configure para usar AppIcon-[Flavor] para cada configuração');
-  print(
-      '\nOu execute o script de automação do Xcode que será criado a seguir...');
 }

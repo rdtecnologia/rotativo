@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rotativo/screens/auth/register_screen.dart';
-import 'package:rotativo/providers/register_form_provider.dart';
-import 'package:rotativo/providers/auth_provider.dart';
 
 void main() {
   group('RegisterScreen - Terms and Conditions PDF', () {

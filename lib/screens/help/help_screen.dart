@@ -266,7 +266,7 @@ class _HelpScreenState extends ConsumerState<HelpScreen> {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
         ),
-        child: Container(
+        child: SizedBox(
           width: 150,
           height: 150,
           child: Column(

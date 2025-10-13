@@ -62,7 +62,6 @@ class _ContactUsScreenState extends ConsumerState<ContactUsScreen> {
 
       await launchUrl(uri);
     } catch (e) {
-      print('Error opening WhatsApp: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

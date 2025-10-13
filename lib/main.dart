@@ -38,11 +38,9 @@ void main() async {
 
   // Initialize notification service early
   try {
-    print('🚀 [RELEASE] Inicializando notificações no startup...');
     await LocalNotificationService().initialize();
-    print('🚀 [RELEASE] Notificações inicializadas com sucesso no startup');
   } catch (e) {
-    print('🚀 [RELEASE] ERRO ao inicializar notificações no startup: $e');
+    //
   }
 
   runApp(const ProviderScope(child: RotativoApp()));

@@ -24,10 +24,7 @@ class LocalNotificationService {
   /// Inicializa o serviço de notificações
   Future<void> initialize() async {
     try {
-      print('🔧 [RELEASE] Inicializando serviço de notificações...');
-
       // Inicializa timezone
-      print('🌍 [RELEASE] Inicializando timezone...');
       tz.initializeTimeZones();
 
       // Aguarda um momento para garantir que o banco de dados seja carregado
@@ -37,21 +34,13 @@ class LocalNotificationService {
       try {
         final location = tz.getLocation('America/Sao_Paulo');
         tz.setLocalLocation(location);
-        print('🌍 [RELEASE] Timezone definido: America/Sao_Paulo');
-        print('🌍 [RELEASE] Local timezone: ${tz.local}');
       } catch (e) {
-        print('⚠️ [RELEASE] Erro ao definir timezone America/Sao_Paulo: $e');
-        print('🌍 [RELEASE] Usando timezone UTC como fallback...');
         tz.setLocalLocation(tz.UTC);
       }
-
-      print('🌍 [RELEASE] Timezone inicializado com sucesso');
 
       // Configuração para Android
       const androidSettings =
           AndroidInitializationSettings('@mipmap/ic_launcher');
-
-      print('🤖 [RELEASE] Configuração Android: @mipmap/ic_launcher');
 
       // Configuração para iOS
       const iosSettings = DarwinInitializationSettings(
@@ -78,17 +67,11 @@ class LocalNotificationService {
         onDidReceiveNotificationResponse: _onNotificationTapped,
       );
 
-      print('🔧 [RELEASE] Plugin de notificações inicializado');
-
       // Solicita permissões
       await _requestPermissions();
 
       _isInitialized = true;
-      print('🔔 [RELEASE] Serviço de notificações inicializado com sucesso');
     } catch (e) {
-      print(
-          '❌ [RELEASE] ERRO CRÍTICO ao inicializar serviço de notificações: $e');
-      print('❌ [RELEASE] Stack trace: ${StackTrace.current}');
       rethrow;
     }
   }
@@ -164,7 +147,6 @@ class LocalNotificationService {
   /// Callback quando uma notificação é tocada
   void _onNotificationTapped(NotificationResponse response) {
     debugPrint('🔔 Notificação tocada: ${response.payload}');
-    // TODO: Implementar navegação baseada no payload
   }
 
   /// Agenda uma notificação de vencimento de estacionamento
@@ -554,9 +536,6 @@ class LocalNotificationService {
     try {
       // ✅ Verificação específica para iOS
       if (Platform.isIOS) {
-        print(
-            '🍎 [RELEASE] iOS detectado - Configurando notificações específicas');
-
         // Para iOS, vamos usar configurações mais simples
         await _notifications.show(
           DateTime.now().millisecondsSinceEpoch ~/ 1000,
@@ -578,16 +557,7 @@ class LocalNotificationService {
           payload: payload,
         );
 
-        print('🍎 [RELEASE] Notificação iOS enviada com sucesso');
-
-        // ✅ Para emulador iOS, vamos aguardar um pouco e verificar se apareceu
         await Future.delayed(const Duration(seconds: 2));
-
-        // ✅ Log adicional para iOS (funciona em debug e release)
-        print(
-            '🍎 [RELEASE] Notificação iOS processada - Verifique o Centro de Notificações');
-        print(
-            '🍎 [RELEASE] Dica: Puxe para baixo no topo da tela para ver notificações');
 
         return;
       }
@@ -601,11 +571,6 @@ class LocalNotificationService {
         vibrationEnabled: vibrationEnabled ?? true,
         lightsEnabled: lightsEnabled ?? true,
       );
-
-      print('🔔 [RELEASE] Enviando notificação Android imediata:');
-      print('  - Som: $soundEnabled');
-      print('  - Vibração: $vibrationEnabled');
-      print('  - Luzes: $lightsEnabled');
 
       await _notifications.show(
         DateTime.now().millisecondsSinceEpoch ~/ 1000,
@@ -640,16 +605,11 @@ class LocalNotificationService {
         payload: payload,
       );
 
-      print('🔔 [RELEASE] Notificação imediata enviada com sucesso');
-
       // Verificar se a notificação foi realmente processada
       final pendingNotifications =
           await _notifications.pendingNotificationRequests();
-      print(
-          '📊 [RELEASE] Total de notificações pendentes após envio: ${pendingNotifications.length}');
     } catch (e) {
-      print('❌ [RELEASE] ERRO CRÍTICO ao enviar notificação imediata: $e');
-      print('❌ [RELEASE] Stack trace: ${StackTrace.current}');
+      //
     }
   }
 

@@ -111,7 +111,6 @@ class AlarmSettingsNotifier extends StateNotifier<AlarmSettings> {
       }
     } catch (e) {
       // Se houver erro ao carregar, mantém as configurações padrão
-      print('Erro ao carregar configurações de alarme: $e');
     }
   }
 
@@ -120,9 +119,7 @@ class AlarmSettingsNotifier extends StateNotifier<AlarmSettings> {
     try {
       final json = jsonEncode(state.toJson());
       await _storage.write(key: _storageKey, value: json);
-    } catch (e) {
-      print('Erro ao salvar configurações de alarme: $e');
-    }
+    } catch (e) {}
   }
 
   // Atualiza a configuração de vencimento do estacionamento

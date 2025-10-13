@@ -93,8 +93,6 @@ Future<void> _generateIOSIcons() async {
     final filename = entry.key;
     final size = entry.value;
 
-    print('  📱 Gerando $filename (${size}x${size})...');
-
     // Aqui você pode usar uma biblioteca como flutter_launcher_icons
     // ou criar manualmente os ícones baseados no logo.svg
     await _createIOSIconFile(filename, size);

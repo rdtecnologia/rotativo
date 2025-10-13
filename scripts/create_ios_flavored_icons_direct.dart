@@ -4,8 +4,6 @@ import 'dart:io';
 /// Script para criar ícones iOS com cores específicas usando abordagem direta
 /// Funciona exatamente como o Android: cria ícones com fundo colorido + ícone original
 void main() async {
-  print('🍎 Criando ícones iOS com cores específicas (abordagem direta)...\n');
-
   // Configurações dos flavors
   final flavors = {
     'Main': {
@@ -25,8 +23,6 @@ void main() async {
   final hasImageMagick = magickCheck.exitCode == 0;
 
   if (!hasImageMagick) {
-    print('❌ ImageMagick é necessário para esta solução.');
-    print('   Execute: brew install imagemagick');
     return;
   }
 
@@ -34,7 +30,6 @@ void main() async {
   final baseIconFile = File(baseIconPath);
 
   if (!baseIconFile.existsSync()) {
-    print('❌ Ícone base não encontrado: $baseIconPath');
     return;
   }
 
@@ -62,12 +57,9 @@ void main() async {
     final flavorName = entry.key;
     final config = entry.value;
 
-    print('📱 Processando flavor: $flavorName');
-
     // Lê a configuração da cidade
     final configFile = File(config['configPath'] as String);
     if (!configFile.existsSync()) {
-      print('   ⚠️  Arquivo de configuração não encontrado');
       continue;
     }
 
@@ -78,8 +70,6 @@ void main() async {
     final primaryColor = cityConfig['primaryColor'] as String? ??
         config['defaultColor'] as String? ??
         '#5A7B97';
-
-    print('   Cor: $primaryColor');
 
     // Cria o diretório do AppIcon
     final appIconPath = '$iosAssetsPath/AppIcon-$flavorName.appiconset';
@@ -180,22 +170,10 @@ void main() async {
         outputPath
       ]);
 
-      if (magickResult.exitCode != 0) {
-        print('   ❌ Erro ao criar $filename: ${magickResult.stderr}');
-      }
+      if (magickResult.exitCode != 0) {}
     }
-
-    print('   ✅ AppIcon-$flavorName.appiconset criado com cor $primaryColor\n');
   }
 
-  print('✨ Processo concluído!');
-  print('\n📝 Resumo:');
-  print('   • Ícones iOS criados manualmente com cores específicas');
-  print('   • Comportamento idêntico ao Android (fundo colorido + ícone)');
-  print('   • Todos os tamanhos iOS gerados');
-  print('   • Sistema de cópia automática mantido');
-
-  print('\n🔍 Verificação:');
   final iconPaths = [
     'ios/Runner/Assets.xcassets/AppIcon-Main.appiconset/Icon-App-1024x1024@1x.png',
     'ios/Runner/Assets.xcassets/AppIcon-OuroPreto.appiconset/Icon-App-1024x1024@1x.png',
@@ -206,14 +184,6 @@ void main() async {
     final file = File(iconPath);
     if (file.existsSync()) {
       final result = await Process.run('md5', [iconPath]);
-      print('   ${iconPath.split('/').last}: ${result.stdout.trim()}');
     }
   }
-
-  print('\n🧪 Para testar:');
-  print('   flutter run --flavor ouroPreto -d ios');
-  print('   flutter run --flavor vicosa -d ios');
-  print('   flutter run --flavor main -d ios');
-  print('\n📱 Agora os ícones iOS terão as mesmas cores dos flavors Android!');
 }
-

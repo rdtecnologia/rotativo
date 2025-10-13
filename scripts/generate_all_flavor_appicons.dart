@@ -2,8 +2,6 @@ import 'dart:convert';
 import 'dart:io';
 
 void main() async {
-  print('🍎 Gerando AppIcons para todos os flavors...\n');
-
   // Lista todos os schemes iOS
   final schemesDir = Directory('ios/Runner.xcodeproj/xcshareddata/xcschemes');
   final schemes = await schemesDir
@@ -30,13 +28,9 @@ void main() async {
 
   final iosAssetsPath = 'ios/Runner/Assets.xcassets';
 
-  print('📋 Flavors encontrados: ${schemes.join(', ')}\n');
-
   for (final schemeName in schemes) {
     // Capitaliza o primeiro caractere
     final flavorName = schemeName[0].toUpperCase() + schemeName.substring(1);
-
-    print('📱 Processando flavor: $flavorName');
 
     // Tenta encontrar uma configuração correspondente
     String primaryColor = '#5A7B97'; // Cor padrão
@@ -66,11 +60,7 @@ void main() async {
       }
     }
 
-    if (!configFound) {
-      print('   ⚠️  Configuração não encontrada, usando cor padrão');
-    }
-
-    print('   Cor: $primaryColor');
+    if (!configFound) {}
 
     // Cria o diretório do AppIcon
     final appIconPath = '$iosAssetsPath/AppIcon-$flavorName.appiconset';
@@ -96,16 +86,5 @@ void main() async {
         await contentsFile.copy(destContentsFile.path);
       }
     }
-
-    print('   ✅ AppIcon-$flavorName.appiconset criado\n');
   }
-
-  print('✨ Processo concluído!');
-  print('\n📝 Próximos passos:');
-  print('   1. Os AppIcons foram criados para todos os flavors');
-  print('   2. Cada flavor tem sua própria cor de fundo');
-  print('   3. Execute o app com qualquer flavor para testar');
-  print('\n💡 Nota: Se quiser cores específicas para cada cidade,');
-  print(
-      '   adicione os arquivos JSON de configuração em assets/config/cities/');
 }

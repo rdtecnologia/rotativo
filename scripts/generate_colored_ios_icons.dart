@@ -4,8 +4,6 @@ import 'dart:io';
 /// Script para gerar ícones iOS com cores aplicadas diretamente no ícone
 /// Similar ao comportamento do Android onde a cor primária é visível no ícone
 void main() async {
-  print('🎨 Gerando ícones iOS com cores aplicadas diretamente...\n');
-
   // Configurações dos flavors
   final flavors = {
     'Main': {
@@ -24,17 +22,12 @@ void main() async {
   final magickCheck = await Process.run('which', ['magick']);
   final hasImageMagick = magickCheck.exitCode == 0;
 
-  if (!hasImageMagick) {
-    print('⚠️  ImageMagick não encontrado. Tentando instalar...');
-    print('   Execute: brew install imagemagick');
-    print('   Ou continue sem modificação de cores (apenas background)');
-  }
+  if (!hasImageMagick) {}
 
   final baseIconPath = 'assets/images/icons/icon.png';
   final baseIconFile = File(baseIconPath);
 
   if (!baseIconFile.existsSync()) {
-    print('❌ Ícone base não encontrado: $baseIconPath');
     return;
   }
 
@@ -43,12 +36,9 @@ void main() async {
     final flavorName = entry.key;
     final config = entry.value;
 
-    print('📱 Processando flavor: $flavorName');
-
     // Lê a configuração da cidade
     final configFile = File(config['configPath'] as String);
     if (!configFile.existsSync()) {
-      print('   ⚠️  Arquivo de configuração não encontrado');
       continue;
     }
 
@@ -59,8 +49,6 @@ void main() async {
     final primaryColor = cityConfig['primaryColor'] as String? ??
         config['defaultColor'] as String? ??
         '#5A7B97';
-
-    print('   Cor: $primaryColor');
 
     // Cria um ícone temporário com a cor aplicada
     final tempIconPath = 'temp_icon_$flavorName.png';
@@ -91,17 +79,12 @@ void main() async {
       ]);
 
       if (magickResult.exitCode != 0) {
-        print(
-            '   ⚠️  Erro ao aplicar cor com ImageMagick: ${magickResult.stderr}');
         // Fallback: copia o ícone original
         await baseIconFile.copy(tempIconPath);
-      } else {
-        print('   ✅ Cor aplicada ao ícone');
-      }
+      } else {}
     } else {
       // Fallback: usa o ícone original
       await baseIconFile.copy(tempIconPath);
-      print('   ⚠️  Usando ícone original (sem modificação de cor)');
     }
 
     // Cria configuração do flutter_launcher_icons para este flavor
@@ -124,7 +107,6 @@ flutter_launcher_icons:
     await iconConfigFile.writeAsString(iconConfig);
 
     // Gera os ícones iOS
-    print('   🔄 Gerando ícones iOS...');
     final result = await Process.run('dart', [
       'run',
       'flutter_launcher_icons',
@@ -133,10 +115,7 @@ flutter_launcher_icons:
     ]);
 
     if (result.exitCode == 0) {
-      print('   ✅ Ícones iOS gerados com sucesso');
-    } else {
-      print('   ⚠️  Erro ao gerar ícones: ${result.stderr}');
-    }
+    } else {}
 
     // Remove arquivos temporários
     final tempFile = File(tempIconPath);
@@ -149,23 +128,8 @@ flutter_launcher_icons:
     if (configTempFile.existsSync()) {
       await configTempFile.delete();
     }
-
-    print('   🧹 Arquivos temporários removidos\n');
   }
 
-  print('✨ Processo concluído!');
-  print('\n📝 Resumo:');
   if (hasImageMagick) {
-    print('   • Ícones iOS gerados com cores aplicadas diretamente');
-    print('   • Cada flavor tem sua cor primária visível no ícone');
-  } else {
-    print('   • Ícones iOS gerados (instale ImageMagick para aplicar cores)');
-    print('   • Para instalar: brew install imagemagick');
-  }
-  print('   • Sistema de cópia automática mantido');
-  print('\n🧪 Para testar:');
-  print('   flutter run --flavor ouroPreto -d ios');
-  print('   flutter run --flavor vicosa -d ios');
-  print('   flutter run --flavor main -d ios');
+  } else {}
 }
-

@@ -102,12 +102,7 @@ class _HomePageState extends ConsumerState<HomePage>
     await navigateToPurchase(_updateBalanceOnly);
   }
 
-  void _onBalanceTap() {
-    // TODO: Navigate to balance details screen
-    // ScaffoldMessenger.of(context).showSnackBar(
-    //   const SnackBar(content: Text('Navegar para detalhes do saldo')),
-    // );
-  }
+  void _onBalanceTap() {}
 
   void _onHistoryTap() async {
     await navigateToHistory(_updateBalanceOnly);
