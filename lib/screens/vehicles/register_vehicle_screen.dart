@@ -842,89 +842,119 @@ class _RegisterVehicleScreenState extends ConsumerState<RegisterVehicleScreen> {
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8),
                             ),
-                            child: ListTile(
-                              leading: CircleAvatar(
-                                backgroundColor: Theme.of(context)
-                                    .primaryColor
-                                    .withValues(alpha: 0.1),
-                                child: Text(
-                                  vehicleType['icon'],
-                                  style: const TextStyle(fontSize: 20),
-                                ),
-                              ),
-                              title: Text(
-                                vehicle.licensePlate,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
-                                ),
-                              ),
-                              subtitle: Column(
+                            child: Padding(
+                              padding: const EdgeInsets.all(12.0),
+                              child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(
-                                    vehicleType['name'],
-                                    style: TextStyle(
-                                      color: Colors.grey.shade600,
-                                    ),
+                                  // Linha 1: Ícone e Placa
+                                  Row(
+                                    children: [
+                                      CircleAvatar(
+                                        backgroundColor: Theme.of(context)
+                                            .primaryColor
+                                            .withValues(alpha: 0.1),
+                                        radius: 20,
+                                        child: Text(
+                                          vehicleType['icon'],
+                                          style: const TextStyle(fontSize: 18),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 12),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              vehicle.licensePlate,
+                                              style: const TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 16,
+                                              ),
+                                            ),
+                                            Text(
+                                              vehicleType['name'],
+                                              style: TextStyle(
+                                                color: Colors.grey.shade600,
+                                                fontSize: 13,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                  if (vehicle.model?.isNotEmpty == true)
-                                    Text(
-                                      vehicle.model!,
-                                      style: TextStyle(
-                                        color: Colors.grey.shade600,
-                                        fontStyle: FontStyle.italic,
+                                  // Linha 2: Modelo
+                                  if (vehicle.model?.isNotEmpty == true) ...[
+                                    const SizedBox(height: 8),
+                                    Padding(
+                                      padding: const EdgeInsets.only(left: 44),
+                                      child: Text(
+                                        vehicle.model!,
+                                        style: TextStyle(
+                                          color: Colors.grey.shade700,
+                                          fontStyle: FontStyle.italic,
+                                          fontSize: 14,
+                                        ),
                                       ),
                                     ),
-                                  // Removido o indicador visual de ativação ativa
-                                ],
-                              ),
-                              trailing: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  IconButton(
-                                    onPressed: () => _editVehicle(vehicle),
-                                    icon: const Icon(Icons.edit,
-                                        color: Colors.blue),
-                                    tooltip: 'Editar',
-                                  ),
-                                  Consumer(
-                                    builder: (context, ref, child) {
-                                      final activeActivations =
-                                          ref.watch(activeActivationsProvider);
-                                      final hasActiveActivation =
-                                          activeActivations.containsKey(
-                                              vehicle.licensePlate);
+                                  ],
+                                  // Linha 3: Botões de ação
+                                  const SizedBox(height: 8),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    children: [
+                                      Consumer(
+                                        builder: (context, ref, child) {
+                                          final activeActivations = ref
+                                              .watch(activeActivationsProvider);
+                                          final hasActiveActivation =
+                                              activeActivations.containsKey(
+                                                  vehicle.licensePlate);
 
-                                      // Verificar se pode excluir (sem ativação ou com tempo restante 0min)
-                                      bool canDelete = true;
-                                      String tooltipText = 'Excluir';
+                                          // Verificar se pode excluir (sem ativação ou com tempo restante 0min)
+                                          bool canDelete = true;
+                                          String tooltipText = 'Excluir';
 
-                                      if (hasActiveActivation) {
-                                        final activeActivation =
-                                            activeActivations[
-                                                vehicle.licensePlate]!;
-                                        canDelete =
-                                            activeActivation.remainingMinutes <=
+                                          if (hasActiveActivation) {
+                                            final activeActivation =
+                                                activeActivations[
+                                                    vehicle.licensePlate]!;
+                                            canDelete = activeActivation
+                                                    .remainingMinutes <=
                                                 0;
-                                        tooltipText = canDelete
-                                            ? 'Excluir'
-                                            : 'Não é possível excluir (estacionamento ativo)';
-                                      }
+                                            tooltipText = canDelete
+                                                ? 'Excluir'
+                                                : 'Não é possível excluir (estacionamento ativo)';
+                                          }
 
-                                      return IconButton(
-                                        onPressed: canDelete
-                                            ? () => _deleteVehicle(vehicle)
-                                            : null,
-                                        icon: Icon(
-                                          Icons.delete,
-                                          color: canDelete
-                                              ? Colors.red
-                                              : Colors.grey.shade400,
-                                        ),
-                                        tooltip: tooltipText,
-                                      );
-                                    },
+                                          return IconButton(
+                                            onPressed: canDelete
+                                                ? () => _deleteVehicle(vehicle)
+                                                : null,
+                                            icon: Icon(
+                                              Icons.delete,
+                                              color: canDelete
+                                                  ? Colors.red
+                                                  : Colors.grey.shade400,
+                                            ),
+                                            tooltip: tooltipText,
+                                            padding: EdgeInsets.zero,
+                                            constraints: const BoxConstraints(),
+                                          );
+                                        },
+                                      ),
+                                      const SizedBox(width: 8),
+                                      IconButton(
+                                        onPressed: () => _editVehicle(vehicle),
+                                        icon: const Icon(Icons.edit,
+                                            color: Colors.blue),
+                                        tooltip: 'Editar',
+                                        padding: EdgeInsets.zero,
+                                        constraints: const BoxConstraints(),
+                                      ),
+                                    ],
                                   ),
                                 ],
                               ),
