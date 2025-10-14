@@ -478,17 +478,6 @@ class _PaymentDetailScreenState extends ConsumerState<PaymentDetailScreen> {
 
                   SizedBox(height: 8),
 
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text('Créditos:'),
-                      Text(
-                        '${widget.product.credits} créditos',
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                    ],
-                  ),
-
                   // Nota explicativa sobre a discrepância de valores
                   if (order.value != widget.product.price) ...[
                     SizedBox(height: 12),
@@ -871,11 +860,17 @@ class _OrderSummaryWidget extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('Forma de Pagamento:', style: TextStyle(fontSize: 16)),
-              Text(
-                _getPaymentMethodName(paymentMethod),
-                style:
-                    const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              const Flexible(
+                child:
+                    Text('Forma de Pagamento:', style: TextStyle(fontSize: 16)),
+              ),
+              Flexible(
+                child: Text(
+                  _getPaymentMethodName(paymentMethod),
+                  style: const TextStyle(
+                      fontSize: 16, fontWeight: FontWeight.bold),
+                  textAlign: TextAlign.end,
+                ),
               ),
             ],
           ),
@@ -883,13 +878,18 @@ class _OrderSummaryWidget extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('Valor Total:', style: TextStyle(fontSize: 16)),
-              Text(
-                'R\$ ${AppFormatters.formatCurrency(product.price)}',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Theme.of(context).primaryColor,
+              const Flexible(
+                child: Text('Valor Total:', style: TextStyle(fontSize: 16)),
+              ),
+              Flexible(
+                child: Text(
+                  'R\$ ${AppFormatters.formatCurrency(product.price)}',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).primaryColor,
+                  ),
+                  textAlign: TextAlign.end,
                 ),
               ),
             ],

@@ -375,7 +375,6 @@ class _CreditCardPaymentScreenState
   @override
   Widget build(BuildContext context) {
     final selectedCard = ref.watch(selectedCardProvider);
-    final isLoading = ref.watch(cardLoadingProvider);
     final totalValue = widget.product.price;
 
     return Scaffold(
@@ -432,19 +431,24 @@ class _CreditCardPaymentScreenState
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text(
-                            'Valor à pagar:',
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.black87,
+                          const Flexible(
+                            child: Text(
+                              'Valor à pagar:',
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.black87,
+                              ),
                             ),
                           ),
-                          Text(
-                            'R\$ ${AppFormatters.formatCurrency(totalValue)}',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Theme.of(context).primaryColor,
+                          Flexible(
+                            child: Text(
+                              'R\$ ${AppFormatters.formatCurrency(totalValue)}',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Theme.of(context).primaryColor,
+                              ),
+                              textAlign: TextAlign.end,
                             ),
                           ),
                         ],
@@ -455,19 +459,24 @@ class _CreditCardPaymentScreenState
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text(
-                            'Forma de Pagamento:',
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.black87,
+                          const Flexible(
+                            child: Text(
+                              'Forma de Pagamento:',
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.black87,
+                              ),
                             ),
                           ),
-                          Text(
-                            'Cartão de Crédito',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
-                              color: Theme.of(context).primaryColor,
+                          Flexible(
+                            child: Text(
+                              'Cartão de Crédito',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                                color: Theme.of(context).primaryColor,
+                              ),
+                              textAlign: TextAlign.end,
                             ),
                           ),
                         ],

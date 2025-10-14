@@ -293,19 +293,24 @@ class PaymentMethodScreen extends ConsumerWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'Valor Total:',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.black87,
+              const Flexible(
+                child: Text(
+                  'Valor Total:',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.black87,
+                  ),
                 ),
               ),
-              Text(
-                'R\$ ${AppFormatters.formatCurrency(product.price)}',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Theme.of(context).primaryColor,
+              Flexible(
+                child: Text(
+                  'R\$ ${AppFormatters.formatCurrency(product.price)}',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).primaryColor,
+                  ),
+                  textAlign: TextAlign.end,
                 ),
               ),
             ],
