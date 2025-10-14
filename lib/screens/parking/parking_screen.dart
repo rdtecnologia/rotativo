@@ -207,6 +207,8 @@ class _ParkingScreenState extends ConsumerState<ParkingScreen> {
           await ref.read(parkingProvider.notifier).activateParking(
                 licensePlate: widget.vehicle.licensePlate,
                 ticketIds: possibleParking.tickets[0].tickets,
+                latitude: currentPosition.latitude,
+                longitude: currentPosition.longitude,
               );
 
       // Reload vehicles and balance

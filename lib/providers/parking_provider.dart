@@ -1,8 +1,10 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:uuid/uuid.dart';
 
 import '../models/parking_models.dart';
 import '../services/parking_service.dart';
+import '../services/app_info_service.dart';
 import '../utils/logger.dart';
 
 // Parking provider
@@ -53,6 +55,8 @@ class ParkingNotifier extends StateNotifier<ParkingState> {
   Future<ParkingResponse> activateParking({
     required String licensePlate,
     required List<int> ticketIds,
+    required double? latitude,
+    required double? longitude,
   }) async {
     if (kDebugMode) {
       AppLogger.parking('License: $licensePlate');
@@ -67,14 +71,35 @@ class ParkingNotifier extends StateNotifier<ParkingState> {
         throw Exception('Tempo de estacionamento não selecionado');
       }
 
+      // Validate location
+      if (latitude == null || longitude == null) {
+        throw Exception('Localização não disponível');
+      }
+
       if (kDebugMode) {
         AppLogger.parking('Selected parking time: $parkingTime minutos');
+        AppLogger.parking('Location: $latitude, $longitude');
+      }
+
+      // Generate unique device ID (UUID v4)
+      const uuid = Uuid();
+      final deviceId = uuid.v4();
+
+      // Get device info
+      final deviceInfo = await AppInfoService.getDeviceInfo();
+
+      if (kDebugMode) {
+        AppLogger.parking('Device ID: $deviceId');
+        AppLogger.parking('Device Info: $deviceInfo');
       }
 
       final response = await ParkingService.activateParking(
         licensePlate: licensePlate,
         ticketIds: ticketIds,
-        parkingTime: parkingTime, // Passar o tempo selecionado
+        parkingTime: parkingTime,
+        latitude: latitude.toString(),
+        longitude: longitude.toString(),
+        device: deviceId,
       );
 
       if (kDebugMode) {

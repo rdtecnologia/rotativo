@@ -9,7 +9,7 @@ import 'auth_service.dart';
 
 class ParkingService {
   static Dio? _dio;
-  
+
   static void _clearDioInstance() {
     _dio = null;
   }
@@ -18,7 +18,7 @@ class ParkingService {
     if (_dio != null) return _dio!;
 
     final baseUrl = Environment.transacionaApi;
-    
+
     _dio = Dio(BaseOptions(
       baseUrl: baseUrl,
       connectTimeout: const Duration(seconds: 30),
@@ -65,7 +65,7 @@ class ParkingService {
       onRequest: (options, handler) async {
         final domain = await DynamicAppConfig.domain;
         options.headers['Domain'] = domain;
-        
+
         // Add auth token if available
         final token = await AuthService.getStoredToken();
         if (token != null) {
@@ -73,13 +73,14 @@ class ParkingService {
         }
 
         if (kDebugMode) {
-          AppLogger.auth('Added token to request: ${token?.substring(0, 20)}...');
+          AppLogger.auth(
+              'Added token to request: ${token?.substring(0, 20)}...');
           AppLogger.auth('Domain: $domain');
           AppLogger.auth('Request URL: ${options.baseUrl}${options.path}');
           AppLogger.auth('Request Method: ${options.method}');
           AppLogger.auth('All Headers: ${options.headers}');
         }
-        
+
         handler.next(options);
       },
     ));
@@ -94,13 +95,13 @@ class ParkingService {
   }) async {
     try {
       _clearDioInstance(); // Force clear cached Dio to use new PROD URL
-      
+
       if (kDebugMode) {
         AppLogger.parking('License: $licensePlate, Quantity: $quantity');
       }
 
       final dio = await _getDio();
-      
+
       final response = await dio.get(
         '/ticket/activate/$licensePlate',
         queryParameters: {'quantity': quantity},
@@ -113,12 +114,13 @@ class ParkingService {
       }
 
       if (response.data is Map<String, dynamic>) {
-        final parkingResponse = PossibleParkingResponse.fromJson(response.data as Map<String, dynamic>);
-        
+        final parkingResponse = PossibleParkingResponse.fromJson(
+            response.data as Map<String, dynamic>);
+
         if (kDebugMode) {
           AppLogger.parking('Parsed ${parkingResponse.tickets.length} tickets');
         }
-        
+
         return parkingResponse;
       }
 
@@ -127,15 +129,15 @@ class ParkingService {
       if (kDebugMode) {
         AppLogger.error('Error: $e');
       }
-      
+
       // Extract error message from DioException if available
       String errorMessage = 'Erro ao buscar tickets disponíveis';
-      
+
       if (e is DioException && e.response?.data is Map<String, dynamic>) {
         final errorData = e.response!.data as Map<String, dynamic>;
         final apiMessage = errorData['message'] as String?;
         final apiCode = errorData['code'] as String?;
-        
+
         if (apiMessage != null && apiMessage.isNotEmpty) {
           errorMessage = apiMessage;
         } else if (apiCode != null && apiCode.isNotEmpty) {
@@ -146,7 +148,7 @@ class ParkingService {
       } else {
         errorMessage = 'Erro ao buscar tickets disponíveis: $e';
       }
-      
+
       throw Exception(errorMessage);
     }
   }
@@ -155,39 +157,46 @@ class ParkingService {
   static Future<ParkingResponse> activateParking({
     required String licensePlate,
     required List<int> ticketIds,
-    required int parkingTime, // Adicionar o tempo selecionado
+    required int parkingTime,
+    required String latitude,
+    required String longitude,
+    required String device,
   }) async {
     try {
       if (kDebugMode) {
         AppLogger.parking('License: $licensePlate');
         AppLogger.parking('Tickets: $ticketIds');
         AppLogger.parking('ParkingTime: $parkingTime minutos');
+        AppLogger.parking('Latitude: $latitude');
+        AppLogger.parking('Longitude: $longitude');
+        AppLogger.parking('Device: $device');
       }
 
       final dio = await _getDio();
-      
+
       // Create ticket params string like React Native
       final ticketParams = ticketIds.join(',');
       final url = '/ticket/activate/$licensePlate/[$ticketParams]';
-      
+
       if (kDebugMode) {
         AppLogger.parking('Request URL: $url');
       }
-      
-      // Send data including parkingTime like React Native
-      final requestData = {
-        'licensePlate': licensePlate,
-        'tickets': ticketIds,
-        'parkingTime': parkingTime, // Incluir o tempo selecionado
-      };
-      
+
+      // Create ParkingData following React Native pattern
+      final parkingData = ParkingData(
+        latitude: latitude,
+        longitude: longitude,
+        device: device,
+        parkingTime: parkingTime,
+      );
+
       if (kDebugMode) {
-        AppLogger.parking('Request data: $requestData');
+        AppLogger.parking('Request data: ${parkingData.toJson()}');
       }
-      
+
       final response = await dio.post(
         url,
-        data: requestData,
+        data: parkingData.toJson(),
       );
 
       if (kDebugMode) {
@@ -197,29 +206,31 @@ class ParkingService {
       }
 
       if (response.data is Map<String, dynamic>) {
-        final parkingResponse = ParkingResponse.fromJson(response.data as Map<String, dynamic>);
-        
+        final parkingResponse =
+            ParkingResponse.fromJson(response.data as Map<String, dynamic>);
+
         if (kDebugMode) {
           AppLogger.parking('Activated parking: ${parkingResponse.id}');
         }
-        
+
         return parkingResponse;
       }
 
-      throw Exception('Resposta da API inválida para ativação de estacionamento');
+      throw Exception(
+          'Resposta da API inválida para ativação de estacionamento');
     } catch (e) {
       if (kDebugMode) {
         AppLogger.error('Error: $e');
       }
-      
+
       // Extract error message from DioException if available
       String errorMessage = 'Erro ao ativar estacionamento';
-      
+
       if (e is DioException && e.response?.data is Map<String, dynamic>) {
         final errorData = e.response!.data as Map<String, dynamic>;
         final apiMessage = errorData['message'] as String?;
         final apiCode = errorData['code'] as String?;
-        
+
         if (apiMessage != null && apiMessage.isNotEmpty) {
           errorMessage = apiMessage;
         } else if (apiCode != null && apiCode.isNotEmpty) {
@@ -230,22 +241,23 @@ class ParkingService {
       } else {
         errorMessage = 'Erro ao ativar estacionamento: $e';
       }
-      
+
       throw Exception(errorMessage);
     }
   }
 
   /// Get activation detail by ID
-  static Future<ActivationDetail> getActivationDetail(String activationId) async {
+  static Future<ActivationDetail> getActivationDetail(
+      String activationId) async {
     try {
       _clearDioInstance(); // Force clear cached Dio to use new PROD URL
-      
+
       if (kDebugMode) {
         AppLogger.parking('ID: $activationId');
       }
 
       final dio = await _getDio();
-      
+
       final response = await dio.get('/activation/$activationId');
 
       if (kDebugMode) {
@@ -255,12 +267,13 @@ class ParkingService {
       }
 
       if (response.data is Map<String, dynamic>) {
-        final activationDetail = ActivationDetail.fromJson(response.data as Map<String, dynamic>);
-        
+        final activationDetail =
+            ActivationDetail.fromJson(response.data as Map<String, dynamic>);
+
         if (kDebugMode) {
           AppLogger.parking('Loaded activation: ${activationDetail.id}');
         }
-        
+
         return activationDetail;
       }
 
@@ -269,15 +282,15 @@ class ParkingService {
       if (kDebugMode) {
         AppLogger.error('Error: $e');
       }
-      
+
       // Extract error message from DioException if available
       String errorMessage = 'Erro ao buscar detalhes da ativação';
-      
+
       if (e is DioException && e.response?.data is Map<String, dynamic>) {
         final errorData = e.response!.data as Map<String, dynamic>;
         final apiMessage = errorData['message'] as String?;
         final apiCode = errorData['code'] as String?;
-        
+
         if (apiMessage != null && apiMessage.isNotEmpty) {
           errorMessage = apiMessage;
         } else if (apiCode != null && apiCode.isNotEmpty) {
@@ -288,7 +301,7 @@ class ParkingService {
       } else {
         errorMessage = 'Erro ao buscar detalhes da ativação: $e';
       }
-      
+
       throw Exception(errorMessage);
     }
   }
