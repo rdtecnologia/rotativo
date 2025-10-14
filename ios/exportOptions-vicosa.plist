@@ -6,6 +6,8 @@
     <string>ad-hoc</string>
     <key>teamID</key>
     <string>M7VN637CYH</string>
+    <key>outputName</key>
+    <string>Rotativo-Vicosa</string>    
     <key>provisioningProfiles</key>
     <dict>
         <key>com.rotativodigitalvicosard</key>
