@@ -22,7 +22,7 @@
         {
             "label": "Build IPA Ouro Preto",
             "type": "shell",
-            "command": "flutter build ipa --flavor ouropreto  -t lib/main.dart --dart-define-from-file=env/ouroPreto.json —release"
+            "command": "flutter build ipa --flavor ouroPreto -t lib/main.dart --dart-define-from-file=env/ouroPreto.json --release --export-options-plist=ios/exportOptions-ouroPreto.plist"
         },
         {
             "label": "Renomear APK Ouro Preto",
@@ -72,7 +72,7 @@
         {
             "label": "Build IPA Viçosa",
             "type": "shell",
-            "command": "flutter build ipa --flavor vicosa  -t lib/main.dart --dart-define-from-file=env/vicosa.json —release"
+            "command": "flutter build ipa --flavor vicosa -t lib/main.dart --dart-define-from-file=env/vicosa.json --release --export-options-plist=ios/exportOptions-vicosa.plist"
         },
         {
             "label": "Renomear APK Viçosa",
