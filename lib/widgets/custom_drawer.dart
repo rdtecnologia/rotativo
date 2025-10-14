@@ -154,8 +154,8 @@ class CustomDrawer extends ConsumerWidget {
                         storeUrl =
                             'https://play.google.com/store/apps/details?id=$packageName';
                       } else if (Platform.isIOS) {
-                        final appId = await DynamicAppConfig.iosPackage;
-                        storeUrl = 'https://apps.apple.com/app/id$appId';
+                        final appStoreId = await DynamicAppConfig.iosAppStoreId;
+                        storeUrl = 'https://apps.apple.com/app/id$appStoreId';
                       } else {
                         throw Exception('Plataforma não suportada');
                       }

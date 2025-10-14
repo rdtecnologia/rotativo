@@ -19,9 +19,9 @@ type Purchase = {
   vehicleTypeDefault?: number;
   showBy: string;
   chargeback: boolean;
-  minCreditsByVehicle: {[vehicleType: string]: number};
-  products: {[vehicleType: string]: PurchaseProducts[]};
-  payment: {creditCard: boolean; billet: boolean; pix?: boolean};
+  minCreditsByVehicle: { [vehicleType: string]: number };
+  products: { [vehicleType: string]: PurchaseProducts[] };
+  payment: { creditCard: boolean; billet: boolean; pix?: boolean };
 };
 
 type ParkingTime = {
@@ -30,7 +30,7 @@ type ParkingTime = {
   credits: number;
 };
 
-type ParkingRules = {[vehicleType: string]: ParkingTime[]};
+type ParkingRules = { [vehicleType: string]: ParkingTime[] };
 
 type FAQ = {
   title: string;
@@ -46,6 +46,7 @@ export type CityConfig = {
   termsLink: string;
   androidPackage: string;
   iosPackage: string;
+  iosAppStoreId: string;
   whatsapp?: string;
   chatBotURL?: string;
   products: number[];
@@ -62,5 +63,5 @@ export type CityConfig = {
 export type Envorioment = typeof env.dev;
 
 declare module 'ConselheiroLafaiete.json' {
-  export interface DefaultCityConfig extends CityConfig {}
+  export interface DefaultCityConfig extends CityConfig { }
 }

@@ -113,6 +113,11 @@ class DynamicAppConfig {
     return config['iosPackage'] ?? '';
   }
 
+  static Future<String> get iosAppStoreId async {
+    final config = await _loadConfig();
+    return config['iosAppStoreId'] ?? '';
+  }
+
   static Future<String?> get whatsapp async {
     final config = await _loadConfig();
     return config['whatsapp'];

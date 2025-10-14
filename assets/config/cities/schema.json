@@ -26,6 +26,9 @@
     "iosPackage": {
       "type": "string"
     },
+    "iosAppStoreId": {
+      "type": "string"
+    },
     "whatsapp": {
       "type": "string"
     },
