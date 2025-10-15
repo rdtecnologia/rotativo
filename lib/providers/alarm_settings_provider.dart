@@ -119,7 +119,9 @@ class AlarmSettingsNotifier extends StateNotifier<AlarmSettings> {
     try {
       final json = jsonEncode(state.toJson());
       await _storage.write(key: _storageKey, value: json);
-    } catch (e) {}
+    } catch (e) {
+      // Ignora erros de salvamento - mantém configurações em memória
+    }
   }
 
   // Atualiza a configuração de vencimento do estacionamento
@@ -168,5 +170,5 @@ class AlarmSettingsNotifier extends StateNotifier<AlarmSettings> {
   }
 
   // Lista de opções de tempo disponíveis
-  List<int> get reminderOptions => [5, 10, 15, 30, 60];
+  List<int> get reminderOptions => [5, 10, 15, 30, 45, 60];
 }

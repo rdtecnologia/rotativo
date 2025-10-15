@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/history_models.dart';
 import '../models/vehicle_models.dart';
 import '../services/history_service.dart';
+import '../services/parking_notification_service.dart';
+import 'alarm_settings_provider.dart';
 
 class ActiveActivationsNotifier
     extends StateNotifier<Map<String, ActivationHistory>> {
@@ -170,8 +172,9 @@ final hasActiveParkingProvider = Provider.family<bool, Vehicle>(
 /// Este provider pode ser usado por todo o app para notificações e outras funcionalidades
 class TimeUpdateNotifier extends StateNotifier<DateTime> {
   Timer? _timer;
+  final Ref _ref;
 
-  TimeUpdateNotifier() : super(DateTime.now()) {
+  TimeUpdateNotifier(this._ref) : super(DateTime.now()) {
     _startTimer();
   }
 
@@ -181,7 +184,106 @@ class TimeUpdateNotifier extends StateNotifier<DateTime> {
       state = DateTime.now();
       debugPrint(
           '🕐 TimeUpdateNotifier - Tempo atualizado: ${state.toString()}');
+
+      // Executa verificação automática de notificações a cada minuto
+      _checkAndScheduleNotificationsAutomatically();
     });
+  }
+
+  /// Verifica e agenda notificações automaticamente a cada minuto
+  Future<void> _checkAndScheduleNotificationsAutomatically() async {
+    try {
+      debugPrint('🔔 === VERIFICAÇÃO AUTOMÁTICA A CADA MINUTO ===');
+
+      // Obtém as ativações ativas e configurações de alarme
+      final activeActivations = _ref.read(activeActivationsProvider);
+      final alarmSettings = _ref.read(alarmSettingsProvider);
+
+      // Log das configurações atuais
+      debugPrint('📊 Configurações de Notificação:');
+      debugPrint(
+          '  - Notificações habilitadas: ${alarmSettings.localNotificationsEnabled}');
+      debugPrint(
+          '  - Vencimento de estacionamento: ${alarmSettings.parkingExpiration}');
+      debugPrint(
+          '  - Tempo de antecedência: ${alarmSettings.reminderMinutes} minutos');
+      debugPrint('  - Som: ${alarmSettings.soundEnabled}');
+      debugPrint('  - Vibração: ${alarmSettings.vibrationEnabled}');
+      debugPrint('  - Luzes: ${alarmSettings.lightsEnabled}');
+
+      // Log das ativações ativas
+      debugPrint(
+          '🚗 Veículos com Estacionamento Ativo (${activeActivations.length}):');
+
+      if (activeActivations.isEmpty) {
+        debugPrint('  - Nenhum veículo com estacionamento ativo');
+        return;
+      }
+
+      // Verifica se as notificações estão habilitadas
+      if (!alarmSettings.localNotificationsEnabled ||
+          !alarmSettings.parkingExpiration) {
+        debugPrint('⚠️ Notificações desabilitadas - pulando agendamento');
+        return;
+      }
+
+      // Obtém o serviço de notificações
+      final notificationService = _ref.read(parkingNotificationServiceProvider);
+
+      // Para cada veículo ativo, mostra detalhes e agenda notificação
+      for (final entry in activeActivations.entries) {
+        final licensePlate = entry.key;
+        final activation = entry.value;
+
+        // Calcula tempos
+        final expirationTime = activation.expiresAt ??
+            activation.activatedAt
+                .add(Duration(minutes: activation.parkingTime));
+        final notificationTime = expirationTime
+            .subtract(Duration(minutes: alarmSettings.reminderMinutes));
+        final now = DateTime.now();
+
+        debugPrint('  - $licensePlate:');
+        debugPrint(
+            '    - Status: ${activation.isActive ? "ativo" : "inativo"}');
+        debugPrint(
+            '    - Tempo de estacionamento: ${activation.parkingTime} minutos');
+        debugPrint('    - Ativado em: ${activation.activatedAt}');
+        debugPrint('    - Expira em: $expirationTime');
+        debugPrint('    - Notificação agendada para: $notificationTime');
+        debugPrint(
+            '    - Tempo restante: ${activation.remainingMinutes} minutos');
+
+        // Verifica se deve agendar notificação
+        if (!activation.isActive) {
+          debugPrint('    - ❌ Não agendando: estacionamento inativo');
+          continue;
+        }
+
+        if (expirationTime.isBefore(now)) {
+          debugPrint('    - ❌ Não agendando: estacionamento já expirou');
+          continue;
+        }
+
+        if (notificationTime.isBefore(now)) {
+          debugPrint('    - ❌ Não agendando: tempo de antecedência já passou');
+          continue;
+        }
+
+        debugPrint(
+            '    - ✅ Agendando notificação para ${alarmSettings.reminderMinutes} minutos antes da expiração');
+      }
+
+      // Executa o agendamento das notificações
+      await notificationService.checkAndScheduleNotifications(
+          activeActivations, alarmSettings);
+
+      debugPrint('🔔 === FIM VERIFICAÇÃO AUTOMÁTICA ===');
+    } catch (e, stackTrace) {
+      debugPrint('❌ Erro na verificação automática de notificações: $e');
+      debugPrint('📍 Stack trace: $stackTrace');
+      // Não relança o erro para não quebrar o timer
+    }
   }
 
   @override
@@ -193,7 +295,7 @@ class TimeUpdateNotifier extends StateNotifier<DateTime> {
 
 /// Provider global para atualizações de tempo
 final timeUpdateProvider = StateNotifierProvider<TimeUpdateNotifier, DateTime>(
-  (ref) => TimeUpdateNotifier(),
+  (ref) => TimeUpdateNotifier(ref),
 );
 
 /// Provider para obter ativações que estão próximas de expirar (últimos 15 minutos)

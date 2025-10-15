@@ -180,8 +180,8 @@ class ParkingNotificationService {
 
       debugPrint('  - ${activation.licensePlate}:');
       debugPrint('    - Ativa: ${activation.isActive}');
-      debugPrint('    - Expira em: ${expirationTime}');
-      debugPrint('    - Notificação em: ${notificationTime}');
+      debugPrint('    - Expira em: $expirationTime');
+      debugPrint('    - Notificação em: $notificationTime');
       debugPrint(
           '    - Já expirou: ${expirationTime.isBefore(DateTime.now())}');
       debugPrint(
@@ -307,19 +307,22 @@ class _ParkingNotificationMonitorState
   }
 
   void _startPeriodicCheck() {
-    // Verifica a cada 2 minutos para aplicar configurações atualizadas
-    // E garantir que notificações sejam agendadas corretamente
-    _periodicTimer = Timer.periodic(const Duration(minutes: 2), (timer) {
+    // Verifica a cada 5 minutos como backup do sistema principal
+    // O TimeUpdateNotifier já faz verificação a cada minuto
+    _periodicTimer = Timer.periodic(const Duration(minutes: 5), (timer) {
       _checkAndScheduleNotifications();
     });
   }
 
   Future<void> _checkAndScheduleNotifications() async {
-    final activeActivations = ref.read(activeActivationsProvider);
-    final alarmSettings = ref.read(alarmSettingsProvider);
+    try {
+      if (!mounted) return;
 
-    if (mounted) {
-      debugPrint('🔔 Timer periódico: Aplicando configurações atuais...');
+      final activeActivations = ref.read(activeActivationsProvider);
+      final alarmSettings = ref.read(alarmSettingsProvider);
+
+      debugPrint(
+          '🔔 Timer periódico (backup): Aplicando configurações atuais...');
       final notificationService = ref.read(parkingNotificationServiceProvider);
       await notificationService.checkAndScheduleNotifications(
           activeActivations, alarmSettings);
@@ -327,6 +330,10 @@ class _ParkingNotificationMonitorState
       // Atualiza o estado para refletir as configurações aplicadas
       _lastScheduledActivations = Map.from(activeActivations);
       _lastScheduledSettings = alarmSettings;
+    } catch (e, stackTrace) {
+      debugPrint('❌ Erro no timer periódico de backup: $e');
+      debugPrint('📍 Stack trace: $stackTrace');
+      // Não relança o erro para não quebrar o timer
     }
   }
 
@@ -398,18 +405,25 @@ class _ParkingNotificationMonitorState
 
     // ✅ Agenda notificações quando há mudanças significativas nas ATIVAÇÕES ou CONFIGURAÇÕES
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      if (mounted && _hasSignificantChanges(activeActivations, alarmSettings)) {
-        debugPrint(
-            '🔔 Mudanças significativas detectadas, reagendando notificações...');
+      try {
+        if (mounted &&
+            _hasSignificantChanges(activeActivations, alarmSettings)) {
+          debugPrint(
+              '🔔 Mudanças significativas detectadas, reagendando notificações...');
 
-        final notificationService =
-            ref.read(parkingNotificationServiceProvider);
-        await notificationService.checkAndScheduleNotifications(
-            activeActivations, alarmSettings);
+          final notificationService =
+              ref.read(parkingNotificationServiceProvider);
+          await notificationService.checkAndScheduleNotifications(
+              activeActivations, alarmSettings);
 
-        // Atualiza o estado para evitar agendamento duplicado
-        _lastScheduledActivations = Map.from(activeActivations);
-        _lastScheduledSettings = alarmSettings;
+          // Atualiza o estado para evitar agendamento duplicado
+          _lastScheduledActivations = Map.from(activeActivations);
+          _lastScheduledSettings = alarmSettings;
+        }
+      } catch (e, stackTrace) {
+        debugPrint('❌ Erro no callback de mudanças: $e');
+        debugPrint('📍 Stack trace: $stackTrace');
+        // Não relança o erro para não quebrar a UI
       }
     });
 

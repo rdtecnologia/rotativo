@@ -478,9 +478,11 @@ class AlarmSettingsScreen extends ConsumerWidget {
         ),
       ),
       trailing: DropdownButton<int>(
-        value: reminderMinutes,
+        value: reminderOptions.contains(reminderMinutes)
+            ? reminderMinutes
+            : reminderOptions.first,
         underline: const SizedBox(),
-        items: reminderOptions.map((minutes) {
+        items: (reminderOptions.toSet().toList()..sort()).map((minutes) {
           return DropdownMenuItem<int>(
             value: minutes,
             child: Text('${minutes}min'),
