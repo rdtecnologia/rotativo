@@ -20,23 +20,16 @@ class LocalNotificationService {
       FlutterLocalNotificationsPlugin();
 
   bool _isInitialized = false;
+  bool _timezoneInitialized = false;
 
   /// Inicializa o serviço de notificações
   Future<void> initialize() async {
     try {
-      // Inicializa timezone
-      tz.initializeTimeZones();
+      // ✅ CORREÇÃO iOS RELEASE: Inicialização robusta do timezone
+      await _initializeTimezoneRobustly();
 
-      // Aguarda um momento para garantir que o banco de dados seja carregado
-      await Future.delayed(const Duration(milliseconds: 500));
-
-      // Define timezone padrão para Brasil
-      try {
-        final location = tz.getLocation('America/Sao_Paulo');
-        tz.setLocalLocation(location);
-      } catch (e) {
-        tz.setLocalLocation(tz.UTC);
-      }
+      // ✅ Verificação adicional para iOS release
+      await _validateTimezoneInitialization();
 
       // Configuração para Android
       const androidSettings =
@@ -149,6 +142,168 @@ class LocalNotificationService {
     debugPrint('🔔 Notificação tocada: ${response.payload}');
   }
 
+  /// ✅ CORREÇÃO iOS RELEASE: Inicialização robusta do timezone com retry logic
+  Future<void> _initializeTimezoneRobustly() async {
+    debugPrint('🌍 === INICIALIZAÇÃO ROBUSTA DO TIMEZONE ===');
+
+    const maxRetries = 3;
+    const baseDelay = Duration(milliseconds: 500);
+
+    for (int attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        debugPrint(
+            '🌍 Tentativa $attempt/$maxRetries de inicialização do timezone...');
+
+        // Inicializa timezone
+        tz.initializeTimeZones();
+
+        // Aguarda com delay progressivo para iOS release builds
+        final delay =
+            Duration(milliseconds: baseDelay.inMilliseconds * attempt);
+        debugPrint(
+            '🌍 Aguardando ${delay.inMilliseconds}ms para carregamento completo...');
+        await Future.delayed(delay);
+
+        // Tenta definir timezone do Brasil
+        try {
+          final location = tz.getLocation('America/Sao_Paulo');
+          tz.setLocalLocation(location);
+          debugPrint('✅ Timezone definido para America/Sao_Paulo');
+        } catch (e) {
+          debugPrint('⚠️ Erro ao definir America/Sao_Paulo, usando UTC: $e');
+          tz.setLocalLocation(tz.UTC);
+        }
+
+        // Verifica se a inicialização foi bem-sucedida
+        final testTime = tz.TZDateTime.now(tz.local);
+        debugPrint('🌍 Teste de timezone: $testTime');
+        debugPrint('🌍 Timezone local: ${tz.local}');
+
+        _timezoneInitialized = true;
+        debugPrint('✅ Timezone inicializado com sucesso na tentativa $attempt');
+        return;
+      } catch (e) {
+        debugPrint(
+            '❌ Erro na tentativa $attempt de inicialização do timezone: $e');
+
+        if (attempt == maxRetries) {
+          debugPrint(
+              '💥 FALHA CRÍTICA: Não foi possível inicializar timezone após $maxRetries tentativas');
+          // Fallback para UTC
+          try {
+            tz.setLocalLocation(tz.UTC);
+            _timezoneInitialized = true;
+            debugPrint('⚠️ Usando UTC como fallback');
+          } catch (fallbackError) {
+            debugPrint(
+                '💥 ERRO CRÍTICO: Nem mesmo UTC funcionou: $fallbackError');
+            rethrow;
+          }
+        } else {
+          // Aguarda antes da próxima tentativa
+          await Future.delayed(Duration(milliseconds: 200 * attempt));
+        }
+      }
+    }
+  }
+
+  /// ✅ CORREÇÃO iOS RELEASE: Validação adicional da inicialização do timezone
+  Future<void> _validateTimezoneInitialization() async {
+    debugPrint('🔍 === VALIDAÇÃO DO TIMEZONE ===');
+
+    try {
+      // Testa se consegue criar TZDateTime
+      final now = tz.TZDateTime.now(tz.local);
+      final future = now.add(const Duration(seconds: 10));
+
+      debugPrint('🔍 TZDateTime.now(): $now');
+      debugPrint('🔍 TZDateTime futuro (+10s): $future');
+      debugPrint('🔍 Diferença: ${future.difference(now).inSeconds} segundos');
+      debugPrint('🔍 Timezone: ${tz.local}');
+      debugPrint('🔍 Offset: ${now.timeZoneOffset}');
+
+      // Verifica se o tempo futuro é realmente futuro
+      if (future.isAfter(now)) {
+        debugPrint('✅ Validação do timezone bem-sucedida');
+      } else {
+        throw Exception('Tempo futuro não é maior que tempo atual');
+      }
+    } catch (e) {
+      debugPrint('❌ ERRO na validação do timezone: $e');
+      debugPrint('⚠️ Tentando reinicializar timezone...');
+
+      // Tenta reinicializar
+      _timezoneInitialized = false;
+      await _initializeTimezoneRobustly();
+    }
+  }
+
+  /// ✅ CORREÇÃO iOS RELEASE: Cria TZDateTime de forma robusta para iOS
+  tz.TZDateTime _createRobustTZDateTime(DateTime targetTime) {
+    debugPrint('⏰ === CRIANDO TZDATETIME ROBUSTO ===');
+
+    try {
+      // Garante que o timezone está inicializado
+      if (!_timezoneInitialized) {
+        debugPrint('⚠️ Timezone não inicializado, usando fallback');
+        throw Exception('Timezone não inicializado');
+      }
+
+      // Método 1: Usar TZDateTime.now() + diferença (mais preciso para iOS release)
+      final now = tz.TZDateTime.now(tz.local);
+      final difference = targetTime.difference(DateTime.now());
+      final tzTargetTime = now.add(difference);
+
+      debugPrint('⏰ DateTime.now(): ${DateTime.now()}');
+      debugPrint('⏰ TZDateTime.now(): $now');
+      debugPrint('⏰ Target DateTime: $targetTime');
+      debugPrint('⏰ Diferença: ${difference.inMinutes} minutos');
+      debugPrint('⏰ TZDateTime target: $tzTargetTime');
+      debugPrint('⏰ Timezone: ${tz.local}');
+
+      // Validação crítica: verifica se o tempo está no futuro
+      if (tzTargetTime.isBefore(now)) {
+        debugPrint('❌ ERRO: Tempo calculado está no passado!');
+        debugPrint('❌ TZDateTime target: $tzTargetTime');
+        debugPrint('❌ TZDateTime now: $now');
+        throw Exception('Tempo calculado está no passado');
+      }
+
+      // Validação adicional: diferença mínima de 1 segundo
+      final secondsDifference = tzTargetTime.difference(now).inSeconds;
+      if (secondsDifference < 1) {
+        debugPrint(
+            '❌ ERRO: Diferença muito pequena ($secondsDifference segundos)');
+        throw Exception('Diferença temporal muito pequena');
+      }
+
+      debugPrint('✅ TZDateTime criado com sucesso: $tzTargetTime');
+      debugPrint('✅ Diferença: $secondsDifference segundos no futuro');
+
+      return tzTargetTime;
+    } catch (e) {
+      debugPrint('❌ Erro ao criar TZDateTime robusto: $e');
+      debugPrint('🔄 Tentando método fallback...');
+
+      try {
+        // Fallback: usar tz.TZDateTime.from() com validação extra
+        final tzFallback = tz.TZDateTime.from(targetTime, tz.local);
+        final now = tz.TZDateTime.now(tz.local);
+
+        if (tzFallback.isAfter(now)) {
+          debugPrint('✅ Fallback TZDateTime.from() funcionou: $tzFallback');
+          return tzFallback;
+        } else {
+          debugPrint('❌ Fallback também resultou em tempo passado');
+          throw Exception('Todos os métodos resultaram em tempo passado');
+        }
+      } catch (fallbackError) {
+        debugPrint('💥 ERRO CRÍTICO: Fallback também falhou: $fallbackError');
+        rethrow;
+      }
+    }
+  }
+
   /// Agenda uma notificação de vencimento de estacionamento
   Future<void> scheduleParkingExpirationNotification({
     required String licensePlate,
@@ -222,6 +377,15 @@ class LocalNotificationService {
       return;
     }
 
+    // ✅ CORREÇÃO iOS RELEASE: Garantir inicialização do timezone antes de agendar
+    await _ensureInitialized();
+
+    // Validação adicional para iOS release
+    if (Platform.isIOS && !_timezoneInitialized) {
+      debugPrint('❌ ERRO CRÍTICO: Timezone não inicializado no iOS');
+      throw Exception('Timezone não inicializado para iOS');
+    }
+
     // ✅ CORREÇÃO: Usar o mesmo canal que funciona para notificações de 10s
     await _createOrUpdateNotificationChannel(
       'immediate',
@@ -245,6 +409,18 @@ class LocalNotificationService {
     debugPrint(
         '  - Som: $soundEnabled, Vibração: $vibrationEnabled, Luzes: $lightsEnabled');
     debugPrint('  - Local: ${location ?? "Não informado"}');
+
+    // ✅ LOGS ESPECÍFICOS PARA iOS RELEASE DEBUG
+    if (Platform.isIOS) {
+      debugPrint('🍎 === DEBUG ESPECÍFICO iOS RELEASE ===');
+      debugPrint('  - Timezone inicializado: $_timezoneInitialized');
+      debugPrint('  - Timezone local: ${tz.local}');
+      debugPrint('  - TZDateTime.now(): ${tz.TZDateTime.now(tz.local)}');
+      debugPrint('  - DateTime.now(): ${DateTime.now()}');
+      debugPrint(
+          '  - Diferença de offset: ${tz.TZDateTime.now(tz.local).timeZoneOffset}');
+      debugPrint('🍎 === FIM DEBUG iOS ===');
+    }
 
     if (Platform.isAndroid) {
       debugPrint(
@@ -285,19 +461,8 @@ class LocalNotificationService {
           '  - Diferença até notificação: ${notificationTime.difference(DateTime.now()).inMinutes} minutos');
       debugPrint('  - Modo Android: ${canScheduleExact ? "exact" : "inexact"}');
 
-      // ✅ CORREÇÃO: Usar a mesma abordagem de timezone que funciona nos testes
-      final now = tz.TZDateTime.now(tz.local);
-      final minutesUntilNotification =
-          notificationTime.difference(DateTime.now()).inMinutes;
-      final tzNotificationTime =
-          now.add(Duration(minutes: minutesUntilNotification));
-
-      debugPrint('🔧 === CORREÇÃO TIMEZONE ===');
-      debugPrint('  - DateTime notificationTime: $notificationTime');
-      debugPrint('  - TZDateTime.now(): $now');
-      debugPrint('  - Minutos até notificação: $minutesUntilNotification');
-      debugPrint('  - TZDateTime target: $tzNotificationTime');
-      debugPrint('🔧 === FIM CORREÇÃO ===');
+      // ✅ CORREÇÃO iOS RELEASE: Usar método robusto para criar TZDateTime
+      final tzNotificationTime = _createRobustTZDateTime(notificationTime);
 
       // ✅ Usar a API correta para agendar notificações
       await _notifications.zonedSchedule(
@@ -358,6 +523,8 @@ class LocalNotificationService {
       debugPrint('✅ Notificação de estacionamento agendada com sucesso!');
 
       // ✅ FALLBACK: Timer para garantir que funcione no Android
+      final minutesUntilNotification =
+          notificationTime.difference(DateTime.now()).inMinutes;
       if (Platform.isAndroid && minutesUntilNotification > 0) {
         Timer(Duration(minutes: minutesUntilNotification), () async {
           debugPrint('⏰ Timer estacionamento disparado para $licensePlate!');
@@ -608,6 +775,7 @@ class LocalNotificationService {
       // Verificar se a notificação foi realmente processada
       final pendingNotifications =
           await _notifications.pendingNotificationRequests();
+      debugPrint('📋 Notificações pendentes: ${pendingNotifications.length}');
     } catch (e) {
       //
     }
@@ -941,14 +1109,20 @@ class LocalNotificationService {
     debugPrint('🍎 Testando notificação agendada específica para iOS...');
 
     try {
+      // ✅ CORREÇÃO iOS RELEASE: Garantir inicialização do timezone
+      await _ensureInitialized();
+
       // Agendar notificação para 10 segundos no futuro
       final scheduledTime = DateTime.now().add(const Duration(seconds: 10));
+
+      // ✅ CORREÇÃO iOS RELEASE: Usar método robusto para criar TZDateTime
+      final tzScheduledTime = _createRobustTZDateTime(scheduledTime);
 
       await _notifications.zonedSchedule(
         888, // ID fixo para teste
         '🍎 Teste iOS Agendado',
         'Esta é uma notificação agendada específica para iOS',
-        tz.TZDateTime.from(scheduledTime, tz.local),
+        tzScheduledTime,
         NotificationDetails(
           iOS: DarwinNotificationDetails(
             presentAlert: true,
@@ -1459,6 +1633,9 @@ class LocalNotificationService {
     debugPrint('🧪 === TESTE SIMPLES DE NOTIFICAÇÃO AGENDADA ===');
     debugPrint('⏰ Agendando notificação para $secondsFromNow segundos...');
 
+    // ✅ CORREÇÃO iOS RELEASE: Garantir inicialização do timezone
+    await _ensureInitialized();
+
     final scheduledTime = DateTime.now().add(Duration(seconds: secondsFromNow));
     final notificationId = 999999;
 
@@ -1467,11 +1644,14 @@ class LocalNotificationService {
     debugPrint('🆔 ID da notificação: $notificationId');
 
     try {
+      // ✅ CORREÇÃO iOS RELEASE: Usar método robusto para criar TZDateTime
+      final tzScheduledTime = _createRobustTZDateTime(scheduledTime);
+
       await _notifications.zonedSchedule(
         notificationId,
         '🧪 Teste Simples',
         'Esta notificação foi agendada para aparecer em $secondsFromNow segundos!',
-        tz.TZDateTime.from(scheduledTime, tz.local),
+        tzScheduledTime,
         NotificationDetails(
           android: AndroidNotificationDetails(
             'test_simple',
