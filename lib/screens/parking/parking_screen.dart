@@ -8,6 +8,7 @@ import '../../providers/parking_provider.dart';
 import '../../providers/vehicle_provider.dart';
 import '../../providers/balance_provider.dart';
 import '../../providers/location_provider.dart';
+import '../../providers/location_settings_provider.dart';
 import '../../config/dynamic_app_config.dart';
 import '../../utils/formatters.dart';
 import 'widgets/parking_time_card.dart';
@@ -111,7 +112,8 @@ class _ParkingScreenState extends ConsumerState<ParkingScreen> {
       return;
     }
 
-    if (currentPosition == null) {
+    final locationSettings = ref.read(locationSettingsProvider);
+    if (locationSettings.shareLocation && currentPosition == null) {
       if (mounted) {
         scaffoldMessenger.showSnackBar(
           const SnackBar(
@@ -207,8 +209,14 @@ class _ParkingScreenState extends ConsumerState<ParkingScreen> {
           await ref.read(parkingProvider.notifier).activateParking(
                 licensePlate: widget.vehicle.licensePlate,
                 ticketIds: possibleParking.tickets[0].tickets,
-                latitude: currentPosition.latitude,
-                longitude: currentPosition.longitude,
+                latitude:
+                    (locationSettings.shareLocation && currentPosition != null)
+                        ? currentPosition.latitude
+                        : null,
+                longitude:
+                    (locationSettings.shareLocation && currentPosition != null)
+                        ? currentPosition.longitude
+                        : null,
               );
 
       // Reload vehicles and balance
@@ -332,10 +340,12 @@ class _ParkingScreenState extends ConsumerState<ParkingScreen> {
                   });
                 }
 
+                final locationSettings = ref.watch(locationSettingsProvider);
                 return ParkingMap(
                   currentPosition: currentPosition,
                   isGettingLocation: isGettingLocation,
                   onRetryLocation: _getCurrentLocation,
+                  shareLocation: locationSettings.shareLocation,
                 );
               },
             ),

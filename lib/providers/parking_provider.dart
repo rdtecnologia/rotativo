@@ -71,10 +71,7 @@ class ParkingNotifier extends StateNotifier<ParkingState> {
         throw Exception('Tempo de estacionamento não selecionado');
       }
 
-      // Validate location
-      if (latitude == null || longitude == null) {
-        throw Exception('Localização não disponível');
-      }
+      // Location validation is now handled in the UI layer based on shareLocation setting
 
       if (kDebugMode) {
         AppLogger.parking('Selected parking time: $parkingTime minutos');
@@ -97,8 +94,8 @@ class ParkingNotifier extends StateNotifier<ParkingState> {
         licensePlate: licensePlate,
         ticketIds: ticketIds,
         parkingTime: parkingTime,
-        latitude: latitude.toString(),
-        longitude: longitude.toString(),
+        latitude: latitude?.toString() ?? '',
+        longitude: longitude?.toString() ?? '',
         device: deviceId,
       );
 

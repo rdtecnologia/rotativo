@@ -6,12 +6,14 @@ class ParkingMap extends StatefulWidget {
   final Position? currentPosition;
   final bool isGettingLocation;
   final VoidCallback onRetryLocation;
+  final bool shareLocation;
 
   const ParkingMap({
     super.key,
     this.currentPosition,
     required this.isGettingLocation,
     required this.onRetryLocation,
+    required this.shareLocation,
   });
 
   @override
@@ -260,10 +262,12 @@ class _ParkingMapState extends State<ParkingMap> {
                     size: 20,
                   ),
                   const SizedBox(width: 8),
-                  const Expanded(
+                  Expanded(
                     child: Text(
-                      'Sua localização será registrada no momento do estacionamento',
-                      style: TextStyle(
+                      widget.shareLocation
+                          ? 'Sua localização será registrada no momento do estacionamento'
+                          : 'Sua localização não será registrada no momento do estacionamento conforme sua permissão. Altere a permissão para registrar.',
+                      style: const TextStyle(
                         fontSize: 12,
                         color: Colors.black87,
                       ),
