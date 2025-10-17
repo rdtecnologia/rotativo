@@ -16,6 +16,7 @@
   "products": [
     13
   ],
+  "pricePerCredit": 0.50,
   "vehicleTypes": [
     1,
     2
