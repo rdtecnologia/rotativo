@@ -14,7 +14,7 @@
   "whatsapp": "(31) 99835-9953",
   "chatBotURL": "https://timob.chat.blip.ai/?appKey=YXRlbmRpbWVudG9odW1hbm9hcHBvcDozN2JjMDc0Mi1hN2Q1LTQyZTItYTcxZS1lNzg0ZWY4ZjNhNDY=",
   "products": [
-    13
+    19
   ],
   "vehicleTypes": [
     1,
@@ -31,14 +31,14 @@
       {
         "time": 60,
         "price": 2.5,
-        "credits": 5,
+        "credits": 50,
         "area": "Setor A",
         "color": "#282936"
       },
       {
         "time": 120,
         "price": 2.5,
-        "credits": 5,
+        "credits": 50,
         "area": "Setor B",
         "color": "#282936"
       }
@@ -46,8 +46,8 @@
     "2": [
       {
         "time": 120,
-        "price": 1.5,
-        "credits": 3,
+        "price": 1.25,
+        "credits": 25,
         "area": "Setor A",
         "color": "#282936"
       }
@@ -64,53 +64,53 @@
     "products": {
       "1": [
         {
-          "credits": 30,
+          "credits": 300,
           "price": 15
         },
         {
-          "credits": 40,
+          "credits": 400,
           "price": 20
         },
         {
-          "credits": 60,
+          "credits": 600,
           "price": 30
         },
         {
-          "credits": 90,
+          "credits": 900,
           "price": 45
         },
         {
-          "credits": 100,
+          "credits": 1000,
           "price": 50
         },
         {
-          "credits": 200,
+          "credits": 2000,
           "price": 100
         }
       ],
       "2": [
         {
-          "credits": 30,
+          "credits": 300,
           "price": 15
         },
         {
-          "credits": 40,
+          "credits": 400,
           "price": 20
         },
         {
-          "credits": 60,
+          "credits": 600,
           "price": 30
         },
         {
-          "credits": 90,
+          "credits": 900,
           "price": 45
         },
         {
-          "credits": 100,
+          "credits": 1000,
           "price": 50
         },
         {
-          "credits": 200,
+          "credits": 2000,
           "price": 100
         }
       ]
