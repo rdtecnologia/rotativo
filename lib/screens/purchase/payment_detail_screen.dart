@@ -11,6 +11,7 @@ import '../../providers/purchase_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/payment_detail_provider.dart';
 import '../../utils/formatters.dart';
+import '../../config/dynamic_app_config.dart';
 import 'credit_card_payment_screen.dart'; // Added import for CreditCardPaymentScreen
 
 class PaymentDetailScreen extends ConsumerStatefulWidget {
@@ -83,6 +84,13 @@ class _PaymentDetailScreenState extends ConsumerState<PaymentDetailScreen> {
         throw Exception('Usuário não autenticado');
       }
 
+      // Load dynamic productId from city config
+      final products = await DynamicAppConfig.products;
+      if (products.isEmpty) {
+        throw Exception('Nenhum produto configurado para esta cidade');
+      }
+      final productId = products.first;
+
       // Create payment data based on method
       PaymentData paymentData;
 
@@ -120,7 +128,7 @@ class _PaymentDetailScreenState extends ConsumerState<PaymentDetailScreen> {
       );
 
       final purchaseProduct = PurchaseProduct(
-        productId: 13, // From city config
+        productId: productId, // Dynamic productId from city config
         quantity: widget.product.credits, // Quantidade de créditos (correto)
         vehicleType: widget.vehicleType,
       );

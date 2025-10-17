@@ -11,6 +11,7 @@ import '../../widgets/credit_card_form_fields.dart';
 import '../../utils/formatters.dart';
 import '../../utils/logger.dart';
 import '../../utils/error_handler.dart';
+import '../../config/dynamic_app_config.dart';
 
 class CreditCardPaymentScreen extends ConsumerStatefulWidget {
   final int vehicleType;
@@ -94,8 +95,15 @@ class _CreditCardPaymentScreenState
         data: paymentData,
       );
 
+      // Load dynamic productId from city config
+      final products = await DynamicAppConfig.products;
+      if (products.isEmpty) {
+        throw Exception('Nenhum produto configurado para esta cidade');
+      }
+      final productId = products.first;
+
       final purchaseProduct = PurchaseProduct(
-        productId: 13, // From city config
+        productId: productId, // Dynamic productId from city config
         quantity: widget.product.credits,
         vehicleType: widget.vehicleType,
       );
@@ -180,8 +188,15 @@ class _CreditCardPaymentScreenState
         data: paymentData,
       );
 
+      // Load dynamic productId from city config
+      final products = await DynamicAppConfig.products;
+      if (products.isEmpty) {
+        throw Exception('Nenhum produto configurado para esta cidade');
+      }
+      final productId = products.first;
+
       final purchaseProduct = PurchaseProduct(
-        productId: 13, // From city config
+        productId: productId, // Dynamic productId from city config
         quantity: widget.product.credits,
         vehicleType: widget.vehicleType,
       );
