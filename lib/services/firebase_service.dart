@@ -14,6 +14,9 @@ class FirebaseService {
   FirebaseService._();
 
   bool _isInitialized = false;
+
+  /// Check if Firebase is initialized
+  bool get isInitialized => _isInitialized;
   FirebaseAnalytics? _analytics;
   FirebaseCrashlytics? _crashlytics;
 
@@ -181,8 +184,9 @@ class FirebaseService {
     if (_crashlytics == null) return;
 
     try {
-      // Enable crash collection in release mode
-      await _crashlytics!.setCrashlyticsCollectionEnabled(!kDebugMode);
+      // Always enable crash collection (even in debug mode for testing)
+      // Set to true to enable crash reporting in all modes
+      await _crashlytics!.setCrashlyticsCollectionEnabled(true);
 
       // Set user identifier (you can customize this based on your user system)
       await _crashlytics!
@@ -322,6 +326,44 @@ class FirebaseService {
       if (kDebugMode) {
         print('❌ Error setting Crashlytics keys: $e');
       }
+    }
+  }
+
+  /// Force send unsent reports to Crashlytics
+  /// Useful for testing in debug mode
+  Future<void> sendUnsentReports() async {
+    if (_crashlytics == null) return;
+
+    try {
+      await _crashlytics!.sendUnsentReports();
+
+      if (kDebugMode) {
+        print('📤 Unsent Crashlytics reports sent');
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('❌ Error sending unsent reports: $e');
+      }
+    }
+  }
+
+  /// Check for unsent reports
+  Future<bool> checkForUnsentReports() async {
+    if (_crashlytics == null) return false;
+
+    try {
+      final hasUnsent = await _crashlytics!.checkForUnsentReports();
+
+      if (kDebugMode) {
+        print('📊 Has unsent reports: $hasUnsent');
+      }
+
+      return hasUnsent;
+    } catch (e) {
+      if (kDebugMode) {
+        print('❌ Error checking for unsent reports: $e');
+      }
+      return false;
     }
   }
 }

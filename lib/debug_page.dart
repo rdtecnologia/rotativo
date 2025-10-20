@@ -4,6 +4,8 @@ import 'config/dynamic_app_config.dart';
 import 'config/environment.dart';
 import 'providers/auth_provider.dart';
 import 'providers/environment_provider.dart';
+import 'services/firebase_service.dart';
+import 'utils/firebase_analytics_helper.dart';
 
 class DebugPage extends ConsumerWidget {
   const DebugPage({super.key});
@@ -195,6 +197,10 @@ class DebugPage extends ConsumerWidget {
                 ),
                 const SizedBox(height: 16),
 
+                // Firebase Debug Info
+                _buildFirebaseSection(),
+                const SizedBox(height: 16),
+
                 // Auth Debug Info
                 Consumer(
                   builder: (context, ref, child) {
@@ -277,5 +283,273 @@ class DebugPage extends ConsumerWidget {
       'products': await DynamicAppConfig.products,
       'vehicleTypes': await DynamicAppConfig.vehicleTypes,
     };
+  }
+
+  Widget _buildFirebaseSection() {
+    final firebaseService = FirebaseService.instance;
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              '🔥 Firebase Status',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 12),
+
+            // Firebase Status Info
+            _buildFirebaseStatus(firebaseService),
+            const SizedBox(height: 16),
+
+            // Firebase Test Buttons
+            _buildFirebaseTestButtons(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFirebaseStatus(FirebaseService firebaseService) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(
+              firebaseService.analytics != null
+                  ? Icons.check_circle
+                  : Icons.error,
+              color:
+                  firebaseService.analytics != null ? Colors.green : Colors.red,
+              size: 16,
+            ),
+            const SizedBox(width: 8),
+            Text(
+                'Analytics: ${firebaseService.analytics != null ? "Ativo" : "Inativo"}'),
+          ],
+        ),
+        const SizedBox(height: 4),
+        Row(
+          children: [
+            Icon(
+              firebaseService.crashlytics != null
+                  ? Icons.check_circle
+                  : Icons.error,
+              color: firebaseService.crashlytics != null
+                  ? Colors.green
+                  : Colors.red,
+              size: 16,
+            ),
+            const SizedBox(width: 8),
+            Text(
+                'Crashlytics: ${firebaseService.crashlytics != null ? "Ativo" : "Inativo"}'),
+          ],
+        ),
+        const SizedBox(height: 4),
+        Text('Flavor: ${Environment.flavor}'),
+        Text('Inicializado: ${firebaseService.isInitialized}'),
+      ],
+    );
+  }
+
+  Widget _buildFirebaseTestButtons() {
+    return Builder(
+      builder: (context) => Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const Text(
+            '🧪 Testes Firebase',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 8),
+
+          // Analytics Test Buttons
+          Row(
+            children: [
+              Expanded(
+                child: ElevatedButton.icon(
+                  onPressed: () async {
+                    await FirebaseAnalyticsHelper.logCustomEvent(
+                      'debug_test_event',
+                      parameters: {
+                        'test_type': 'analytics',
+                        'timestamp': DateTime.now().millisecondsSinceEpoch,
+                        'flavor': Environment.flavor,
+                      },
+                    );
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                          content: Text('Evento de Analytics enviado!')),
+                    );
+                  },
+                  icon: const Icon(Icons.analytics, size: 16),
+                  label: const Text('Test Analytics'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue,
+                    foregroundColor: Colors.white,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: ElevatedButton.icon(
+                  onPressed: () async {
+                    await FirebaseAnalyticsHelper.logScreenView(
+                        'debug_test_screen');
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                          content: Text('Screen View Analytics enviado!')),
+                    );
+                  },
+                  icon: const Icon(Icons.visibility, size: 16),
+                  label: const Text('Test Screen'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue,
+                    foregroundColor: Colors.white,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+
+          // Crashlytics Test Buttons
+          Row(
+            children: [
+              Expanded(
+                child: ElevatedButton.icon(
+                  onPressed: () async {
+                    await FirebaseCrashlyticsHelper.logError(
+                      Exception('Teste de erro não-fatal do Debug'),
+                      StackTrace.current,
+                      reason: 'Teste manual de Crashlytics - Debug Page',
+                    );
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                          content:
+                              Text('Erro não-fatal enviado para Crashlytics!')),
+                    );
+                  },
+                  icon: const Icon(Icons.warning, size: 16),
+                  label: const Text('Test Error'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.orange,
+                    foregroundColor: Colors.white,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: ElevatedButton.icon(
+                  onPressed: () async {
+                    await FirebaseCrashlyticsHelper.log(
+                        'Teste de log do Crashlytics - Debug Page');
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                          content: Text('Log enviado para Crashlytics!')),
+                    );
+                  },
+                  icon: const Icon(Icons.description, size: 16),
+                  label: const Text('Test Log'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.orange,
+                    foregroundColor: Colors.white,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+
+          // API Error Test
+          ElevatedButton.icon(
+            onPressed: () async {
+              await FirebaseCrashlyticsHelper.recordApiError(
+                endpoint: '/api/debug/test',
+                statusCode: 500,
+                method: 'GET',
+                errorMessage: 'Teste de erro de API do Debug Page',
+              );
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                    content: Text('Erro de API enviado para Crashlytics!')),
+              );
+            },
+            icon: const Icon(Icons.api, size: 16),
+            label: const Text('Test API Error'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+            ),
+          ),
+          const SizedBox(height: 8),
+
+          // User Properties Test
+          ElevatedButton.icon(
+            onPressed: () async {
+              await FirebaseAnalyticsHelper.setUserProperties(
+                userId: 'debug_user_${DateTime.now().millisecondsSinceEpoch}',
+                userType: 'debug',
+                city: Environment.flavor,
+                vehicleType: 'test',
+              );
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                    content: Text('Propriedades do usuário definidas!')),
+              );
+            },
+            icon: const Icon(Icons.person, size: 16),
+            label: const Text('Set User Properties'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.green,
+              foregroundColor: Colors.white,
+            ),
+          ),
+          const SizedBox(height: 16),
+          const Divider(),
+          const SizedBox(height: 8),
+
+          // Force Send Reports
+          ElevatedButton.icon(
+            onPressed: () async {
+              final firebaseService = FirebaseService.instance;
+              final hasUnsent = await firebaseService.checkForUnsentReports();
+
+              if (hasUnsent) {
+                await firebaseService.sendUnsentReports();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('📤 Relatórios não enviados foram enviados!'),
+                    backgroundColor: Colors.green,
+                  ),
+                );
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('✅ Não há relatórios pendentes'),
+                    backgroundColor: Colors.blue,
+                  ),
+                );
+              }
+            },
+            icon: const Icon(Icons.upload, size: 16),
+            label: const Text('Force Send Reports'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.purple,
+              foregroundColor: Colors.white,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
