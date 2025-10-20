@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rotativo/screens/widgets/loader.dart';
 
@@ -18,6 +19,7 @@ import 'providers/environment_provider.dart';
 import 'services/notification_service.dart';
 import 'services/parking_notification_service.dart';
 import 'services/local_notification_service.dart';
+import 'services/firebase_service.dart';
 
 // Screens
 import 'screens/splash_screen.dart';
@@ -36,6 +38,16 @@ void main() async {
   // Initialize app environment configuration
   _initializeApp();
 
+  // Initialize Firebase
+  try {
+    await FirebaseService.instance.initialize();
+  } catch (e) {
+    // Firebase initialization failure should not prevent app from starting
+    if (kDebugMode) {
+      print('⚠️ Firebase initialization failed: $e');
+    }
+  }
+
   // Initialize notification service early
   try {
     await LocalNotificationService().initialize();
@@ -46,7 +58,7 @@ void main() async {
   runApp(const ProviderScope(child: RotativoApp()));
 }
 
-/// Configure error handling for pointer events
+/// Configure error handling for pointer events and Firebase Crashlytics
 void _configureErrorHandling() {
   // Configurar tratamento de erros para eventos de ponteiro
   FlutterError.onError = (FlutterErrorDetails details) {
@@ -59,11 +71,27 @@ void _configureErrorHandling() {
       return;
     }
 
+    // Log error to Crashlytics if available
+    FirebaseService.instance.logCrash(
+      details.exception,
+      details.stack,
+      reason: 'Flutter Error: ${details.library ?? 'Unknown'}',
+    );
+
     // Para outros erros, usar o handler padrão
     FlutterError.presentError(details);
   };
 
   // Configurar tratamento de erros assíncronos
+  PlatformDispatcher.instance.onError = (error, stack) {
+    // Log async errors to Crashlytics
+    FirebaseService.instance.logCrash(
+      error,
+      stack,
+      reason: 'Async Error',
+    );
+    return true;
+  };
 }
 
 /// Initialize app configuration
