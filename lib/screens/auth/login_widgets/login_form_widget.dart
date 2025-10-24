@@ -100,7 +100,6 @@ class _LoginFormWidgetState extends ConsumerState<LoginFormWidget> {
                   fillColor: Colors.grey.shade50,
                 ),
               ),
-              const SizedBox(height: 8),
 
               // Checkbox "Lembrar meu CPF"
               Row(
@@ -121,7 +120,7 @@ class _LoginFormWidgetState extends ConsumerState<LoginFormWidget> {
                             .toggleRememberCpf(!rememberCpfState.rememberCpf);
                       },
                       child: const Text(
-                        'Lembrar meu CPF',
+                        'Lembrar meu CPF no próximo acesso',
                         style: TextStyle(
                           fontSize: 14,
                           color: Colors.black87,
@@ -131,7 +130,7 @@ class _LoginFormWidgetState extends ConsumerState<LoginFormWidget> {
                   ),
                 ],
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 8),
 
               // Password Field
               GestureDetector(
