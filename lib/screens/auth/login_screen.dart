@@ -114,7 +114,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   children: [
                     if (_isInitialized) ...[
                       const AppLogoWidget(),
-                      const SizedBox(height: 30),
+                      const SizedBox(height: 10),
                       const BiometricSectionWidget(),
                       LoginFormSectionWidget(
                         formKey: _formKey,
