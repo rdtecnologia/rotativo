@@ -3,13 +3,14 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import '../../../providers/auth_provider.dart';
+import '../../../providers/remember_cpf_provider.dart';
 import '../../../utils/validators.dart';
 import '../../../utils/formatters.dart';
 import '../../widgets/loading_button.dart';
 import '../../widgets/app_text_field.dart';
 import '../register_screen.dart';
 
-class LoginFormWidget extends ConsumerWidget {
+class LoginFormWidget extends ConsumerStatefulWidget {
   final GlobalKey<FormBuilderState> formKey;
   final VoidCallback onLogin;
 
@@ -20,7 +21,32 @@ class LoginFormWidget extends ConsumerWidget {
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<LoginFormWidget> createState() => _LoginFormWidgetState();
+}
+
+class _LoginFormWidgetState extends ConsumerState<LoginFormWidget> {
+  @override
+  void initState() {
+    super.initState();
+    // Inicializar o provider de "Lembrar CPF" quando o widget for criado
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeRememberCpf();
+    });
+  }
+
+  Future<void> _initializeRememberCpf() async {
+    await ref.read(rememberCpfProvider.notifier).initialize();
+    
+    // Se a opção estiver marcada e houver um CPF salvo, preencher o campo
+    final rememberCpfState = ref.read(rememberCpfProvider);
+    if (rememberCpfState.rememberCpf && rememberCpfState.savedCpf != null) {
+      widget.formKey.currentState?.fields['cpf']?.didChange(rememberCpfState.savedCpf);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final rememberCpfState = ref.watch(rememberCpfProvider);
     return Card(
       elevation: 0,
       color: Colors.white.withValues(alpha: 0.6),
@@ -34,7 +60,7 @@ class LoginFormWidget extends ConsumerWidget {
       child: Padding(
         padding: const EdgeInsets.all(24.0),
         child: FormBuilder(
-          key: formKey,
+          key: widget.formKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -74,6 +100,37 @@ class LoginFormWidget extends ConsumerWidget {
                   fillColor: Colors.grey.shade50,
                 ),
               ),
+              const SizedBox(height: 8),
+
+              // Checkbox "Lembrar meu CPF"
+              Row(
+                children: [
+                  Checkbox(
+                    value: rememberCpfState.rememberCpf,
+                    onChanged: (value) {
+                      ref
+                          .read(rememberCpfProvider.notifier)
+                          .toggleRememberCpf(value ?? false);
+                    },
+                  ),
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () {
+                        ref
+                            .read(rememberCpfProvider.notifier)
+                            .toggleRememberCpf(!rememberCpfState.rememberCpf);
+                      },
+                      child: const Text(
+                        'Lembrar meu CPF',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.black87,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
               const SizedBox(height: 16),
 
               // Password Field
@@ -101,10 +158,10 @@ class LoginFormWidget extends ConsumerWidget {
                     onTap: () {
                       // Feedback tátil ao tocar no botão
                       HapticFeedback.mediumImpact();
-                      onLogin();
+                      widget.onLogin();
                     },
                     child: LoadingButton(
-                      onPressed: onLogin,
+                      onPressed: widget.onLogin,
                       isLoading: authState.isLoading,
                       child: const Text(
                         'Entrar',

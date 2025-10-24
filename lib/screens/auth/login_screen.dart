@@ -4,6 +4,7 @@ import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/login_screen_provider.dart';
+import '../../providers/remember_cpf_provider.dart';
 import '../../widgets/parking_background.dart';
 import 'login_widgets/login_widgets.dart';
 
@@ -64,6 +65,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     try {
       // Direct login attempt
       await ref.read(authProvider.notifier).login(cpf, password);
+
+      // Salvar o CPF se o checkbox "Lembrar meu CPF" estiver marcado
+      final rememberCpfState = ref.read(rememberCpfProvider);
+      if (rememberCpfState.rememberCpf) {
+        await ref.read(rememberCpfProvider.notifier).saveCpf(cpf);
+      }
 
       // Navigate to main app after successful login
       if (mounted) {

@@ -14,6 +14,8 @@ class AuthService {
   static const String _tokenKey = 'auth_token';
   static const String _biometricEnabledKey = 'biometric_enabled';
   static const String _storedCredentialsKey = 'stored_credentials';
+  static const String _rememberCpfKey = 'remember_cpf_preference';
+  static const String _savedCpfKey = 'saved_cpf';
 
   // Environment configuration - default to production
   // Removed: Now using centralized Environment configuration
@@ -650,5 +652,70 @@ class AuthService {
         handler.next(options);
       },
     );
+  }
+
+  // ============================================================================
+  // MÉTODOS PARA "LEMBRAR MEU CPF"
+  // ============================================================================
+
+  /// Salva a preferência do usuário em lembrar o CPF
+  static Future<void> setRememberCpfPreference(bool remember) async {
+    try {
+      await _storage.write(
+        key: _rememberCpfKey,
+        value: remember.toString(),
+      );
+    } catch (e) {
+      if (kDebugMode) {
+        AppLogger.error('Erro ao salvar preferência de lembrar CPF: $e');
+      }
+    }
+  }
+
+  /// Obtém a preferência salva de lembrar o CPF
+  static Future<bool> getRememberCpfPreference() async {
+    try {
+      final value = await _storage.read(key: _rememberCpfKey);
+      return value == 'true';
+    } catch (e) {
+      if (kDebugMode) {
+        AppLogger.error('Erro ao obter preferência de lembrar CPF: $e');
+      }
+      return false;
+    }
+  }
+
+  /// Salva o CPF no secure storage
+  static Future<void> saveCpf(String cpf) async {
+    try {
+      await _storage.write(key: _savedCpfKey, value: cpf);
+    } catch (e) {
+      if (kDebugMode) {
+        AppLogger.error('Erro ao salvar CPF: $e');
+      }
+    }
+  }
+
+  /// Obtém o CPF salvo
+  static Future<String?> getSavedCpf() async {
+    try {
+      return await _storage.read(key: _savedCpfKey);
+    } catch (e) {
+      if (kDebugMode) {
+        AppLogger.error('Erro ao obter CPF salvo: $e');
+      }
+      return null;
+    }
+  }
+
+  /// Limpa o CPF salvo
+  static Future<void> clearSavedCpf() async {
+    try {
+      await _storage.delete(key: _savedCpfKey);
+    } catch (e) {
+      if (kDebugMode) {
+        AppLogger.error('Erro ao limpar CPF salvo: $e');
+      }
+    }
   }
 }
