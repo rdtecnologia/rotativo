@@ -106,12 +106,14 @@ class ParkingData {
   final String longitude;
   final String device;
   final int parkingTime;
+  final List<int> tickets;
 
   ParkingData({
     required this.latitude,
     required this.longitude,
     required this.device,
     required this.parkingTime,
+    required this.tickets,
   });
 
   Map<String, dynamic> toJson() {
@@ -120,6 +122,7 @@ class ParkingData {
       'longitude': longitude,
       'device': device,
       'parkingTime': parkingTime,
+      'tickets': tickets,
     };
   }
 }
@@ -198,7 +201,8 @@ class Activation {
       parkingTime: json['parkingTime'] ?? 0,
       origin: json['origin']?.toString() ?? '',
       product: Product.fromJson(json['product'] as Map<String, dynamic>? ?? {}),
-      activatedAt: AppDateUtils.DateUtils.parseUtcDate(json['activatedAt']?.toString()),
+      activatedAt:
+          AppDateUtils.DateUtils.parseUtcDate(json['activatedAt']?.toString()),
     );
   }
 
@@ -255,7 +259,8 @@ class ActivationDetail {
           ? AppDateUtils.DateUtils.parseUtcDate(json['scheduledAt'])
           : null,
       area: json['area']?.toString(),
-      transactionDate: AppDateUtils.DateUtils.parseUtcDate(json['transactionDate']?.toString()),
+      transactionDate: AppDateUtils.DateUtils.parseUtcDate(
+          json['transactionDate']?.toString()),
     );
   }
 
@@ -276,9 +281,11 @@ class ActivationDetail {
   }
 
   bool get hasLocation => latitude != null && longitude != null;
-  
-  double? get latitudeDouble => latitude != null ? double.tryParse(latitude!) : null;
-  double? get longitudeDouble => longitude != null ? double.tryParse(longitude!) : null;
+
+  double? get latitudeDouble =>
+      latitude != null ? double.tryParse(latitude!) : null;
+  double? get longitudeDouble =>
+      longitude != null ? double.tryParse(longitude!) : null;
 }
 
 // Parking state
@@ -325,7 +332,8 @@ class ParkingState {
       selectedCredits: selectedCredits ?? this.selectedCredits,
       isLoadingTickets: isLoadingTickets ?? this.isLoadingTickets,
       isLoadingParking: isLoadingParking ?? this.isLoadingParking,
-      isLoadingActivationDetail: isLoadingActivationDetail ?? this.isLoadingActivationDetail,
+      isLoadingActivationDetail:
+          isLoadingActivationDetail ?? this.isLoadingActivationDetail,
       error: clearError ? null : (error ?? this.error),
     );
   }

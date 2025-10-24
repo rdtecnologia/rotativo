@@ -174,20 +174,20 @@ class ParkingService {
 
       final dio = await _getDio();
 
-      // Create ticket params string like React Native
-      final ticketParams = ticketIds.join(',');
-      final url = '/ticket/activate/$licensePlate/[$ticketParams]';
+      // Simplified URL without ticket IDs
+      final url = '/ticket/activate/$licensePlate';
 
       if (kDebugMode) {
         AppLogger.parking('Request URL: $url');
       }
 
-      // Create ParkingData following React Native pattern
+      // Create ParkingData with ticket IDs in body
       final parkingData = ParkingData(
         latitude: latitude,
         longitude: longitude,
         device: device,
         parkingTime: parkingTime,
+        tickets: ticketIds,
       );
 
       if (kDebugMode) {

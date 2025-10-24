@@ -150,3 +150,9 @@ O Analytics continua funcionando normalmente em todos os modos. Não requer conf
 
 Agora os testes na Debug Page funcionam corretamente e os dados são enviados para o Firebase Console, permitindo validação completa da integração do Firebase com flavors!
 
+
+
+
+
+
+

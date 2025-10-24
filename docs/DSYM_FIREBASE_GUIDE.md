@@ -225,3 +225,9 @@ ios/
 
 **💡 Dica**: Faça upload do dSYM sempre que fizer um novo build para produção!
 
+
+
+
+
+
+
