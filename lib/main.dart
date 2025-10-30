@@ -98,7 +98,7 @@ void _configureErrorHandling() {
 /// Change Environment.setEnvironment('dev') to switch to development
 void _initializeApp() {
   // 🔧 CONFIGURE ENVIRONMENT HERE:
-  Environment.setEnvironment('dev'); // Use development APIs (default)
+  Environment.setEnvironment('prod'); // Use development APIs (default)
   //Environment.setEnvironment('prod'); // Use production APIs
 
   // Print current configuration for debugging
@@ -197,6 +197,7 @@ class RotativoApp extends ConsumerWidget {
 
         return MaterialApp(
           title: title,
+          debugShowCheckedModeBanner: false,
           theme: ThemeData(
             colorScheme: colorScheme,
             useMaterial3: true,
