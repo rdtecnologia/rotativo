@@ -6,13 +6,39 @@ Configurar o app para permitir **apenas orientação portrait (retrato)**, bloqu
 
 ## 📱 **Alterações Implementadas**
 
-### **1. Android - AndroidManifest.xml**
+### **1. Android - Implementação Programática**
+
+#### **1.1. MainActivity.kt**
+
+**Arquivo:** `android/app/src/main/kotlin/com/example/rotativo/MainActivity.kt`
+
+**Implementação:**
+```kotlin
+package com.example.rotativo
+
+import android.content.pm.ActivityInfo
+import android.os.Bundle
+import io.flutter.embedding.android.FlutterFragmentActivity
+
+class MainActivity : FlutterFragmentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        // Forçar orientação portrait via código
+        // Necessário para Android 8.0+ quando usando temas translúcidos
+        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+    }
+}
+```
+
+**Explicação:** A orientação portrait é configurada programaticamente no método `onCreate` da `MainActivity`. Esta abordagem é necessária porque a partir do Android 8.0 (API 26), activities com tema translúcido (`Theme.Translucent.NoTitleBar`) não podem usar `android:screenOrientation` no manifest, causando o erro: `"Only fullscreen opaque activities can request orientation"`.
+
+#### **1.2. AndroidManifest.xml**
 
 **Arquivo:** `android/app/src/main/AndroidManifest.xml`
 
-**Mudança:**
+**Importante:** O `AndroidManifest.xml` **não deve** conter `android:screenOrientation="portrait"` na tag `<activity>`. A orientação é controlada exclusivamente via código no `MainActivity.kt`.
+
 ```xml
-<!-- ANTES -->
 <activity
     android:name=".MainActivity"
     android:exported="true"
@@ -23,22 +49,9 @@ Configurar o app para permitir **apenas orientação portrait (retrato)**, bloqu
     android:hardwareAccelerated="true"
     android:windowSoftInputMode="adjustResize"
     android:windowDisablePreview="true">
-
-<!-- DEPOIS -->
-<activity
-    android:name=".MainActivity"
-    android:exported="true"
-    android:launchMode="singleTop"
-    android:taskAffinity=""
-    android:theme="@style/LaunchTheme"
-    android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
-    android:hardwareAccelerated="true"
-    android:windowSoftInputMode="adjustResize"
-    android:windowDisablePreview="true"
-    android:screenOrientation="portrait">
+    <!-- NÃO incluir android:screenOrientation aqui -->
+</activity>
 ```
-
-**Explicação:** Adicionada a propriedade `android:screenOrientation="portrait"` que força o app a permanecer em modo retrato.
 
 ### **2. iOS - Info.plist**
 
@@ -130,8 +143,11 @@ Para confirmar que as configurações estão corretas:
 
 ### **Android:**
 ```bash
-# Verificar se a configuração está no manifest
+# Verificar que NÃO há screenOrientation no manifest (deve retornar vazio)
 grep -A 10 "MainActivity" android/app/src/main/AndroidManifest.xml | grep screenOrientation
+
+# Verificar implementação no MainActivity.kt
+grep -A 5 "requestedOrientation" android/app/src/main/kotlin/com/example/rotativo/MainActivity.kt
 ```
 
 ### **iOS:**
@@ -147,11 +163,12 @@ grep -A 5 "UISupportedInterfaceOrientations~ipad" ios/Runner/Info.plist
 2. **Configuração Global**: Aplica-se a todo o app, não apenas telas específicas
 3. **Compatibilidade**: Funciona em todas as versões suportadas do Android/iOS
 4. **Build Necessário**: Requer rebuild completo do app para aplicar as mudanças
+5. **Android 8.0+**: A implementação programática no `MainActivity.kt` é necessária para evitar crash em devices Android 8.0+ quando usando temas translúcidos. O `android:screenOrientation` no manifest causaria o erro `"Only fullscreen opaque activities can request orientation"`.
 
 ## 🔄 **Para Reverter (se necessário)**
 
 ### **Android:**
-Remover a linha `android:screenOrientation="portrait"` do AndroidManifest.xml
+Remover a linha `requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT` do método `onCreate` em `MainActivity.kt`
 
 ### **iOS:**
 Restaurar as orientações landscape nos arrays do Info.plist:

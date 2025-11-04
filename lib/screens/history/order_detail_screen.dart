@@ -694,17 +694,15 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
   @override
   void initState() {
     super.initState();
-    // Load order details when screen opens
+    // Clear previous order detail and load new order details when screen opens
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(orderDetailProvider.notifier).loadOrderDetail(widget.orderId);
+      if (mounted) {
+        // Clear previous state before loading new data
+        ref.read(orderDetailProvider.notifier).clearOrderDetail();
+        // Load order details for the current screen
+        ref.read(orderDetailProvider.notifier).loadOrderDetail(widget.orderId);
+      }
     });
-  }
-
-  @override
-  void dispose() {
-    // Clear order detail when leaving screen
-    ref.read(orderDetailProvider.notifier).clearOrderDetail();
-    super.dispose();
   }
 
   void _copyToClipboard(String text, String successMessage) {

@@ -23,10 +23,14 @@ class ChooseValueScreen extends ConsumerStatefulWidget {
 
 class _ChooseValueScreenState extends ConsumerState<ChooseValueScreen> {
   @override
-  void dispose() {
-    // Reset do provider quando a tela for descartada
-    ref.read(chooseValueProvider.notifier).reset();
-    super.dispose();
+  void initState() {
+    super.initState();
+    // Reset do provider quando a tela é inicializada para garantir estado limpo
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        ref.read(chooseValueProvider.notifier).reset();
+      }
+    });
   }
 
   void _selectProduct(
