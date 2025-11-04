@@ -647,6 +647,7 @@ class AuthService {
 
           // Continue without auth headers
           handler.next(options);
+          return; // Prevent double call to handler
         }
 
         handler.next(options);
