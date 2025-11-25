@@ -32,6 +32,12 @@ void main() async {
   // Ensure Flutter binding is initialized
   WidgetsFlutterBinding.ensureInitialized();
 
+  // Lock orientation to portrait mode
+  // Must be done at Flutter level to avoid conflicts with translucent Android theme
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+  ]);
+
   // Configurar tratamento de erros para eventos de ponteiro
   _configureErrorHandling();
 
