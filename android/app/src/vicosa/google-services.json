@@ -7,9 +7,9 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:873535722783:android:6b5fd5742393f2b90a8c2a",
+        "mobilesdk_app_id": "1:873535722783:android:8a3dba355fce4a0c0a8c2a",
         "android_client_info": {
-          "package_name": "com.rotativodigitalvicosard"
+          "package_name": "com.rotativodigitalvicosa"
         }
       },
       "oauth_client": [],

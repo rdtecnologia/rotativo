@@ -59,7 +59,7 @@ android {
         }
         create("vicosa") {
             dimension = "city"
-            applicationId = "com.rotativodigitalvicosard"
+            applicationId = "com.rotativodigitalvicosa"
             resValue("string", "app_name", "Rotativo Viçosa")
         }
     }

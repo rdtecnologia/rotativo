@@ -12,17 +12,17 @@
         {
             "label": "Build APK Ouro Preto",
             "type": "shell",
-            "command": "flutter build apk --release --flavor ouroPreto --dart-define-from-file=env/ouroPreto.json --target=lib/main.dart"
+            "command": "flutter build apk --release --flavor=ouroPreto --dart-define-from-file=env/ouroPreto.json --target=lib/main.dart"
         },
         {
             "label": "Build AAB Ouro Preto",
             "type": "shell",
-            "command": "flutter build appbundle --release --flavor ouroPreto --dart-define-from-file=env/ouroPreto.json --target=lib/main.dart"
+            "command": "flutter build appbundle --release --flavor=ouroPreto --dart-define-from-file=env/ouroPreto.json --target=lib/main.dart"
         },
         {
             "label": "Build IPA Ouro Preto",
             "type": "shell",
-            "command": "flutter build ipa --flavor ouroPreto -t lib/main.dart --dart-define-from-file=env/ouroPreto.json --release --export-options-plist=ios/exportOptions-ouroPreto.plist"
+            "command": "flutter build ipa --flavor=ouroPreto -t lib/main.dart --dart-define-from-file=env/ouroPreto.json --release --export-options-plist=ios/exportOptions-ouroPreto.plist"
         },
         {
             "label": "Renomear APK Ouro Preto",
