@@ -35,7 +35,7 @@ class _ParkingMapState extends State<ParkingMap> {
   @override
   void didUpdateWidget(ParkingMap oldWidget) {
     super.didUpdateWidget(oldWidget);
-    
+
     // Reset timeout if location was found
     if (widget.currentPosition != null && oldWidget.currentPosition == null) {
       _cancelLocationTimer();
@@ -43,7 +43,7 @@ class _ParkingMapState extends State<ParkingMap> {
         _showLocationTimeout = false;
       });
     }
-    
+
     // Restart timer if started getting location again
     if (widget.isGettingLocation && !oldWidget.isGettingLocation) {
       _startLocationTimer();
@@ -58,7 +58,9 @@ class _ParkingMapState extends State<ParkingMap> {
 
   void _startLocationTimer() {
     _cancelLocationTimer();
-    if (widget.shareLocation && widget.currentPosition == null && widget.isGettingLocation) {
+    if (widget.shareLocation &&
+        widget.currentPosition == null &&
+        widget.isGettingLocation) {
       _locationTimer = Timer(const Duration(seconds: 4), () {
         if (mounted && widget.currentPosition == null) {
           setState(() {
