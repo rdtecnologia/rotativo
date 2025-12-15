@@ -35,11 +35,14 @@ class _ParkingScreenState extends ConsumerState<ParkingScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         ref.read(parkingProvider.notifier).forceClear();
-        // Iniciar obtenção de localização após o primeiro frame
-        _getCurrentLocation();
+        // Iniciar obtenção de localização após o primeiro frame apenas se compartilhamento estiver ativo
+        final locationSettings = ref.read(locationSettingsProvider);
+        if (locationSettings.shareLocation) {
+          _getCurrentLocation();
+        }
         if (kDebugMode) {
           print(
-              '🔄 ParkingScreen.initState - Force cleared all state and started location');
+              '🔄 ParkingScreen.initState - Force cleared all state. Location sharing: ${locationSettings.shareLocation}');
         }
       }
     });
@@ -105,19 +108,6 @@ class _ParkingScreenState extends ConsumerState<ParkingScreen> {
         scaffoldMessenger.showSnackBar(
           const SnackBar(
             content: Text('Selecione o tempo de estacionamento'),
-            backgroundColor: Colors.orange,
-          ),
-        );
-      }
-      return;
-    }
-
-    final locationSettings = ref.read(locationSettingsProvider);
-    if (locationSettings.shareLocation && currentPosition == null) {
-      if (mounted) {
-        scaffoldMessenger.showSnackBar(
-          const SnackBar(
-            content: Text('Aguarde a obtenção da localização atual'),
             backgroundColor: Colors.orange,
           ),
         );
@@ -205,6 +195,7 @@ class _ParkingScreenState extends ConsumerState<ParkingScreen> {
       if (confirmed != true) return;
 
       // Activate parking
+      final locationSettings = ref.read(locationSettingsProvider);
       final parkingResponse =
           await ref.read(parkingProvider.notifier).activateParking(
                 licensePlate: widget.vehicle.licensePlate,

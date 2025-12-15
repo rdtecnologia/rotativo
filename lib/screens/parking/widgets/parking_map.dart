@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -21,8 +22,57 @@ class ParkingMap extends StatefulWidget {
 }
 
 class _ParkingMapState extends State<ParkingMap> {
-  GoogleMapController? _controller;
   bool _mapLoadError = false;
+  bool _showLocationTimeout = false;
+  Timer? _locationTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    _startLocationTimer();
+  }
+
+  @override
+  void didUpdateWidget(ParkingMap oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    
+    // Reset timeout if location was found
+    if (widget.currentPosition != null && oldWidget.currentPosition == null) {
+      _cancelLocationTimer();
+      setState(() {
+        _showLocationTimeout = false;
+      });
+    }
+    
+    // Restart timer if started getting location again
+    if (widget.isGettingLocation && !oldWidget.isGettingLocation) {
+      _startLocationTimer();
+    }
+  }
+
+  @override
+  void dispose() {
+    _cancelLocationTimer();
+    super.dispose();
+  }
+
+  void _startLocationTimer() {
+    _cancelLocationTimer();
+    if (widget.shareLocation && widget.currentPosition == null && widget.isGettingLocation) {
+      _locationTimer = Timer(const Duration(seconds: 4), () {
+        if (mounted && widget.currentPosition == null) {
+          setState(() {
+            _showLocationTimeout = true;
+          });
+        }
+      });
+    }
+  }
+
+  void _cancelLocationTimer() {
+    _locationTimer?.cancel();
+    _locationTimer = null;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -36,8 +86,63 @@ class _ParkingMapState extends State<ParkingMap> {
       ),
       child: Stack(
         children: [
+          // Se não está compartilhando localização, mostrar apenas ícone
+          if (!widget.shareLocation)
+            Stack(
+              children: [
+                // Background color base (tom claro da cor primária)
+                Container(
+                  width: double.infinity,
+                  height: double.infinity,
+                  color: Theme.of(context).primaryColor.withValues(alpha: 0.15),
+                ),
+                // Background image translúcida
+                Container(
+                  width: double.infinity,
+                  height: double.infinity,
+                  decoration: const BoxDecoration(
+                    image: DecorationImage(
+                      image: AssetImage('assets/images/parking_background.png'),
+                      fit: BoxFit.cover,
+                      colorFilter: ColorFilter.mode(
+                        Color.fromRGBO(255, 255, 255, 0.3),
+                        BlendMode.modulate,
+                      ),
+                    ),
+                  ),
+                ),
+                // Gradient overlay suave
+                Container(
+                  width: double.infinity,
+                  height: double.infinity,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        Theme.of(context).primaryColor.withValues(alpha: 0.2),
+                        Theme.of(context).primaryColor.withValues(alpha: 0.15),
+                        Theme.of(context).primaryColor.withValues(alpha: 0.1),
+                      ],
+                      stops: const [0.0, 0.5, 1.0],
+                    ),
+                  ),
+                ),
+                // Ícone
+                Padding(
+                  padding: const EdgeInsets.only(top: 70),
+                  child: Center(
+                    child: Icon(
+                      Icons.location_pin,
+                      size: 80,
+                      color: Theme.of(context).primaryColor,
+                    ),
+                  ),
+                ),
+              ],
+            )
           // Real Google Map
-          if (widget.currentPosition != null && !_mapLoadError)
+          else if (widget.currentPosition != null && !_mapLoadError)
             GoogleMap(
               initialCameraPosition: CameraPosition(
                 target: LatLng(
@@ -47,7 +152,6 @@ class _ParkingMapState extends State<ParkingMap> {
                 zoom: 16.0,
               ),
               onMapCreated: (GoogleMapController controller) {
-                _controller = controller;
                 debugPrint('✅ Google Maps carregado com sucesso');
                 debugPrint(
                     '📍 Posição: ${widget.currentPosition!.latitude}, ${widget.currentPosition!.longitude}');
@@ -149,7 +253,7 @@ class _ParkingMapState extends State<ParkingMap> {
                 ),
               ),
             )
-          else if (widget.isGettingLocation)
+          else if (widget.isGettingLocation && !_showLocationTimeout)
             Container(
               width: double.infinity,
               height: double.infinity,
@@ -181,59 +285,58 @@ class _ParkingMapState extends State<ParkingMap> {
               ),
             )
           else
-            Container(
-              width: double.infinity,
-              height: double.infinity,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Colors.blue.shade100,
-                    Colors.blue.shade200,
-                  ],
+            Stack(
+              children: [
+                // Background color base (tom claro da cor primária)
+                Container(
+                  width: double.infinity,
+                  height: double.infinity,
+                  color: Theme.of(context).primaryColor.withValues(alpha: 0.15),
                 ),
-              ),
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.location_off,
-                      size: 48,
-                      color: Colors.grey[600],
-                    ),
-                    const SizedBox(height: 16),
-                    const Text(
-                      'Localização não disponível',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black87,
+                // Background image translúcida
+                Container(
+                  width: double.infinity,
+                  height: double.infinity,
+                  decoration: const BoxDecoration(
+                    image: DecorationImage(
+                      image: AssetImage('assets/images/parking_background.png'),
+                      fit: BoxFit.cover,
+                      colorFilter: ColorFilter.mode(
+                        Color.fromRGBO(255, 255, 255, 0.3),
+                        BlendMode.modulate,
                       ),
                     ),
-                    const SizedBox(height: 8),
-                    const Text(
-                      'Para estacionar, precisamos da sua localização',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.black54,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    ElevatedButton.icon(
-                      onPressed: widget.onRetryLocation,
-                      icon: const Icon(Icons.refresh),
-                      label: const Text('Tentar Novamente'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Theme.of(context).primaryColor,
-                        foregroundColor: Colors.white,
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
-              ),
+                // Gradient overlay suave
+                Container(
+                  width: double.infinity,
+                  height: double.infinity,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        Theme.of(context).primaryColor.withValues(alpha: 0.2),
+                        Theme.of(context).primaryColor.withValues(alpha: 0.15),
+                        Theme.of(context).primaryColor.withValues(alpha: 0.1),
+                      ],
+                      stops: const [0.0, 0.5, 1.0],
+                    ),
+                  ),
+                ),
+                // Ícone
+                Padding(
+                  padding: const EdgeInsets.only(top: 70),
+                  child: Center(
+                    child: Icon(
+                      Icons.location_pin,
+                      size: 80,
+                      color: Theme.of(context).primaryColor,
+                    ),
+                  ),
+                ),
+              ],
             ),
 
           // Info overlay
@@ -254,26 +357,14 @@ class _ParkingMapState extends State<ParkingMap> {
                   ),
                 ],
               ),
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.info_outline,
-                    color: Colors.blue.shade600,
-                    size: 20,
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      widget.shareLocation
-                          ? 'Sua localização será registrada no momento do estacionamento'
-                          : 'Sua localização não será registrada no momento do estacionamento conforme sua permissão. Altere a permissão para registrar.',
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: Colors.black87,
-                      ),
-                    ),
-                  ),
-                ],
+              child: Text(
+                'Prossiga com a ativação.',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).primaryColor,
+                ),
+                textAlign: TextAlign.center,
               ),
             ),
           ),
