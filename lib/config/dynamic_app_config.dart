@@ -190,6 +190,12 @@ class DynamicAppConfig {
     return config['balance'] ?? {};
   }
 
+  /// Get price per credit from config
+  static Future<double> get pricePerCredit async {
+    final config = await _loadConfig();
+    return (config['pricePerCredit'] ?? 0.50).toDouble();
+  }
+
   static Future<String?> get parkingRulesText async {
     final config = await _loadConfig();
     return config['parkingRulesText'];

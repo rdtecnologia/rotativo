@@ -75,8 +75,8 @@ class _ChooseValueScreenState extends ConsumerState<ChooseValueScreen> {
         throw Exception('Produtos para este tipo de veículo não encontrados');
       }
 
-      // Usar o valor fixo por crédito conforme a configuração da cidade
-      const double pricePerCredit = 0.50; // R$ 0,50 por crédito
+      // Obter o preço por crédito da configuração da cidade
+      final double pricePerCredit = await DynamicAppConfig.pricePerCredit;
 
       // Calcular quantos créditos o usuário deve receber pelo valor digitado
       final calculatedCredits =

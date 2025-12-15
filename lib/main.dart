@@ -104,7 +104,7 @@ void _configureErrorHandling() {
 /// Change Environment.setEnvironment('dev') to switch to development
 void _initializeApp() {
   // 🔧 CONFIGURE ENVIRONMENT HERE:
-  Environment.setEnvironment('dev'); // dev | prod
+  Environment.setEnvironment('prod'); // dev | prod
   //Environment.setEnvironment('prod'); // Use production APIs
 
   // Print current configuration for debugging
