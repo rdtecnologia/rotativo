@@ -293,6 +293,33 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
   }
 
+  // Update user profile
+  Future<void> updateUser({
+    required String name,
+    required String email,
+    required String phone,
+  }) async {
+    try {
+      state = state.copyWith(isLoading: true, error: null);
+      final updatedUser = await AuthService.updateUser(
+        name: name,
+        email: email,
+        phone: phone,
+      );
+      state = state.copyWith(
+        user: updatedUser,
+        isLoading: false,
+        error: null,
+      );
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        error: e.toString(),
+      );
+      rethrow;
+    }
+  }
+
   /// Habilita autenticação biométrica
   Future<bool> enableBiometricAuth() async {
     try {

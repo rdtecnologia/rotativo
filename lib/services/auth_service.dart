@@ -308,6 +308,41 @@ class AuthService {
     }
   }
 
+  // Update user profile
+  static Future<User> updateUser({
+    required String name,
+    required String email,
+    required String phone,
+  }) async {
+    try {
+      final dio = _createAuthenticatedDio('REGISTER');
+
+      // Remove phone mask - send only numbers
+      final cleanPhone = phone.replaceAll(RegExp(r'[^\d]'), '');
+
+      // Update user data
+      await dio.put('/driver', data: {
+        'name': name,
+        'email': email,
+        'mobile': cleanPhone, // API expects 'mobile' not 'phone', without mask
+      });
+
+      // Fetch updated user data from API (similar to React Native app behavior)
+      // The PUT response may not return the full user object, so we fetch it
+      final updatedUser = await getCurrentUser();
+      
+      if (updatedUser == null) {
+        throw Exception('Erro ao obter dados atualizados do usuário');
+      }
+
+      return updatedUser;
+    } on DioException catch (e) {
+      throw _handleDioError(e);
+    } catch (e) {
+      throw Exception('Erro ao atualizar dados: $e');
+    }
+  }
+
   // Storage methods
   static Future<void> _storeUserData(User user) async {
     await _storage.write(key: _userKey, value: jsonEncode(user.toJson()));

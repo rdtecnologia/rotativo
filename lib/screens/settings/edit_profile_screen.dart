@@ -6,6 +6,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/edit_profile_provider.dart';
 import '../../models/auth_models.dart';
+import '../../services/auth_service.dart';
 import '../../utils/formatters.dart';
 
 class EditProfileScreen extends ConsumerStatefulWidget {
@@ -21,11 +22,21 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   @override
   void initState() {
     super.initState();
-    // Inicializa o provider com os dados do usuário atual
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final user = ref.read(currentUserProvider);
-      if (user != null) {
-        ref.read(editProfileNotifierProvider).initializeWithUser(user);
+    // Busca dados atualizados da API ao entrar na tela
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      try {
+        // Busca dados frescos da API
+        final freshUser = await AuthService.getCurrentUser();
+        if (freshUser != null && mounted) {
+          // Inicializa o formulário com dados frescos da API
+          ref.read(editProfileNotifierProvider).initializeWithUser(freshUser);
+        }
+      } catch (e) {
+        // Se falhar ao buscar da API, usa dados cacheados
+        final user = ref.read(currentUserProvider);
+        if (user != null) {
+          ref.read(editProfileNotifierProvider).initializeWithUser(user);
+        }
       }
     });
   }
@@ -332,8 +343,14 @@ class _UpdateButton extends ConsumerWidget {
     ref.read(editProfileNotifierProvider).setLoading(true);
 
     try {
-      // Simulate API call
-      await Future.delayed(const Duration(seconds: 2));
+      final formData = formKey.currentState!.value;
+
+      // Chama API real para atualizar dados
+      await ref.read(authProvider.notifier).updateUser(
+            name: formData['name']?.toString().trim() ?? '',
+            email: formData['email']?.toString().trim() ?? '',
+            phone: formData['phone']?.toString().trim() ?? '',
+          );
 
       if (context.mounted) {
         Fluttertoast.showToast(
